@@ -114,3 +114,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore downloaded base model
+albert_base

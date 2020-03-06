@@ -13,25 +13,25 @@ There are three major components to this respository:
 ### Setting up
 
 ```
-## General conda preperation
+## (OPTIONAL) General conda preperation
 conda update conda
 conda update --all
 conda info # verify platform is 64 bit
 curl https://sh.rustup.rs -sSf | sh # only on mac os
 
-## Create conda environment with necessary packages
+## Create conda environment with necessary packages, where pytorch may vary pending system but is at pytorch.org
 conda create -n transformers python=3.7
 conda activate transformers
 pip install --upgrade pip
 pip install --upgrade tensorflow
 conda install pytorch torchvision -c pytorch
 
-## Make environment available in Jupyter, and install things needed for 'Transformers' notebooks
+
+## (OPTIONAL) Make environment available in Jupyter, and install things needed for 'Transformers' notebooks
 conda install -n transformers ipykernel
 conda install -c anaconda jupyter
 conda install -c conda-forge ipywidgets
 conda update nbformat
-
 python -m ipykernel install --user --name=transformers
 
 ## Install the 'Transformers' package

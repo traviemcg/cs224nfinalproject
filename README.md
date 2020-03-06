@@ -13,17 +13,39 @@ There are three major components to this respository:
 ### Setting up
 
 ```
+## General conda preperation
 conda update conda
 conda update --all
 conda info # verify platform is 64 bit
-curl https://sh.rustup.rs -sSf | sh # mac os
+curl https://sh.rustup.rs -sSf | sh # only on mac os
 
+## Create conda environment with necessary packages
 conda create -n transformers python=3.7
 conda activate transformers
 pip install --upgrade pip
 pip install --upgrade tensorflow
 conda install pytorch torchvision -c pytorch
 
+## Make environment available in Jupyter, and install things needed for 'Transformers' notebooks
+conda install -n transformers ipykernel
+conda install -c anaconda jupyter
+conda install -c conda-forge ipywidgets
+conda update nbformat
+
+python -m ipykernel install --user --name=transformers
+
+## Install the 'Transformers' package
 cd transformers-master
 pip install .
+
+
+```
+
+### Using models
+
+We are going to run eval with a Transformer [community fine-tuned ALBERT](https://huggingface.co/ktrapeznikov/albert-xlarge-v2-squad-v2)
+
+```
+cd transformers-master/examples
+python run_squad.py --model_type albert --model_name_or_path ktrapeznikov/albert-xlarge-v2-squad-v2 --do_eval --do_lower_case --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xlarge_fine/
 ```

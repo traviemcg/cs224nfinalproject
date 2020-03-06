@@ -45,7 +45,16 @@ pip install .
 
 We are going to run eval with a Transformer [community fine-tuned ALBERT](https://huggingface.co/ktrapeznikov/albert-xlarge-v2-squad-v2)
 
+If you would like to use a tmux session ...
+```
+tmux new -s albert_xxlarge
+tmux detach # disconnect using
+tmux a -t albert_xxlarge # reconnect using
+```
+
 ```
 cd transformers-master/examples
-python run_squad.py --model_type albert --model_name_or_path ktrapeznikov/albert-xlarge-v2-squad-v2 --do_eval --do_lower_case --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xlarge_fine/
+conda activate transformers
+export SQUAD_DIR=../../squad-master/data/
+python run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
 ```

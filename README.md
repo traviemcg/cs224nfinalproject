@@ -26,7 +26,6 @@ pip install --upgrade pip
 pip install --upgrade tensorflow
 conda install pytorch torchvision -c pytorch
 
-
 ## (OPTIONAL) Make environment available in Jupyter, and install things needed for 'Transformers' notebooks
 conda install -n transformers ipykernel
 conda install -c anaconda jupyter
@@ -37,8 +36,6 @@ python -m ipykernel install --user --name=transformers
 ## Install the 'Transformers' package
 cd transformers-master
 pip install .
-
-
 ```
 
 ### Using models
@@ -53,7 +50,7 @@ conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 ```
 
-Then use the community models
+Then use the community models, starting with xlarge_v2.
 
 ```
 tmux new -s albert_xlarge
@@ -63,9 +60,12 @@ tmux detach
 ```
 
 This gives the results for albert_xlarge_v2 as:
+
 ```
 Results: {'exact': 84.33695294504771, 'f1': 87.35841153592796, 'total': 6078, 'HasAns_exact': 81.47766323024055, 'HasAns_f1': 87.78846230768734, 'HasAns_total': 2910, 'NoAns_exact': 86.96338383838383, 'NoAns_f1': 86.96338383838383, 'NoAns_total': 3168, 'best_exact': 84.33695294504771, 'best_exact_thresh': 0.0, 'best_f1': 87.35841153592791, 'best_f1_thresh': 0.0}
 ```
+
+Then xxlage_v1.
 
 ```
 tmux new -s albert_xxlarge
@@ -75,11 +75,12 @@ tmux detach
 ```
 
 This gives the results for albert_xxlarge_v1 as:
+
 ```
 Results: {'exact': 85.32411977624218, 'f1': 88.83829560426527, 'total': 6078, 'HasAns_exact': 82.61168384879726, 'HasAns_f1': 89.95160160918354, 'HasAns_total': 2910, 'NoAns_exact': 87.81565656565657, 'NoAns_f1': 87.81565656565657, 'NoAns_total': 3168, 'best_exact': 85.32411977624218, 'best_exact_thresh': 0.0, 'best_f1': 88.83829560426533, 'best_f1_thresh': 0.0}
 ```
 
-Then, for training our own ALBERT, let's train ALBERT v2 base on SQuAD v2.
+For training our own ALBERT, let's train ALBERT v2 base on SQuAD v2.
 
 ```
 tmux new -s albert_base

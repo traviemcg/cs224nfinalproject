@@ -18,21 +18,27 @@ conda update conda
 conda update --all
 conda info # verify platform is 64 bit
 curl https://sh.rustup.rs -sSf | sh # only on mac os
+```
 
+```
 ## Create conda environment with necessary packages, where pytorch may vary pending system but is at pytorch.org
 conda create -n transformers python=3.7
 conda activate transformers
 pip install --upgrade pip
 pip install --upgrade tensorflow
 conda install pytorch torchvision -c pytorch
+```
 
+```
 ## (OPTIONAL) Make environment available in Jupyter, and install things needed for 'Transformers' notebooks
 conda install -n transformers ipykernel
 conda install -c anaconda jupyter
 conda install -c conda-forge ipywidgets
 conda update nbformat
 python -m ipykernel install --user --name=transformers
+```
 
+```
 ## Install the 'Transformers' package
 cd transformers-master
 pip install .
@@ -40,9 +46,7 @@ pip install .
 
 ### Using models
 
-We are going to run eval with a Transformer community fine-tuned ALBERT [xlarge_v2](https://huggingface.co/ktrapeznikov/albert-xlarge-v2-squad-v2) and [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512).
-
-First a little general preperation
+Using either community or our own models, let's do a little legwork to get started.
 
 ```
 cd transformers-master/examples
@@ -50,41 +54,49 @@ conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 ```
 
-Then use the community models, starting with xlarge_v2.
+#### Community models
+
+We are going to run eval with a Transformer community fine-tuned ALBERT [xlarge_v2](https://huggingface.co/ktrapeznikov/albert-xlarge-v2-squad-v2) and [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512).
+
+_xlarge_v2_
 
 ```
 tmux new -s albert_xlarge
 tmux a -t albert_xlarge
+
 python run_squad.py --model_type albert --model_name_or_path ktrapeznikov/albert-xlarge-v2-squad-v2 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xlarge_fine/
+
 tmux detach
 ```
-
-This gives the results for albert_xlarge_v2 as:
 
 ```
 Results: {'exact': 84.33695294504771, 'f1': 87.35841153592796, 'total': 6078, 'HasAns_exact': 81.47766323024055, 'HasAns_f1': 87.78846230768734, 'HasAns_total': 2910, 'NoAns_exact': 86.96338383838383, 'NoAns_f1': 86.96338383838383, 'NoAns_total': 3168, 'best_exact': 84.33695294504771, 'best_exact_thresh': 0.0, 'best_f1': 87.35841153592791, 'best_f1_thresh': 0.0}
 ```
 
-Then xxlage_v1.
+_xx_large_v1_
 
 ```
 tmux new -s albert_xxlarge
 tmux a -t albert_xxlarge
+
 python run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 512 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
+
 tmux detach
 ```
-
-This gives the results for albert_xxlarge_v1 as:
 
 ```
 Results: {'exact': 85.32411977624218, 'f1': 88.83829560426527, 'total': 6078, 'HasAns_exact': 82.61168384879726, 'HasAns_f1': 89.95160160918354, 'HasAns_total': 2910, 'NoAns_exact': 87.81565656565657, 'NoAns_f1': 87.81565656565657, 'NoAns_total': 3168, 'best_exact': 85.32411977624218, 'best_exact_thresh': 0.0, 'best_f1': 88.83829560426533, 'best_f1_thresh': 0.0}
 ```
 
-For training our own ALBERT, let's train ALBERT v2 base on SQuAD v2.
+#### Training our own
+
+We're training our own _base_v2_ on SQuAD from the pretrained albert base.
 
 ```
 tmux new -s albert_base
 tmux a -t albert_base
+
 python run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/
+
 tmux detach
 ```

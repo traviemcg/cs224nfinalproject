@@ -73,7 +73,7 @@ tmux detach
 Results: {'exact': 84.33695294504771, 'f1': 87.35841153592796, 'total': 6078, 'HasAns_exact': 81.47766323024055, 'HasAns_f1': 87.78846230768734, 'HasAns_total': 2910, 'NoAns_exact': 86.96338383838383, 'NoAns_f1': 86.96338383838383, 'NoAns_total': 3168, 'best_exact': 84.33695294504771, 'best_exact_thresh': 0.0, 'best_f1': 87.35841153592791, 'best_f1_thresh': 0.0}
 ```
 
-_xx_large_v1_
+_xxlarge_v1_
 
 ```
 tmux new -s albert_xxlarge

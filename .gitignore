@@ -1,1 +1,5 @@
+# Ignore jupyter checkpoints
 .ipynb_checkpoints
+
+# Ignore predictions/results from using models
+results

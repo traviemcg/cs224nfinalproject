@@ -1,6 +1,6 @@
 ## Default Project++
 
-This is a proejct for CS224N Winter 2020 at Stanford university. The goal is to better understand what is being learned by transformers through the use of logistic regression probes.
+Ths project is for CS224N: Natural Language Processing with Deep Learning at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
 
 Our paper is here. This repository will walk through all steps necessary to reproduce the results.
 

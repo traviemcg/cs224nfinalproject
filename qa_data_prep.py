@@ -25,6 +25,8 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
+    examples = examples[:5]
+
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
         tokenizer=tokenizer,
@@ -37,15 +39,17 @@ def extract_layers(model_prefix,
     )
 
     # Initialize result
-    result = []
-    for i in range(layers):
-        result.append(np.zeros((len(examples), 384, hidden_dim)))
+    # result = []
+    # for i in range(layers):
+    #     result.append(np.zeros((len(examples), 384, hidden_dim)))
 
     config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
     eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 1)
+
+    l = output_prefix + "_layer_"
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
@@ -64,11 +68,20 @@ def extract_layers(model_prefix,
 
             # Populate output
             for i in range(layers):
-                result[i][idx] = attention_hidden_states[i].numpy()[0]
+                h = attention_hidden_states[i].numpy()[0]
+                f = open(l + str(i+1), 'a')
+                f.write("{}, {}\n".format(idx, h.tolist()))
+                f.close()
 
+
+                # with open(layer_file + str(i + 1), 'w') as f:
+                #     h = attention_hidden_states[i].numpy()[0]
+                #     f.write("{}, {}\n".format(idx, h.tolist()))
+
+            
     # Save outputs 
-    for i in range(layers):
-        np.save(output_prefix + "_layer_" + str(i + 1), result[i])
+    # for i in range(layers):
+    #     np.save(output_prefix + "_layer_" + str(i + 1), result[i])
 
 if __name__ == "__main__":
 

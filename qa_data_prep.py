@@ -25,8 +25,6 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:5]
-
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
         tokenizer=tokenizer,
@@ -38,11 +36,6 @@ def extract_layers(model_prefix,
         threads=1,
     )
 
-    # Initialize result
-    # result = []
-    # for i in range(layers):
-    #     result.append(np.zeros((len(examples), 384, hidden_dim)))
-
     config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
@@ -53,7 +46,7 @@ def extract_layers(model_prefix,
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
-        batch = tuple(t.to('cuda') for t in batch)
+        batch = tuple(t.to('cpu') for t in batch)
         
         with torch.no_grad():
             inputs = {
@@ -72,16 +65,6 @@ def extract_layers(model_prefix,
                 f = open(l + str(i+1), 'a')
                 f.write("{}, {}\n".format(idx, h.tolist()))
                 f.close()
-
-
-                # with open(layer_file + str(i + 1), 'w') as f:
-                #     h = attention_hidden_states[i].numpy()[0]
-                #     f.write("{}, {}\n".format(idx, h.tolist()))
-
-            
-    # Save outputs 
-    # for i in range(layers):
-    #     np.save(output_prefix + "_layer_" + str(i + 1), result[i])
 
 if __name__ == "__main__":
 

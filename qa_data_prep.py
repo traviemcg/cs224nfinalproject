@@ -48,7 +48,7 @@ def extract_layers(model_prefix,
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
-        batch = tuple(t.to('cuda') for t in batch)
+        batch = tuple(t.to('cpu') for t in batch)
         
         with torch.no_grad():
             inputs = {
@@ -57,9 +57,9 @@ def extract_layers(model_prefix,
                     "token_type_ids": batch[2],
                 }
 
-            idx = batch[3].cpu().numpy()
+            idx = batch[3]
             outputs = model(**inputs)
-            attention_hidden_states = outputs[2][1:].cpu().numpy()
+            attention_hidden_states = outputs[2][1:]
 
             # Populate output
             for i in range(layers):

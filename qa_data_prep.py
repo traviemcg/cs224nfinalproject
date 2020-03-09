@@ -59,7 +59,7 @@ def extract_layers(model_prefix,
 
             idx = batch[3].numpy()
             outputs = model(**inputs)
-            attention_hidden_states = outputs[2][1:].numpy()
+            attention_hidden_states = outputs[2][1:]
 
             # Populate output
             for i in range(layers):

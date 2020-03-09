@@ -25,8 +25,6 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:10]
-
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
         tokenizer=tokenizer,
@@ -42,7 +40,7 @@ def extract_layers(model_prefix,
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 5)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 50)
 
     l = output_prefix + "_layer_"
 

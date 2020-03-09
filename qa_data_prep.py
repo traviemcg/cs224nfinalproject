@@ -25,6 +25,8 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
+    examples = examples[:10]
+
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
         tokenizer=tokenizer,
@@ -40,13 +42,13 @@ def extract_layers(model_prefix,
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 1)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 5)
 
     l = output_prefix + "_layer_"
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
-        batch = tuple(t.to('cpu') for t in batch)
+        batch = tuple(t.to('cuda') for t in batch)
         
         with torch.no_grad():
             inputs = {
@@ -55,16 +57,17 @@ def extract_layers(model_prefix,
                     "token_type_ids": batch[2],
                 }
 
-            idx = batch[3].numpy()[0]
+            idx = batch[3].numpy()
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 
             # Populate output
             for i in range(layers):
-                h = attention_hidden_states[i].numpy()[0]
-                f = open(l + str(i+1), 'a')
-                f.write("{}, {}\n".format(idx, h.tolist()))
-                f.close()
+                for j, index in enumerate(idx):
+                    h = attention_hidden_states[i][j]
+                    f = open(l + str(i+1), 'a')
+                    f.write("{}, {}\n".format(index, h.tolist()))
+                    f.close()
 
 if __name__ == "__main__":
 

@@ -57,8 +57,8 @@ def extract_layers(model_prefix,
                     "token_type_ids": batch[2],
                 }
 
-            idx = batch[3].cpu().numpy()
             outputs = model(**inputs)
+            idx = batch[3].cpu().numpy()
             attention_hidden_states = outputs[2][1:].cpu().numpy()
 
             # Populate output

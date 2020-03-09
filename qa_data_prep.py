@@ -53,7 +53,7 @@ def extract_layers(model_prefix,
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
-        batch = tuple(t.to('gpu') for t in batch)
+        batch = tuple(t.to('cude') for t in batch)
         
         with torch.no_grad():
             inputs = {

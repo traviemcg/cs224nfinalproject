@@ -25,8 +25,6 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    # examples = examples[:128]
-
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
         tokenizer=tokenizer,
@@ -82,14 +80,6 @@ if __name__ == "__main__":
         filename = "dev-v2.0.json"
 
     # Model
-    # if sys.argv[2] == "xxlargev1_squad2_512":
-    #     model_prefix = "ahotrod/albert_xxlargev1_squad2_512"
-    #     output_prefix = "xxlargev1_squad2_512_" + sys.argv[1]
-    #     hidden_dim = 4096
-    # elif sys.argv[2] == "albert-xxlarge-v1":
-    #     model_prefix = "albert-xxlarge-v1"
-    #     output_prefix = "xxlarge-v1_" + sys.argv[1]
-    #     hidden_dim = 4096
     if sys.argv[2] == "albert-base-v2":
         model_prefix = "albert-base-v2"
         output_prefix = "base-v2_" + sys.argv[1]

@@ -40,7 +40,7 @@ def extract_layers(model_prefix,
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 5)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 32)
 
     l = output_prefix + "_layer_"
 
@@ -55,7 +55,7 @@ def extract_layers(model_prefix,
                     "token_type_ids": batch[2],
                 }
 
-            idx = batch[3].numpy()
+            idx = batch[3].cpu().numpy()
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 

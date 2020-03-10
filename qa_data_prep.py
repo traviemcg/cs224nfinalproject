@@ -40,13 +40,13 @@ def extract_layers(model_prefix,
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 50)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 5)
 
     l = output_prefix + "_layer_"
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
-        batch = tuple(t.to('cpu') for t in batch)
+        batch = tuple(t.to('cuda:0') for t in batch)
         
         with torch.no_grad():
             inputs = {
@@ -64,6 +64,7 @@ def extract_layers(model_prefix,
                 f = open(l + str(i+1), 'a')
                 for j, index in enumerate(idx):
                     h = attention_hidden_states[i][j]
+                    h = h.cpu().numpy()
                     f.write("{}, {}\n".format(index, h.tolist()))
                 f.close()
 
@@ -76,15 +77,15 @@ if __name__ == "__main__":
         filename = "dev-v2.0.json"
 
     # Model
-    if sys.argv[2] == "xxlargev1_squad2_512":
-        model_prefix = "ahotrod/albert_xxlargev1_squad2_512"
-        output_prefix = "xxlargev1_squad2_512_" + sys.argv[1]
-        hidden_dim = 4096
-    elif sys.argv[2] == "albert-xxlarge-v1":
-        model_prefix = "albert-xxlarge-v1"
-        output_prefix = "xxlarge-v1_" + sys.argv[1]
-        hidden_dim = 4096
-    elif sys.argv[2] == "albert-base-v2":
+    # if sys.argv[2] == "xxlargev1_squad2_512":
+    #     model_prefix = "ahotrod/albert_xxlargev1_squad2_512"
+    #     output_prefix = "xxlargev1_squad2_512_" + sys.argv[1]
+    #     hidden_dim = 4096
+    # elif sys.argv[2] == "albert-xxlarge-v1":
+    #     model_prefix = "albert-xxlarge-v1"
+    #     output_prefix = "xxlarge-v1_" + sys.argv[1]
+    #     hidden_dim = 4096
+    if sys.argv[2] == "albert-base-v2":
         model_prefix = "albert-base-v2"
         output_prefix = "base-v2_" + sys.argv[1]
         hidden_dim = 768

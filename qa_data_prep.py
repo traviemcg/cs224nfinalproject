@@ -40,7 +40,7 @@ def extract_layers(model_prefix,
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 64)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 32)
 
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)

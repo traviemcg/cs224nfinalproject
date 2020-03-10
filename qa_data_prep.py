@@ -44,6 +44,10 @@ def extract_layers(model_prefix,
     eval_sampler = SequentialSampler(dataset)
     eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 32)
 
+    # multi-gpu evaluate
+    if args.n_gpu > 1 and not isinstance(model, torch.nn.DataParallel):
+        model = torch.nn.DataParallel(model)
+
     l = output_prefix + "_layer_"
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
@@ -57,9 +61,9 @@ def extract_layers(model_prefix,
                     "token_type_ids": batch[2],
                 }
 
+            idx = batch[3]
+
             outputs = model(**inputs)
-            # idx = batch[3].clone().cpu().numpy()
-            idx = [0,1,2,3,4]
             attention_hidden_states = outputs[2][1:]
 
             # Populate output

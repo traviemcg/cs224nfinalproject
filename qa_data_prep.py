@@ -62,7 +62,6 @@ def extract_layers(model_prefix,
                 }
 
             idx = batch[3]
-
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 
@@ -71,8 +70,8 @@ def extract_layers(model_prefix,
                 f = open(l + str(i+1), 'a')
                 for j, index in enumerate(idx):
                     h = attention_hidden_states[i][j]
-                    # tmp = h.clone().cpu().numpy()
-                    # f.write("{}, {}\n".format(index, tmp.tolist()))
+                    tmp = h.clone().cpu().numpy()
+                    f.write("{}, {}\n".format(index, tmp.tolist()))
                 f.close()
 
 if __name__ == "__main__":

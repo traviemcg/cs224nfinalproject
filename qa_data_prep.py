@@ -25,7 +25,7 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:128]
+    # examples = examples[:128]
 
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
@@ -42,10 +42,9 @@ def extract_layers(model_prefix,
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 32)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 64)
 
     # multi-gpu evaluate
-    # if args.n_gpu > 1 and not isinstance(model, torch.nn.DataParallel):
     model = torch.nn.DataParallel(model)
 
     l = output_prefix + "_layer_"

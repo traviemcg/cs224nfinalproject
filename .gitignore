@@ -1,5 +1,9 @@
-# Ignore jupyter checkpoints
+# Ignore jupyter checkpoints and pycache
 .ipynb_checkpoints
+__pycache__
 
 # Ignore predictions/results from using models
 results
+
+# Ignore saved softmax models from test jupyter script
+sm_model

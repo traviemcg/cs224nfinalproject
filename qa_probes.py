@@ -40,6 +40,8 @@ def train_probes(model_prefix,
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
 
+    # Initialize probes
+
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
         batch = tuple(t.to('cuda') for t in batch)
@@ -91,6 +93,8 @@ def evaluate_probes(model_prefix,
 
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
+
+    # Load probes
 
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()

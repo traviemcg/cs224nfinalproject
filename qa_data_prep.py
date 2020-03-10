@@ -58,7 +58,7 @@ def extract_layers(model_prefix,
                 }
 
             outputs = model(**inputs)
-            idx = batch[3].clone().detach().cpu().numpy()
+            idx = batch[3].clone().cpu().numpy()
             attention_hidden_states = outputs[2][1:]
 
             # Populate output
@@ -66,7 +66,7 @@ def extract_layers(model_prefix,
                 f = open(l + str(i+1), 'a')
                 for j, index in enumerate(idx):
                     h = attention_hidden_states[i][j]
-                    tmp = h.clone().detach().cpu().numpy()
+                    tmp = h.clone().cpu().numpy()
                     f.write("{}, {}\n".format(index, tmp.tolist()))
                 f.close()
 

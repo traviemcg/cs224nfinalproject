@@ -45,8 +45,8 @@ def extract_layers(model_prefix,
     eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 32)
 
     # multi-gpu evaluate
-    if args.n_gpu > 1 and not isinstance(model, torch.nn.DataParallel):
-        model = torch.nn.DataParallel(model)
+    # if args.n_gpu > 1 and not isinstance(model, torch.nn.DataParallel):
+    model = torch.nn.DataParallel(model)
 
     l = output_prefix + "_layer_"
 

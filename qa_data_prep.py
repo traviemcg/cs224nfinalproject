@@ -25,6 +25,8 @@ def extract_layers(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
+    examples = examples[:128]
+
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
         tokenizer=tokenizer,
@@ -55,7 +57,7 @@ def extract_layers(model_prefix,
                     "token_type_ids": batch[2],
                 }
 
-            idx = batch[3].cpu().numpy()
+            idx = batch[3].clone().detach().cpu().numpy()
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 
@@ -64,7 +66,7 @@ def extract_layers(model_prefix,
                 f = open(l + str(i+1), 'a')
                 for j, index in enumerate(idx):
                     h = attention_hidden_states[i][j]
-                    h = h.cpu().numpy()
+                    h = h.clone().detach().cpu().numpy()
                     f.write("{}, {}\n".format(index, h.tolist()))
                 f.close()
 

@@ -67,6 +67,7 @@ def train_probes(model_prefix,
         is_impossible[i] = examples[i].is_impossible
 
     # Initialize probes
+    torch.manual_seed(1)
     print("Initializing probes")
     probes = []
     for i in range(layers):
@@ -212,7 +213,7 @@ def evaluate_probes(model_prefix,
                     # No answer
                     if start_idx == -1:
                         predictions[i]['Predicted'][index] = ""
-                        print("No answer predicted")
+                        # print("No answer predicted")
                     else:
 
                         # If stop index before start, replace
@@ -229,7 +230,7 @@ def evaluate_probes(model_prefix,
 
                         # Reconstruct answer
                         answer = " ".join(context[start_idx:stop_idx + 1])
-                        print(answer)
+                        # print(answer)
                         answer = answer.replace('"', '')
                         predictions[i]['Predicted'][index] = answer
 
@@ -265,15 +266,15 @@ if __name__ == "__main__":
 
     epoches = int(sys.argv[3])
 
-    # # Train softmax probes
-    # train_probes(model_prefix,
-    #              data_dir = "squad-master/data/",
-    #              filename = dev,
-    #              probe_dir = probe_dir,
-    #              epoches = epoches,
-    #              hidden_dim = 768,
-    #              max_seq_length = 384,
-    #              device = device)
+    # Train softmax probes
+    train_probes(model_prefix,
+                 data_dir = "squad-master/data/",
+                 filename = dev,
+                 probe_dir = probe_dir,
+                 epoches = epoches,
+                 hidden_dim = 768,
+                 max_seq_length = 384,
+                 device = device)
 
     # Generate predictions
     evaluate_probes(model_prefix,

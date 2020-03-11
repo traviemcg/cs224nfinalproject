@@ -25,10 +25,6 @@ def train_probes(model_prefix,
 
     '''
 
-    # Create probe directory
-    if not os.path.exists(probe_dir):
-        os.mkdir(probe_dir)
-
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
@@ -67,6 +63,7 @@ def train_probes(model_prefix,
         is_impossible[i] = examples[i].is_impossible
 
     # Initialize probes
+    torch.manual_seed(1)
     print("Initializing probes")
     probes = []
     for i in range(layers):
@@ -124,10 +121,6 @@ def evaluate_probes(model_prefix,
                     hidden_dim = 768,
                     max_seq_length = 384,
                     device = 'cpu'):
-
-    # Create prediction directory
-    if not os.path.exists(pred_dir):
-        os.mkdir(pred_dir)
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
@@ -212,6 +205,7 @@ def evaluate_probes(model_prefix,
                     # No answer
                     if start_idx == -1:
                         predictions[i]['Predicted'][index] = ""
+                        # print("No answer predicted")
                     else:
 
                         # If stop index before start, replace
@@ -228,6 +222,7 @@ def evaluate_probes(model_prefix,
 
                         # Reconstruct answer
                         answer = " ".join(context[start_idx:stop_idx + 1])
+                        # print(answer)
                         answer = answer.replace('"', '')
                         predictions[i]['Predicted'][index] = answer
 
@@ -242,21 +237,46 @@ if __name__ == "__main__":
     train = "train-v2.0.json"
     dev = "dev-v2.0.json"
 
+    if len(sys.argv) != 4:
+        print('Usage:')
+        print('   python3 qa_probes.py [pretrained/fine_tuned] [cpu/gpu] epoches')
+
     # Model
-    if sys.argv[1] == "albert-base-v2":
+    if sys.argv[1] == "pretrained":
         model_prefix = "albert-base-v2"
-        probe_dir = "base-v2_probes"
-        pred_dir = "base-v2_probe_preds"
+        probe_dir = "pretrained_probes"
+        pred_dir = "pretrained_preds"
+    elif sys.argv[1] == "fine_tuned":
+        model_prefix = "twmkn9/albert-base-v2-squad2"
+        probe_dir = "fine_tuned_probes"
+        pred_dir = "fine_tuned_preds"
+
+    # Device
+    if sys.argv[2] == "cpu":
+        device = "cpu"
+    elif sys.argv[2] == "gpu":
+        device = "cuda"
+
+    # Training epoches
+    epoches = int(sys.argv[3])
+
+    # Create probe directory
+    if not os.path.exists(probe_dir):
+        os.mkdir(probe_dir)
+
+    # Create prediction directory
+    if not os.path.exists(pred_dir):
+        os.mkdir(pred_dir)
 
     # Train softmax probes
     train_probes(model_prefix,
                  data_dir = "squad-master/data/",
                  filename = dev,
                  probe_dir = probe_dir,
-                 epoches = 5000,
+                 epoches = epoches,
                  hidden_dim = 768,
                  max_seq_length = 384,
-                 device = "cuda")
+                 device = device)
 
     # Generate predictions
     evaluate_probes(model_prefix,
@@ -266,4 +286,4 @@ if __name__ == "__main__":
                     pred_dir = pred_dir,
                     hidden_dim = 768,
                     max_seq_length = 384,
-                    device = "cuda")
+                    device = device)

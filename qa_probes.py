@@ -253,7 +253,7 @@ if __name__ == "__main__":
                  data_dir = "squad-master/data/",
                  filename = dev,
                  probe_dir = probe_dir,
-                 epoches = 1000,
+                 epoches = 5000,
                  hidden_dim = 768,
                  max_seq_length = 384,
                  device = "cuda")

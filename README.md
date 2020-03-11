@@ -78,7 +78,7 @@ tmux a -t albert_xxlarge
 conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 
-python run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 512 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
+python run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
 
 tmux detach
 ```
@@ -98,7 +98,7 @@ tmux a -t albert_base
 conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 
-python run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/
+python run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
 
 tmux detach
 ```
@@ -111,4 +111,10 @@ python run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_f
 
 ```
 Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'HasAns_exact': 75.39518900343643, 'HasAns_f1': 82.04167868004215, 'HasAns_total': 2910, 'NoAns_exact': 81.7550505050505, 'NoAns_f1': 81.7550505050505, 'NoAns_total': 3168, 'best_exact': 78.72655478775913, 'best_exact_thresh': 0.0, 'best_f1': 81.90873395178066, 'best_f1_thresh': 0.0}
+```
+
+### Probes
+
+```
+python qa_probes.py albert-base-v2
 ```

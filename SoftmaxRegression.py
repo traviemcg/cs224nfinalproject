@@ -68,6 +68,7 @@ class MultiSoftmaxRegression():
         self.max_grad_norm = 1.0
 
     def train_step(self, inputs, targets, mode, device):
+        
         if mode == "start":
             model = self.model_start_idx.to(device)
         elif mode == "stop":
@@ -79,13 +80,14 @@ class MultiSoftmaxRegression():
             assert model != None, "Invalid value mode={}, should be 'start', 'stop', or 'impossible'!".format(mode)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=float(self.lr))
-            
         model.train()
-        loss = model.train_forward(inputs, targets)
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
-        optimizer.step()
-        optimizer.zero_grad()
+        with torch.set_grad_enabled(True):
+            
+            loss = model.train_forward(inputs, targets)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
+            optimizer.step()
+            optimizer.zero_grad()
 
         return loss
 

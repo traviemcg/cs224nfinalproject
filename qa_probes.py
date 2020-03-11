@@ -216,7 +216,7 @@ def evaluate_probes(model_prefix,
 
                         # If stop index before start, replace
                         if stop_idx <= start_idx:
-                            stop_idx = start_idx + 1
+                            stop_idx = start_idx
 
                         # Shift indicies by question length + 2 pad
                         question_length = len(examples[index].question_text.split())
@@ -227,7 +227,7 @@ def evaluate_probes(model_prefix,
                         context = examples[index].context_text.split()
 
                         # Reconstruct answer
-                        answer = " ".join(context[start_idx:stop_idx])
+                        answer = " ".join(context[start_idx:stop_idx + 1])
                         answer = answer.replace('"', '')
                         predictions[i]['Predicted'][index] = answer
 

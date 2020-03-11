@@ -106,21 +106,37 @@ class MultiSoftmaxRegression():
 
 
     def predict(self, inputs, device):
-        # Return (batch_size, 2) array where both entries are -1 if is_impossible==1
         with torch.no_grad():
             start_idx = self.model_start_idx.to(device).eval().predict(inputs)
             stop_idx = self.model_stop_idx.to(device).eval().predict(inputs)
-            is_impossible = self.model_is_impossible.to(device).eval().predict(inputs)
+            
 
+            # code when using the ImpossibleSoftmaxRegression model
+            """
+            is_impossible = self.model_is_impossible.to(device).eval().predict(inputs)
             start_idx = start_idx+1 
             stop_idx = stop_idx+1
 
             is_ans = 1-is_impossible
+            """
+
+            # code when using threshold
+            threshold = 10/384*2
+            start_idx_proba = self.model_start_idx.to(device).eval().predict_proba(inputs)
+            stop_idx_proba = self.model_stop_idx.to(device).eval().predict_proba(inputs)
+            is_ans = (start_idx_proba+stop_idx_proba) >= threshold
+
             masked_start = start_idx*is_ans-1
             masked_stop = stop_idx*is_ans-1
 
+
             idxs = torch.stack([masked_start.unsqueeze(-1), masked_stop.unsqueeze(-1)], dim=-1)
             np_idxs = idxs.cpu().numpy()
+
+            idxs = torch.stack([masked_start.unsqueeze(-1), masked_stop.unsqueeze(-1)], dim=-1)
+            np_idxs = idxs.cpu().numpy()
+        
+        # Return (batch_size, 2) array where both entries are -1 if is_impossible==1
         return np_idxs[:, 0, :]
     
     def save(self, probe_dir, layer):

@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from transformers import AdamW
 
 class IdxSoftmaxRegression(nn.Module):
     def __init__(self, seq_len, hidden_size):
@@ -69,7 +70,8 @@ class MultiSoftmaxRegression():
         self.model_stop_idx = IdxSoftmaxRegression(seq_len, hidden_size)
         self.model_is_impossible = ImpossibleSoftmaxRegression(seq_len, hidden_size)
 
-        self.lr = 1e-3
+        self.lr = 3e-5
+        self.adam_epsilon = 1e-8
         self.max_grad_norm = 1.0
 
     def train_step(self, inputs, targets, mode, device):
@@ -84,7 +86,7 @@ class MultiSoftmaxRegression():
             model = None
             assert model != None, "Invalid value mode={}, should be 'start', 'stop', or 'impossible'!".format(mode)
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=float(self.lr))
+        optimizer = AdamW(model.parameters(), lr=self.lr, eps=self.adam_epsilon)
         model.train()
         with torch.set_grad_enabled(True):
             

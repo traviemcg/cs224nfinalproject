@@ -33,7 +33,9 @@ class ImpossibleSoftmaxRegression(nn.Module):
         super(ImpossibleSoftmaxRegression, self).__init__()
         self.seq_len = seq_len
         self.hidden_size = hidden_size
-        self.W = nn.Linear(self.seq_len*self.hidden_size, 1, bias=False)
+        self.W = nn.Linear(self.seq_len*self.hidden_size, 1, bias=True)
+        if self.W.bias is not None:
+            torch.nn.init.zeros_(self.W.bias)
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, input):
@@ -44,6 +46,7 @@ class ImpossibleSoftmaxRegression(nn.Module):
     
     def train_forward(self, input, target, device):
         p = self.forward(input)
+        # 1/3 the questions are impossible, 2/3 are not impossible. So weight them
         if target[0] == 1:
             weights = torch.tensor([2.0]).unsqueeze(0).to(device)
         elif target[0] == 0:

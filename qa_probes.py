@@ -31,7 +31,7 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:100]
+    examples = examples[:8]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -57,12 +57,12 @@ def train_probes(model_prefix,
     n = len(examples)
     start_idx = np.zeros(n)
     end_idx = np.zeros(n)
-    is_impossible = np.zeros(n)
+    # is_impossible = np.zeros(n)
     for i in range(n):
         question_length = len(examples[i].question_text.split())
         start_idx[i] = examples[i].start_position + question_length + 2
         end_idx[i] = examples[i].end_position + question_length + 2
-        is_impossible[i] = examples[i].is_impossible
+        # is_impossible[i] = examples[i].is_impossible
 
     # Initialize probes
     torch.manual_seed(1)
@@ -106,13 +106,13 @@ def train_probes(model_prefix,
                         continue
                     else:
                     # Extract label
-                     is_imp = torch.tensor(is_impossible[index]).unsqueeze(0).to(device)
+                    #  is_imp = torch.tensor(is_impossible[index]).unsqueeze(0).to(device)
                      start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
                      stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), is_imp, start, stop, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, stop, device)
 
     # Save probes
     for i, p in enumerate(probes):
@@ -133,7 +133,7 @@ def evaluate_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:100]
+    examples = examples[:8]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -211,7 +211,7 @@ def evaluate_probes(model_prefix,
                     stop_idx = int(layer_pred[0][1])
 
                     # No answer
-                    if start_idx == -1:
+                    if (start_idx == 0) and (stop_idx == 0):
                         predictions[i]['Predicted'][index] = ""
                     else:
                         # If stop index before start, replace

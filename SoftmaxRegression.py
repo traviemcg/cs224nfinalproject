@@ -116,13 +116,13 @@ class MultiSoftmaxRegression():
             np_idxs = idxs.cpu().numpy()
         return np_idxs[:, 0, :]
     
-    def save(self, path):
-        torch.save(self.model_start_idx.state_dict(), path+"_start_idx")
-        torch.save(self.model_stop_idx.state_dict(), path+"_stop_idx")
-        torch.save(self.model_is_impossible.state_dict(), path+"_is_impossible")
+    def save(self, probe_dir, layer):
+        torch.save(self.model_start_idx.state_dict(), probe_dir + "/layer_" + str(layer) + "_start_idx")
+        torch.save(self.model_stop_idx.state_dict(), probe_dir + "/layer_" + str(layer) + "_stop_idx")
+        torch.save(self.model_is_impossible.state_dict(), probe_dir + "/layer_" + str(layer) + "_is_impossible")
 
-    def load(self, path):
-        self.model_start_idx.load_state_dict(torch.load(path+"_start_idx"))
-        self.model_stop_idx.load_state_dict(torch.load(path+"_stop_idx"))
-        self.model_is_impossible.load_state_dict(torch.load(path+"_is_impossible"))
+    def load(self, probe_dir, layer):
+        self.model_start_idx.load_state_dict(torch.load(probe_dir + "/layer_" + str(layer) + "_start_idx"))
+        self.model_stop_idx.load_state_dict(torch.load(probe_dir + "/layer_" + str(layer) + "_stop_idx"))
+        self.model_is_impossible.load_state_dict(torch.load(probe_dir + "/layer_" + str(layer) + "_is_impossible"))
 

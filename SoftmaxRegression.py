@@ -44,7 +44,10 @@ class ImpossibleSoftmaxRegression(nn.Module):
     
     def train_forward(self, input, target, device):
         p = self.forward(input)
-        weights = torch.tensor([1.0, 2.0]).to(device) # in train set 1/3 have no answer, 2/3 have answer
+        if target[0] == 1:
+            weights = torch.tensor([2.0]).unsqueeze(0).to(device)
+        elif target[0] == 0:
+            weights = torch.tensor([1.0]).unsqueeze(0).to(device)
         loss = nn.BCELoss(weight=weights)(p, target)
         return loss
     

@@ -103,9 +103,9 @@ def train_probes(model_prefix,
                 for j, index in enumerate(idx):
 
                     # Extract label
-                    is_imp = torch.tensor(is_impossible[index]).unsqueeze(0)
-                    start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0)
-                    stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0)
+                    is_imp = torch.tensor(is_impossible[index]).unsqueeze(0).to(device)
+                    start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                    stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
 
                     # Train probes
                     for i, p in enumerate(probes):

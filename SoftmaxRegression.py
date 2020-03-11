@@ -33,9 +33,7 @@ class ImpossibleSoftmaxRegression(nn.Module):
         super(ImpossibleSoftmaxRegression, self).__init__()
         self.seq_len = seq_len
         self.hidden_size = hidden_size
-        self.W = nn.Linear(self.seq_len*self.hidden_size, 1, bias=True)
-        if self.W.bias is not None:
-            torch.nn.init.zeros_(self.W.bias)
+        self.W = nn.Linear(self.seq_len*self.hidden_size, 1, bias=False)
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, input):

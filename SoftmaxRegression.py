@@ -13,7 +13,7 @@ class IdxSoftmaxRegression(nn.Module):
         scores = self.W(input).squeeze(-1)
         return scores
     
-    def train_forward(self, input, target):
+    def train_forward(self, input, target, device):
         scores = self.forward(input)
         loss = nn.CrossEntropyLoss(ignore_index=-100)(scores, target)
         return loss
@@ -42,9 +42,9 @@ class ImpossibleSoftmaxRegression(nn.Module):
         p = self.sigmoid(scores)
         return p
     
-    def train_forward(self, input, target):
+    def train_forward(self, input, target, device):
         p = self.forward(input)
-        weights = [1.0, 2.0] # in train set 1/3 have no answer, 2/3 have answer
+        weights = torch.tensor([1.0, 2.0]).to(device) # in train set 1/3 have no answer, 2/3 have answer
         loss = nn.BCELoss(weight=weights)(p, target)
         return loss
     
@@ -84,7 +84,7 @@ class MultiSoftmaxRegression():
         model.train()
         with torch.set_grad_enabled(True):
             
-            loss = model.train_forward(inputs, targets)
+            loss = model.train_forward(inputs, targets, device)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
             optimizer.step()

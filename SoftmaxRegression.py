@@ -33,7 +33,7 @@ class ImpossibleSoftmaxRegression(nn.Module):
         super(ImpossibleSoftmaxRegression, self).__init__()
         self.seq_len = seq_len
         self.hidden_size = hidden_size
-        self.W = nn.Linear(self.seq_len*self.hidden_size, 1, bias=True)
+        self.W = nn.Linear(self.seq_len*self.hidden_size, 1, bias=False)
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, input):
@@ -85,8 +85,7 @@ class MultiSoftmaxRegression():
             
             loss = model.train_forward(inputs, targets)
             loss.backward()
-            if mode != "impossible":
-                torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
             optimizer.step()
             optimizer.zero_grad()
 

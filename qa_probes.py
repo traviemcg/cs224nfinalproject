@@ -19,6 +19,7 @@ def train_probes(model_prefix,
                  epoches = 1,
                  hidden_dim = 768,
                  max_seq_length = 384,
+                 batch_size = 8,
                  device = 'cpu'):
     '''
        Trains softmax probe corresponding to each layer of Albert
@@ -30,6 +31,8 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
+    examples = examples[:100]
+
     # Extract features
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
@@ -37,7 +40,7 @@ def train_probes(model_prefix,
         max_seq_length=max_seq_length,
         doc_stride=128,
         max_query_length=64,
-        is_training=False,
+        is_training=True,
         return_dataset="pt",
         threads=1,
     )
@@ -50,16 +53,16 @@ def train_probes(model_prefix,
     model = torch.nn.DataParallel(model)
 
     # Store solutions
-    print("Extracting solutions")
-    n = len(examples)
-    start_idx = np.zeros(n)
-    end_idx = np.zeros(n)
-    is_impossible = np.zeros(n)
-    for i in range(n):
-        question_length = len(examples[i].question_text.split())
-        start_idx[i] = examples[i].start_position + question_length + 2
-        end_idx[i] = examples[i].end_position + question_length + 2
-        is_impossible[i] = examples[i].is_impossible
+    # print("Extracting solutions")
+    # n = len(examples)
+    # start_idx = np.zeros(n)
+    # end_idx = np.zeros(n)
+    # is_impossible = np.zeros(n)
+    # for i in range(n):
+    #     question_length = len(examples[i].question_text.split())
+    #     start_idx[i] = examples[i].start_position + question_length + 2
+    #     end_idx[i] = examples[i].end_position + question_length + 2
+    #     is_impossible[i] = examples[i].is_impossible
 
     # Initialize probes
     torch.manual_seed(1)
@@ -74,8 +77,9 @@ def train_probes(model_prefix,
         print("TRAINING EPOCH: {}".format(epoch))
 
         # Initialize data loaders
-        train_sampler = RandomSampler(dataset)
-        train_dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=8)
+        # train_sampler = RandomSampler(dataset)
+        train_sampler = SequentialSampler(dataset)
+        train_dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=batch_size)
 
         # Training batches
         for batch in tqdm(train_dataloader, desc = "Iteration"):
@@ -88,21 +92,19 @@ def train_probes(model_prefix,
                     "input_ids": batch[0],
                     "attention_mask": batch[1],
                     "token_type_ids": batch[2],
+                    "start_positions": batch[3],
+                    "end_positions": batch[4],
                 }
 
                 # Albert forward pass
-                idx = batch[3]
-                # print(idx)
                 outputs = model(**inputs)
-                attention_hidden_states = outputs[2][1:]
+                attention_hidden_states = outputs[3][1:]
 
                 # Update probes
-                for j, index in enumerate(idx):
-
-                    # Extract label
-                    is_imp = torch.tensor(is_impossible[index]).unsqueeze(0).to(device)
-                    start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
-                    stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                for j in range(batch[7].shape[0]):
+                    is_imp = batch[7][j].clone().unsqueeze(0).to(device)
+                    start = batch[3][j].clone().unsqueeze(0).to(device)
+                    stop = batch[4][j].clone().unsqueeze(0).to(device)
 
                     # Train probes
                     for i, p in enumerate(probes):
@@ -126,6 +128,8 @@ def evaluate_probes(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
+
+    examples[:100]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(

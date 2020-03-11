@@ -7,3 +7,7 @@ results
 
 # Ignore saved softmax models from test jupyter script
 sm_model
+
+# Ignore saved probes (maybe? for now)
+pretrained_probes
+fine_tuned_probes

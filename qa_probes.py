@@ -230,13 +230,13 @@ def evaluate_probes(model_prefix,
     for i, pred in enumerate(predictions):
         pred.to_csv(pred_dir + "/pred_layer_" + str(i+1) + ".csv", index = False)
 
-
 if __name__ == "__main__":
 
     # Train and dev set
     train = "train-v2.0.json"
     dev = "dev-v2.0.json"
 
+    # Usage message
     if len(sys.argv) != 4:
         print('Usage:')
         print('   python3 qa_probes.py [pretrained/fine_tuned] [cpu/gpu] epoches')

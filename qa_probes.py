@@ -105,8 +105,8 @@ def train_probes(model_prefix,
                     is_imp = batch[7][j].clone().unsqueeze(0).to(device)
 
                     # OFFSETTING ???????
-                    start = batch[3][j].clone().unsqueeze(0).to(device) + 8
-                    stop = batch[4][j].clone().unsqueeze(0).to(device) + 8
+                    start = batch[3][j].clone().unsqueeze(0).to(device) # + 8
+                    stop = batch[4][j].clone().unsqueeze(0).to(device) # + 8
 
                     # Train probes
                     for i, p in enumerate(probes):
@@ -219,8 +219,8 @@ def evaluate_probes(model_prefix,
 
                         # Shift indicies by question length + 2 pad
                         question_length = len(examples[index].question_text.split())
-                        start_idx = start_idx - question_length - 2
-                        stop_idx = stop_idx - question_length - 2 
+                        start_idx = start_idx # - question_length - 2
+                        stop_idx = stop_idx # - question_length - 2 
 
                         # Extract context
                         context = examples[index].context_text.split()

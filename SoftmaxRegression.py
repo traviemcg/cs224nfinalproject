@@ -80,6 +80,7 @@ class MultiSoftmaxRegression():
             end_scores = self.model_end_idx.to(device).eval().forward(inputs)
             if start_scores+end_scores < threshold:
                 idxs = idxs*0
+
             np_idxs = idxs.cpu().numpy()
         
         # Return (batch_size, 2) array where both entries are 0 if is impossible

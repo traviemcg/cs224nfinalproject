@@ -130,6 +130,7 @@ def evaluate_probes(model_prefix,
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
     examples = examples[:100]
+    print(len(examples))
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -197,6 +198,7 @@ def evaluate_probes(model_prefix,
             # Compute prediction
             for j, index in enumerate(idx):
                 index = int(index.item())
+                print(index)
                 for i, p in enumerate(probes):
 
                     # Extract prediction
@@ -207,9 +209,7 @@ def evaluate_probes(model_prefix,
                     # No answer
                     if start_idx == -1:
                         predictions[i]['Predicted'][index] = ""
-                        # print("No answer predicted")
                     else:
-
                         # If stop index before start, replace
                         if stop_idx <= start_idx:
                             stop_idx = start_idx
@@ -224,7 +224,6 @@ def evaluate_probes(model_prefix,
 
                         # Reconstruct answer
                         answer = " ".join(context[start_idx:stop_idx + 1])
-                        # print(answer)
                         answer = answer.replace('"', '')
                         predictions[i]['Predicted'][index] = answer
 

@@ -228,6 +228,7 @@ def evaluate_probes(model_prefix,
 
                         # Reconstruct answer
                         answer = " ".join(context[start_idx:stop_idx])
+                        answer = answer.replace('"', '')
                         predictions[i]['Predicted'][index] = answer
 
     # Save predictions
@@ -252,10 +253,10 @@ if __name__ == "__main__":
                  data_dir = "squad-master/data/",
                  filename = dev,
                  probe_dir = probe_dir,
-                 epoches = 100,
+                 epoches = 1000,
                  hidden_dim = 768,
                  max_seq_length = 384,
-                 device = "cpu")
+                 device = "cuda")
 
     # Generate predictions
     evaluate_probes(model_prefix,
@@ -265,4 +266,4 @@ if __name__ == "__main__":
                     pred_dir = pred_dir,
                     hidden_dim = 768,
                     max_seq_length = 384,
-                    device = "cpu")
+                    device = "cuda")

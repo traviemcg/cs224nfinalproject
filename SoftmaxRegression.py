@@ -44,7 +44,8 @@ class ImpossibleSoftmaxRegression(nn.Module):
     
     def train_forward(self, input, target):
         p = self.forward(input)
-        loss = nn.BCELoss()(p, target)
+        weights = [1.0, 2.0] # in train set 1/3 have no answer, 2/3 have answer
+        loss = nn.BCELoss(weight=weights)(p, target)
         return loss
     
     def predict_proba(self, input):

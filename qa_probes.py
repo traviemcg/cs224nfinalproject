@@ -29,7 +29,6 @@ def train_probes(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
-    examples = examples[:100]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -76,7 +75,7 @@ def train_probes(model_prefix,
 
         # Initialize data loaders
         train_sampler = RandomSampler(dataset)
-        train_dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=4)
+        train_dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=8)
 
         # Training batches
         for batch in tqdm(train_dataloader, desc = "Iteration"):
@@ -93,6 +92,7 @@ def train_probes(model_prefix,
 
                 # Albert forward pass
                 idx = batch[3]
+                # print(idx)
                 outputs = model(**inputs)
                 attention_hidden_states = outputs[2][1:]
 
@@ -127,8 +127,6 @@ def evaluate_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:100]
-
     # Extract features
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
@@ -147,7 +145,7 @@ def evaluate_probes(model_prefix,
 
     # Initialize data loaders
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 4)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 8)
 
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)

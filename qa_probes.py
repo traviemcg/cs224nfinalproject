@@ -105,8 +105,8 @@ def train_probes(model_prefix,
                     is_imp = batch[7][j].clone().unsqueeze(0).to(device)
 
                     # OFFSETTING ???????
-                    start = batch[3][j].clone().unsqueeze(0).to(device)
-                    stop = batch[4][j].clone().unsqueeze(0).to(device)
+                    start = batch[3][j].clone().unsqueeze(0).to(device) + 8
+                    stop = batch[4][j].clone().unsqueeze(0).to(device) + 8
 
                     # Train probes
                     for i, p in enumerate(probes):

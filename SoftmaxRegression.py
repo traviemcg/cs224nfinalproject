@@ -85,7 +85,8 @@ class MultiSoftmaxRegression():
             
             loss = model.train_forward(inputs, targets)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
+            if mode != "impossible":
+                torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
             optimizer.step()
             optimizer.zero_grad()
 

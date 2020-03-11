@@ -212,6 +212,7 @@ def evaluate_probes(model_prefix,
                     # No answer
                     if start_idx == -1:
                         predictions[i]['Predicted'][index] = ""
+                        print("No answer predicted")
                     else:
 
                         # If stop index before start, replace

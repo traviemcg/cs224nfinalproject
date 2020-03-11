@@ -91,6 +91,13 @@ class MultiSoftmaxRegression():
 
         return loss
 
+    def train(self, attentions, is_imp, start, stop, device):
+        self.train_step(attentions, is_imp, 'impossible', device)
+        if not is_imp[0]:
+            self.train_step(attentions, start, 'start', device)
+            self.train_step(attentions, stop, 'stop', device)
+
+
     def predict(self, inputs, device):
         # Return (batch_size, 2) array where both entries are -1 if is_impossible==1
         with torch.no_grad():

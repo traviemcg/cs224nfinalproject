@@ -25,10 +25,6 @@ def train_probes(model_prefix,
 
     '''
 
-    # Create probe directory
-    if not os.path.exists(probe_dir):
-        os.mkdir(probe_dir)
-
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
@@ -125,10 +121,6 @@ def evaluate_probes(model_prefix,
                     hidden_dim = 768,
                     max_seq_length = 384,
                     device = 'cpu'):
-
-    # Create prediction directory
-    if not os.path.exists(pred_dir):
-        os.mkdir(pred_dir)
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
@@ -259,12 +251,22 @@ if __name__ == "__main__":
         probe_dir = "fine_tuned_probes"
         pred_dir = "fine_tuned_preds"
 
+    # Device
     if sys.argv[2] == "cpu":
         device = "cpu"
     elif sys.argv[2] == "gpu":
         device = "cuda"
 
+    # Training epoches
     epoches = int(sys.argv[3])
+
+    # Create probe directory
+    if not os.path.exists(probe_dir):
+        os.mkdir(probe_dir)
+
+    # Create prediction directory
+    if not os.path.exists(pred_dir):
+        os.mkdir(pred_dir)
 
     # Train softmax probes
     train_probes(model_prefix,

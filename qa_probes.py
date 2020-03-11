@@ -19,7 +19,7 @@ def train_probes(model_prefix,
                  epoches = 1,
                  hidden_dim = 768,
                  max_seq_length = 384,
-                 batch_size = 8,
+                 batch_size = 4,
                  device = 'cpu'):
     '''
        Trains softmax probe corresponding to each layer of Albert
@@ -31,7 +31,7 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:100]
+    examples = examples[:8]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -103,6 +103,8 @@ def train_probes(model_prefix,
                 # Update probes
                 for j in range(batch[7].shape[0]):
                     is_imp = batch[7][j].clone().unsqueeze(0).to(device)
+
+                    # OFFSETTING ???????
                     start = batch[3][j].clone().unsqueeze(0).to(device)
                     stop = batch[4][j].clone().unsqueeze(0).to(device)
 
@@ -129,7 +131,7 @@ def evaluate_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:100]
+    examples = examples[:8]
     print(len(examples))
 
     # Extract features
@@ -150,7 +152,7 @@ def evaluate_probes(model_prefix,
 
     # Initialize data loaders
     eval_sampler = SequentialSampler(dataset)
-    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 8)
+    eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 4)
 
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
@@ -198,7 +200,8 @@ def evaluate_probes(model_prefix,
             # Compute prediction
             for j, index in enumerate(idx):
                 index = int(index.item())
-                print(index)
+                if index >= len(examples):
+                    break
                 for i, p in enumerate(probes):
 
                     # Extract prediction

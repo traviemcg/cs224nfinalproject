@@ -57,12 +57,10 @@ def train_probes(model_prefix,
     n = len(examples)
     start_idx = np.zeros(n)
     end_idx = np.zeros(n)
-    # is_impossible = np.zeros(n)
     for i in range(n):
         question_length = len(examples[i].question_text.split())
         start_idx[i] = examples[i].start_position + question_length + 2
         end_idx[i] = examples[i].end_position + question_length + 2
-        # is_impossible[i] = examples[i].is_impossible
 
     # Initialize probes
     torch.manual_seed(1)
@@ -91,8 +89,6 @@ def train_probes(model_prefix,
                     "input_ids": batch[0],
                     "attention_mask": batch[1],
                     "token_type_ids": batch[2],
-                    # "start_positions": batch[3],
-                    # "end_positions": batch[4],
                 }
 
                 # Albert forward pass
@@ -106,9 +102,8 @@ def train_probes(model_prefix,
                         continue
                     else:
                     # Extract label
-                    #  is_imp = torch.tensor(is_impossible[index]).unsqueeze(0).to(device)
-                     start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
-                     stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                    start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                    stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
 
                     # Train probes
                     for i, p in enumerate(probes):

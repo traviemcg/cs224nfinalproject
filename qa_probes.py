@@ -220,8 +220,8 @@ def evaluate_probes(model_prefix,
 
                         # Shift indicies by question length + 2 pad
                         question_length = len(examples[index].question_text.split())
-                        start_idx = start_idx # - question_length - 2
-                        stop_idx = stop_idx # - question_length - 2 
+                        start_idx = start_idx - question_length - 2
+                        stop_idx = stop_idx - question_length - 2 
 
                         # Extract context
                         context = examples[index].context_text.split()

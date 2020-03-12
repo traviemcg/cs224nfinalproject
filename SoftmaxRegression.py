@@ -7,7 +7,7 @@ class SoftmaxRegression(nn.Module):
     def __init__(self, hidden_size):
         super(SoftmaxRegression, self).__init__()
         self.hidden_size = hidden_size
-        self.W = nn.Linear(self.hidden_size, 1, bias=False)
+        self.W = nn.Linear(self.hidden_size, 1, bias=True)
     
     def forward(self, input):
         scores = self.W(input).squeeze(-1)

@@ -9,6 +9,9 @@ class SoftmaxRegression(nn.Module):
         self.seq_len = seq_len
         self.hidden_size = hidden_size
         self.W = nn.Linear(self.hidden_size, 1, bias=True)
+        
+        self.W.weight.data.normal_(mean=0.0, std=0.02)
+        self.W.bias.data.zero_()
     
     def forward(self, input):
         scores = self.W(input).squeeze(-1)
@@ -49,9 +52,10 @@ class MultiSoftmaxRegression():
         with torch.set_grad_enabled(True):
             start_scores = start_model.forward(inputs)
             end_scores = end_model.forward(inputs)
-            ignore_index = start_scores.size(1)
-            start_targets.clamp_(0, ignore_index)
-            end_targets.clamp_(0, ignore_index)
+            ignore_index = 0 
+            #ignore_index=start_scores.size(1)
+            #start_targets.clamp_(0, ignore_index)
+            #end_targets.clamp_(0, ignore_index)
 
             start_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)(start_scores, start_targets)
             end_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)(end_scores, end_targets)
@@ -62,9 +66,10 @@ class MultiSoftmaxRegression():
             torch.nn.utils.clip_grad_norm_(end_model.parameters(), self.max_grad_norm)
             
             start_optimizer.step()
-            start_optimizer.zero_grad()
             end_optimizer.step()
-            end_optimizer.zero_grad()
+
+            start_model.zero_grad()
+            end_model.zero_grad()
 
         return loss
 
@@ -76,7 +81,7 @@ class MultiSoftmaxRegression():
             start_scores = self.model_start_idx.to(device).eval().forward(inputs)
             end_scores = self.model_end_idx.to(device).eval().forward(inputs)
             
-            threshold = 1000000
+            threshold = 0
             mask = start_scores+end_scores >= threshold # boolean mask where >= threshold is 1
             
             start_masked = start_idx*mask

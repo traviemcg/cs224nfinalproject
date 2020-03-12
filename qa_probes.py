@@ -31,7 +31,7 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:8]
+    # examples = examples[:8]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -89,11 +89,11 @@ def train_probes(model_prefix,
                 # Update probes
                 for j in range(batch[7].shape[0]):
                     start = batch[3][j].clone().unsqueeze(0).to(device)
-                    stop  = batch[4][j].clone().unsqueeze(0).to(device)
+                    end  = batch[4][j].clone().unsqueeze(0).to(device)
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, stop, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
 
     # Save probes
     for i, p in enumerate(probes):
@@ -114,7 +114,7 @@ def evaluate_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:8]
+    # examples = examples[:8]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -187,13 +187,13 @@ def evaluate_probes(model_prefix,
                 for i, p in enumerate(probes):
 
                     # Extract predicted indicies
-                    start_idx, stop_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device)
+                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device)
                     start_idx = int(start_idx[0])
-                    stop_idx = int(stop_idx[0])
+                    end_idx = int(end_idx[0])
 
                     # Extract predicted answer
                     tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-                    answer = tokenizer.convert_tokens_to_string(tokens[start_idx:stop_idx+1])
+                    answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
 
                     # No answer
                     if answer == '[CLS]':

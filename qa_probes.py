@@ -101,13 +101,13 @@ def train_probes(model_prefix,
                     if index >= n:
                         continue
                     else:
-                    # Extract label
-                    start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
-                    stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                        # Extract label
+                        start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                        end = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, stop, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
 
     # Save probes
     for i, p in enumerate(probes):

@@ -116,5 +116,6 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 ### Probes
 
 ```
-python qa_probes.py albert-base-v2
+python qa_probes.py [pretrained/finetuned] [cpu/gpu] epochs
+e.g. python qa_probes.py pretrained cpu 1
 ```

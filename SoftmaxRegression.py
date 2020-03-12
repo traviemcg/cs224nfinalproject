@@ -47,9 +47,8 @@ class MultiSoftmaxRegression():
         end_model.train()
 
         with torch.set_grad_enabled(True):
-
-            start_scores = start_model.forward(input)
-            end_scores = end_model.forward(input)
+            start_scores = start_model.forward(inputs)
+            end_scores = end_model.forward(inputs)
             ignore_index = start_scores.size(1)
             start_targets.clamp_(0, ignore_index)
             end_targets.clamp_(0, ignore_index)
@@ -73,18 +72,22 @@ class MultiSoftmaxRegression():
         with torch.no_grad():
             start_idx = self.model_start_idx.to(device).eval().predict(inputs)
             end_idx = self.model_end_idx.to(device).eval().predict(inputs)
-            idxs = torch.stack([start_idx.unsqueeze(-1), end_idx.unsqueeze(-1)], dim=-1)
 
-            threshold = 1000000
             start_scores = self.model_start_idx.to(device).eval().forward(inputs)
             end_scores = self.model_end_idx.to(device).eval().forward(inputs)
-            if start_scores+end_scores < threshold:
-                idxs = idxs*0
+            
+            threshold = 1000000
+            mask = start_scores+end_scores >= threshold # boolean mask where >= threshold is 1
+            
+            start_masked = start_idx*mask
+            end_masked = end_idx*mask
 
+            idxs = torch.stack([start_masked.unsqueeze(-1), end_masked.unsqueeze(-1)], dim=-1)
             np_idxs = idxs.cpu().numpy()
         
-        # Return (batch_size, 2) array where both entries are 0 if is impossible
-        return np_idxs[:, 0, :]
+        # Return (class_size, 2) array where both entries are 0 if is impossible
+        # If want to extend to larger batches, let whole first index go
+        return np_idxs[0, :, 0, :]
     
     def save(self, probe_dir, layer):
         torch.save(self.model_start_idx.state_dict(), probe_dir + "/layer_" + str(layer) + "_start_idx")

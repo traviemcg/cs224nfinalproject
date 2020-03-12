@@ -52,16 +52,6 @@ def train_probes(model_prefix,
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
 
-    # # Store solutions
-    # print("Extracting solutions")
-    # n = len(examples)
-    # start_idx = np.zeros(n)
-    # end_idx = np.zeros(n)
-    # for i in range(n):
-    #     question_length = len(examples[i].question_text.split())
-    #     start_idx[i] = examples[i].start_position + question_length + 2
-    #     end_idx[i] = examples[i].end_position + question_length + 2
-
     # Initialize probes
     torch.manual_seed(1)
     print("Initializing probes")
@@ -98,6 +88,7 @@ def train_probes(model_prefix,
                 attention_hidden_states = outputs[3][1:]
 
                 # Update probes
+<<<<<<< HEAD
                 # for j, index in enumerate(idx):
                 #     if index >= n:
                 #         continue
@@ -110,10 +101,19 @@ def train_probes(model_prefix,
                 for j in range(batch[7].shape[0]):
                     start = batch[3][j].clone().unsqueeze(0).to(device)
                     stop  = batch[4][j].clone().unsqueeze(0).to(device)
+=======
+                for j, index in enumerate(idx):
+                    if index >= n:
+                        continue
+                    else:
+                        # Extract label
+                        start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+                        end = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
+>>>>>>> 04273aeb1698bc487bb600824371cb298517b80f
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, stop, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
 
     # Save probes
     for i, p in enumerate(probes):

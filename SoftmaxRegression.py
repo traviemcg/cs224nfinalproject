@@ -9,6 +9,9 @@ class SoftmaxRegression(nn.Module):
         self.seq_len = seq_len
         self.hidden_size = hidden_size
         self.W = nn.Linear(self.hidden_size, 1, bias=True)
+        
+        self.W.weight.data.normal_(mean=0.0, std=0.02)
+        self.W.bias.data.zero_()
     
     def forward(self, input):
         scores = self.W(input).squeeze(-1)
@@ -47,12 +50,12 @@ class MultiSoftmaxRegression():
         end_model.train()
 
         with torch.set_grad_enabled(True):
-
-            start_scores = start_model.forward(input)
-            end_scores = end_model.forward(input)
-            ignore_index = start_scores.size(1)
-            start_targets.clamp_(0, ignore_index)
-            end_targets.clamp_(0, ignore_index)
+            start_scores = start_model.forward(inputs)
+            end_scores = end_model.forward(inputs)
+            ignore_index = 0 
+            #ignore_index=start_scores.size(1)
+            #start_targets.clamp_(0, ignore_index)
+            #end_targets.clamp_(0, ignore_index)
 
             start_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)(start_scores, start_targets)
             end_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)(end_scores, end_targets)
@@ -63,9 +66,10 @@ class MultiSoftmaxRegression():
             torch.nn.utils.clip_grad_norm_(end_model.parameters(), self.max_grad_norm)
             
             start_optimizer.step()
-            start_optimizer.zero_grad()
             end_optimizer.step()
-            end_optimizer.zero_grad()
+
+            start_model.zero_grad()
+            end_model.zero_grad()
 
         return loss
 
@@ -73,18 +77,22 @@ class MultiSoftmaxRegression():
         with torch.no_grad():
             start_idx = self.model_start_idx.to(device).eval().predict(inputs)
             end_idx = self.model_end_idx.to(device).eval().predict(inputs)
-            idxs = torch.stack([start_idx.unsqueeze(-1), end_idx.unsqueeze(-1)], dim=-1)
 
-            threshold = 1000000
             start_scores = self.model_start_idx.to(device).eval().forward(inputs)
             end_scores = self.model_end_idx.to(device).eval().forward(inputs)
-            if start_scores+end_scores < threshold:
-                idxs = idxs*0
+            
+            threshold = 0
+            mask = start_scores+end_scores >= threshold # boolean mask where >= threshold is 1
+            
+            start_masked = start_idx*mask
+            end_masked = end_idx*mask
 
+            idxs = torch.stack([start_masked.unsqueeze(-1), end_masked.unsqueeze(-1)], dim=-1)
             np_idxs = idxs.cpu().numpy()
         
-        # Return (batch_size, 2) array where both entries are 0 if is impossible
-        return np_idxs[:, 0, :]
+        # Return (class_size, 2) array where both entries are 0 if is impossible
+        # If want to extend to larger batches, let whole first index go
+        return np_idxs[0, :, 0, :]
     
     def save(self, probe_dir, layer):
         torch.save(self.model_start_idx.state_dict(), probe_dir + "/layer_" + str(layer) + "_start_idx")

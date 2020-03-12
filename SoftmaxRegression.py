@@ -4,14 +4,10 @@ import torch.nn.functional as F
 from transformers import AdamW
 
 class SoftmaxRegression(nn.Module):
-    def __init__(self, seq_len, hidden_size):
+    def __init__(self, hidden_size):
         super(SoftmaxRegression, self).__init__()
-        self.seq_len = seq_len
         self.hidden_size = hidden_size
-        self.W = nn.Linear(self.hidden_size, 1, bias=True)
-        
-        self.W.weight.data.normal_(mean=0.0, std=0.02)
-        self.W.bias.data.zero_()
+        self.W = nn.Linear(self.hidden_size, 1, bias=False)
     
     def forward(self, input):
         scores = self.W(input).squeeze(-1)
@@ -28,11 +24,10 @@ class SoftmaxRegression(nn.Module):
         return preds
 
 class MultiSoftmaxRegression():
-    def __init__(self, seq_len, hidden_size):
-        self.seq_len = seq_len
+    def __init__(self, hidden_size):
         self.hidden_size = hidden_size
-        self.model_start_idx = SoftmaxRegression(seq_len, hidden_size)
-        self.model_end_idx = SoftmaxRegression(seq_len, hidden_size)
+        self.model_start_idx = SoftmaxRegression(hidden_size)
+        self.model_end_idx = SoftmaxRegression(hidden_size)
 
         self.lr = 3e-5
         self.adam_epsilon = 1e-8
@@ -43,22 +38,22 @@ class MultiSoftmaxRegression():
         start_model = self.model_start_idx.to(device)
         end_model = self.model_end_idx.to(device)
 
-        start_optimizer = AdamW(start_model.parameters(), lr=self.lr, eps=self.adam_epsilon)
-        end_optimizer = AdamW(end_model.parameters(), lr=self.lr, eps=self.adam_epsilon)
-        
         start_model.train()
         end_model.train()
 
-        with torch.set_grad_enabled(True):
-            start_scores = start_model.forward(inputs)
-            end_scores = end_model.forward(inputs)
-            ignore_index = 0 
-            #ignore_index=start_scores.size(1)
-            #start_targets.clamp_(0, ignore_index)
-            #end_targets.clamp_(0, ignore_index)
+        start_optimizer = AdamW(start_model.parameters(), lr=self.lr, eps=self.adam_epsilon)
+        end_optimizer = AdamW(end_model.parameters(), lr=self.lr, eps=self.adam_epsilon)
 
-            start_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)(start_scores, start_targets)
-            end_loss = nn.CrossEntropyLoss(ignore_index=ignore_index)(end_scores, end_targets)
+        with torch.set_grad_enabled(True):
+            start_scores = start_model(inputs)
+            end_scores = end_model(inputs)
+            
+            ignored_index = start_scores.size(1)
+            start_targets.clamp_(0, ignored_index)
+            end_targets.clamp_(0, ignored_index)
+
+            start_loss = nn.CrossEntropyLoss(ignore_index=ignored_index)(start_scores, start_targets)
+            end_loss = nn.CrossEntropyLoss(ignore_index=ignored_index)(end_scores, end_targets)
             loss = (start_loss+end_loss)/2.0
             loss.backward()
             
@@ -74,25 +69,18 @@ class MultiSoftmaxRegression():
         return loss
 
     def predict(self, inputs, device):
+
+        start_model = self.model_start_idx.to(device)
+        end_model = self.model_end_idx.to(device)
+
+        start_model.eval()
+        end_model.eval()
+
         with torch.no_grad():
-            start_idx = self.model_start_idx.to(device).eval().predict(inputs)
-            end_idx = self.model_end_idx.to(device).eval().predict(inputs)
+            start_idx = start_model.predict(inputs)
+            end_idx = end_model.predict(inputs)
 
-            start_scores = self.model_start_idx.to(device).eval().forward(inputs)
-            end_scores = self.model_end_idx.to(device).eval().forward(inputs)
-            
-            threshold = 0
-            mask = start_scores+end_scores >= threshold # boolean mask where >= threshold is 1
-            
-            start_masked = start_idx*mask
-            end_masked = end_idx*mask
-
-            idxs = torch.stack([start_masked.unsqueeze(-1), end_masked.unsqueeze(-1)], dim=-1)
-            np_idxs = idxs.cpu().numpy()
-        
-        # Return (class_size, 2) array where both entries are 0 if is impossible
-        # If want to extend to larger batches, let whole first index go
-        return np_idxs[0, :, 0, :]
+        return start_idx.cpu().numpy(), end_idx.cpu().numpy()
     
     def save(self, probe_dir, layer):
         torch.save(self.model_start_idx.state_dict(), probe_dir + "/layer_" + str(layer) + "_start_idx")

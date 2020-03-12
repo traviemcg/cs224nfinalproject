@@ -31,8 +31,6 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:2000]
-
     # Extract features
     features, dataset = squad_convert_examples_to_features(
         examples=examples,
@@ -113,8 +111,6 @@ def evaluate_probes(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
-
-    examples = examples[:100]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(

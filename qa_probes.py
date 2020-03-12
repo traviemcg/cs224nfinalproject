@@ -31,7 +31,7 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:8]
+    examples = examples[:2000]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -114,7 +114,7 @@ def evaluate_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:8]
+    examples = examples[:100]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     # Train softmax probes
     train_probes(model_prefix,
                  data_dir = "squad-master/data/",
-                 filename = dev,
+                 filename = train,
                  probe_dir = probe_dir,
                  epoches = epoches,
                  hidden_dim = 768,

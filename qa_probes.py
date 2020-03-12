@@ -31,7 +31,7 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:9]
+    examples = examples[:8]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -56,7 +56,7 @@ def train_probes(model_prefix,
     print("Initializing probes")
     probes = []
     for i in range(layers):
-        probes.append(MultiSoftmaxRegression(max_seq_length, hidden_dim))
+        probes.append(MultiSoftmaxRegression(hidden_dim))
 
     # Training epoches
     for epoch in range(epoches):
@@ -143,7 +143,7 @@ def evaluate_probes(model_prefix,
     print("Loading probes")
     probes = []
     for i in range(layers):
-        p = MultiSoftmaxRegression(max_seq_length, hidden_dim)
+        p = MultiSoftmaxRegression(hidden_dim)
         p.load(probe_dir, i)
         probes.append(p)
 
@@ -186,31 +186,21 @@ def evaluate_probes(model_prefix,
                     break
                 for i, p in enumerate(probes):
 
-                    # Extract prediction
-                    layer_pred = p.predict(attention_hidden_states[i][j].unsqueeze(0), device)
-                    start_idx = int(layer_pred[0][0])
-                    stop_idx = int(layer_pred[0][1])
+                    # Extract predicted indicies
+                    start_idx, stop_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device)
+                    start_idx = int(start_idx[0])
+                    stop_idx = int(stop_idx[0])
+
+                    # Extract predicted answer
+                    tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
+                    answer = tokenizer.convert_tokens_to_string(tokens[start_idx:stop_idx+1])
 
                     # No answer
-                    if (start_idx == 0) and (stop_idx == 0):
-                        predictions[i]['Predicted'][index] = ""
-                    else:
-                        # If stop index before start, replace
-                        if stop_idx <= start_idx:
-                            stop_idx = start_idx
+                    if answer == '[CLS]':
+                        answer = ''
 
-                        # Shift indicies by question length + 2 pad
-                        question_length = len(examples[index].question_text.split())
-                        start_idx = start_idx - question_length - 2
-                        stop_idx = stop_idx - question_length - 2 
-
-                        # Extract context
-                        context = examples[index].context_text.split()
-
-                        # Reconstruct answer
-                        answer = " ".join(context[start_idx:stop_idx + 1])
-                        answer = answer.replace('"', '')
-                        predictions[i]['Predicted'][index] = answer
+                    # Populate output
+                    predictions[i]['Predicted'][index] = answer
 
     # Save predictions
     for i, pred in enumerate(predictions):

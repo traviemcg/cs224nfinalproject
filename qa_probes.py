@@ -31,7 +31,7 @@ def train_probes(model_prefix,
     processor = SquadV2Processor()
     examples = processor.get_train_examples(data_dir = data_dir, filename = filename)
 
-    examples = examples[:8]
+    examples = examples[:9]
 
     # Extract features
     features, dataset = squad_convert_examples_to_features(
@@ -53,7 +53,6 @@ def train_probes(model_prefix,
     model = torch.nn.DataParallel(model)
 
     # Initialize probes
-    torch.manual_seed(1)
     print("Initializing probes")
     probes = []
     for i in range(layers):
@@ -88,32 +87,13 @@ def train_probes(model_prefix,
                 attention_hidden_states = outputs[3][1:]
 
                 # Update probes
-<<<<<<< HEAD
-                # for j, index in enumerate(idx):
-                #     if index >= n:
-                #         continue
-                #     else:
-                #     # Extract label
-                #     start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
-                #     stop = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
-
-                # Update probes
                 for j in range(batch[7].shape[0]):
                     start = batch[3][j].clone().unsqueeze(0).to(device)
                     stop  = batch[4][j].clone().unsqueeze(0).to(device)
-=======
-                for j, index in enumerate(idx):
-                    if index >= n:
-                        continue
-                    else:
-                        # Extract label
-                        start = torch.tensor(start_idx[index], dtype=torch.long).unsqueeze(0).to(device)
-                        end = torch.tensor(end_idx[index], dtype=torch.long).unsqueeze(0).to(device)
->>>>>>> 04273aeb1698bc487bb600824371cb298517b80f
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, stop, device)
 
     # Save probes
     for i, p in enumerate(probes):
@@ -273,6 +253,9 @@ if __name__ == "__main__":
     # Create prediction directory
     if not os.path.exists(pred_dir):
         os.mkdir(pred_dir)
+
+    # Set random seed
+    torch.manual_seed(1)
 
     # Train softmax probes
     train_probes(model_prefix,

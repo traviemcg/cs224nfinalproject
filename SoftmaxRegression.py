@@ -31,7 +31,7 @@ class MultiSoftmaxRegression():
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)
 
-        self.lr = 1e-3
+        self.lr = 3e-5
         self.adam_epsilon = 1e-8
         self.max_grad_norm = 1.0
 

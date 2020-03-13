@@ -15,6 +15,7 @@ def send_epoches(model_prefix,
                  dev_file,
                  probe_dir,
                  pred_dir,
+                 batch_size = 4,
                  layers = 12,
                  hidden_dim = 768,
                  max_seq_length = 384,
@@ -73,15 +74,14 @@ def send_epoches(model_prefix,
     for i in range(n):
         q_ids.append(dev_examples[i].qas_id)
 
-    
     # Training epoches
     for epoch in range(epoches):
 
         print("Training epoch: {}".format(epoch + 1))
 
         # Initialize train data loader
-        train_sampler = RandomSampler(dataset)
-        train_dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=batch_size)
+        train_sampler = RandomSampler(train_dataset)
+        train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=batch_size)
 
         # Training batches
         for batch in tqdm(train_dataloader, desc = "Iteration"):
@@ -120,15 +120,15 @@ def send_epoches(model_prefix,
             p.save(it_probe_dir, i)
 
         # Initialize dev data loader
-        eval_sampler = SequentialSampler(dataset)
-        eval_dataloader = DataLoader(dataset, sampler = eval_sampler, batch_size = 4)
+        eval_sampler = SequentialSampler(dev_dataset)
+        eval_dataloader = DataLoader(dev_dataset, sampler = eval_sampler, batch_size = batch_size)
 
         # Initialize predictions
         predictions = []
         for i in range(layers):
             pred = pd.DataFrame()
             pred['Id'] = q_ids
-            pred['Predicted'] = [""] * len(examples)
+            pred['Predicted'] = [""] * len(dev_examples)
             predictions.append(pred)
 
         # Evaluation batches

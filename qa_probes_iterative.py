@@ -13,6 +13,7 @@ def send_epoches(model_prefix,
                  data_dir,
                  train_file,
                  dev_file,
+                 epoch_dir,
                  probe_dir,
                  pred_dir,
                  batch_size = 4,
@@ -79,6 +80,11 @@ def send_epoches(model_prefix,
 
         print("Training epoch: {}".format(epoch + 1))
 
+        # Make epoch directory
+        it_epoch_dir = epoch_dir + "_" + str(epoch + 1)
+        if not os.path.exists(it_epoch_dir):
+            os.mkdir(it_epoch_dir)
+
         # Initialize train data loader
         train_sampler = RandomSampler(train_dataset)
         train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=batch_size)
@@ -113,11 +119,11 @@ def send_epoches(model_prefix,
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")
-        it_probe_dir = probe_dir + "_epoch_" + str(epoch + 1)
+        it_probe_dir = it_epoch_dir + "/" + probe_dir
         if not os.path.exists(it_probe_dir):
             os.mkdir(it_probe_dir)
         for i, p in enumerate(probes):
-            p.save(it_probe_dir, i)
+            p.save(it_probe_dir, i + 1)
 
         # Initialize dev data loader
         eval_sampler = SequentialSampler(dev_dataset)
@@ -174,7 +180,7 @@ def send_epoches(model_prefix,
 
         # Save predictions
         print("Saving predictions")
-        it_pred_dir = pred_dir + "_epoch_" + str(epoch + 1)
+        it_pred_dir = it_epoch_dir + "/" + pred_dir
         if not os.path.exists(it_pred_dir):
             os.mkdir(it_pred_dir)
         for i, pred in enumerate(predictions):
@@ -194,10 +200,12 @@ if __name__ == "__main__":
     # Model
     if sys.argv[1] == "pretrained":
         model_prefix = "albert-base-v2"
+        epoch_dir = "pretrained_epoch"
         probe_dir = "pretrained_probes"
         pred_dir = "pretrained_preds"
     elif sys.argv[1] == "fine_tuned":
         model_prefix = "twmkn9/albert-base-v2-squad2"
+        epoch_dir = "fine_tuned_epoch"
         probe_dir = "fine_tuned_probes"
         pred_dir = "fine_tuned_preds"
 
@@ -218,6 +226,7 @@ if __name__ == "__main__":
                  data_dir = "squad-master/data/",
                  train_file = "dev-v2.0.json",
                  dev_file = "dev-v2.0.json",
+                 epoch_dir = epoch_dir,
                  probe_dir = probe_dir,
                  pred_dir = pred_dir,
                  hidden_dim = 768,

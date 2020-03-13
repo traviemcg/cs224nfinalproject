@@ -9,13 +9,14 @@ from SoftmaxRegression import MultiSoftmaxRegression
 import os
 import pandas as pd
 
-def send_epoches(model_prefix,
+def send_epochs(model_prefix,
                  data_dir,
                  train_file,
                  dev_file,
                  epoch_dir,
                  probe_dir,
                  pred_dir,
+                 epochs,
                  batch_size = 4,
                  layers = 12,
                  hidden_dim = 768,
@@ -66,7 +67,8 @@ def send_epoches(model_prefix,
     print("Initializing probes")
     probes = []
     for i in range(layers):
-        probes.append(MultiSoftmaxRegression(hidden_dim))
+        p = MultiSoftmaxRegression(hidden_dim, len(train_examples), epochs)
+        probes.append(p)
 
     # Extract IDs
     print("Extracting dev IDs")
@@ -75,8 +77,8 @@ def send_epoches(model_prefix,
     for i in range(n):
         q_ids.append(dev_examples[i].qas_id)
 
-    # Training epoches
-    for epoch in range(epoches):
+    # Training epochs
+    for epoch in range(epochs):
 
         print("Training epoch: {}".format(epoch + 1))
 
@@ -195,7 +197,7 @@ if __name__ == "__main__":
     # Usage message
     if len(sys.argv) != 4:
         print('Usage:')
-        print('   python3 qa_probes_iterative.py [pretrained/fine_tuned] [cpu/gpu] epoches')
+        print('   python3 qa_probes_iterative.py [pretrained/fine_tuned] [cpu/gpu] epochs')
 
     # Model
     if sys.argv[1] == "pretrained":
@@ -215,20 +217,21 @@ if __name__ == "__main__":
     elif sys.argv[2] == "gpu":
         device = "cuda"
 
-    # Training epoches
-    epoches = int(sys.argv[3])
+    # Training epochs
+    epochs = int(sys.argv[3])
 
     # Set random seed
     torch.manual_seed(1)
 
-    # Send epoches
-    send_epoches(model_prefix,
+    # Send epochs
+    send_epochs(model_prefix,
                  data_dir = "squad-master/data/",
-                 train_file = "dev-v2.0.json",
-                 dev_file = "dev-v2.0.json",
+                 train_file = train,
+                 dev_file = dev,
                  epoch_dir = epoch_dir,
                  probe_dir = probe_dir,
                  pred_dir = pred_dir,
+                 epochs = epochs,
                  hidden_dim = 768,
                  max_seq_length = 384,
                  device = device)

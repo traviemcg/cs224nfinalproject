@@ -15,6 +15,7 @@ def train_probes(model_prefix,
                  data_dir,
                  filename,
                  probe_dir,
+                 warm_start_dir,
                  layers = 12,
                  epoches = 1,
                  hidden_dim = 768,
@@ -50,11 +51,19 @@ def train_probes(model_prefix,
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
 
-    # Initialize probes
-    print("Initializing probes")
+    # # Initialize probes
+    # print("Initializing probes")
+    # probes = []
+    # for i in range(layers):
+    #     probes.append(MultiSoftmaxRegression(hidden_dim))
+
+    # Load probes
+    print("Loading probes from {}".format(warm_start_dir))
     probes = []
     for i in range(layers):
-        probes.append(MultiSoftmaxRegression(hidden_dim))
+        p = MultiSoftmaxRegression(hidden_dim)
+        p.load(warm_start_dir, i)
+        probes.append(p)
 
     # Training epoches
     for epoch in range(epoches):
@@ -216,12 +225,14 @@ if __name__ == "__main__":
     # Model
     if sys.argv[1] == "pretrained":
         model_prefix = "albert-base-v2"
-        probe_dir = "pretrained_probes"
-        pred_dir = "pretrained_preds"
+        warm_start_dir = "pretrained_5_epoches_probes"
+        probe_dir = "pretrained_10_epoches_probes"
+        pred_dir = "pretrained_10_epoches_preds"
     elif sys.argv[1] == "fine_tuned":
         model_prefix = "twmkn9/albert-base-v2-squad2"
-        probe_dir = "fine_tuned_probes"
-        pred_dir = "fine_tuned_preds"
+        warm_start_dir = "fine_tuned_5_epoches_probes"
+        probe_dir = "fine_tuned_10_epoches_probes"
+        pred_dir = "fine_tuned_10_epoches_preds"
 
     # Device
     if sys.argv[2] == "cpu":
@@ -248,6 +259,7 @@ if __name__ == "__main__":
                  data_dir = "squad-master/data/",
                  filename = train,
                  probe_dir = probe_dir,
+                 warm_start_dir = warm_start_dir,
                  epoches = epoches,
                  hidden_dim = 768,
                  max_seq_length = 384,

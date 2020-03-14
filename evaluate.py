@@ -140,11 +140,6 @@ def main(data_file, pred_file):
 
   has_ans_qids_in_pred = [qid for qid in has_ans_qids if qid in preds]
   no_ans_qids_in_pred = [qid for qid in no_ans_qids if qid in preds]
-
-  if has_ans_qids != has_ans_qids_in_pred:
-    print("Missing some qids with answers")
-  if no_ans_qids != no_ans_qids_in_pred:
-    print("Missing some qids with no answers")
   
   exact_raw, f1_raw = get_raw_scores(dataset, preds)
   
@@ -216,14 +211,34 @@ if __name__ == '__main__':
   model = ['pretrained', 'fine_tuned']
   modes = ['has_ans', 'no_ans', 'all']
 
-  epoch_names = sorted(os.listdir(experiment_dir))
-  for epoch_name in epoch_names:
-    epoch_dir = experiment_dir + epoch_name
-    if os.path.isdir(epoch_dir):
-      for possible_pred_name in os.listdir(epoch_dir):
-        pred_dir = epoch_dir + "/" + possible_pred_name + "/"
-        if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
-          print(pred_dir)
-          convert_preds_to_json(pred_dir)
-          save_metrics(pred_dir, dev_file)
-          print("")
+
+  use_preds_or_exper_dir = sys.argv[2]
+  
+  if use_preds_or_exper_dir == "exper":
+
+    epoch_names = sorted(os.listdir(experiment_dir))
+    for epoch_name in epoch_names:
+      epoch_dir = experiment_dir + epoch_name
+      if os.path.isdir(epoch_dir):
+        for possible_pred_name in os.listdir(epoch_dir):
+          pred_dir = epoch_dir + "/" + possible_pred_name + "/"
+          if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
+            print(pred_dir)
+            convert_preds_to_json(pred_dir)
+            save_metrics(pred_dir, dev_file)
+            print("")
+
+  elif use_preds_or_exper_dir == "preds":
+
+    pred_dir = experiment_dir
+
+    if pred_dir[-1] != "/":
+        pred_dir = pred_dir + "/"
+
+    convert_preds_to_json(pred_dir)
+    save_metrics(pred_dir, dev_file)
+
+  else:
+    print("Invalid argument for 'use_preds_or_exper_dir', should be 'exper' or 'preds'")
+
+

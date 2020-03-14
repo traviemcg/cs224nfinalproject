@@ -123,6 +123,11 @@ e.g. python qa_probes_iterative.py pretrained cpu 1
 ### Evaluation
 
 ```
-python evaluate.py experiment_directory
+python evaluate.py experiment_directory exper
 ```
 The script looks inside experiment directory for `\[pretrained/fine_tuned\]\_epoch\_\[#\]/\[pretrained/fine_tuned\]_preds/*.csv` to calculate metrics. Note, this is the default output of `qa_probes_iterative.py`.
+
+Alternatively, to specify the preds directly, use:
+```
+python evaluate.py preds_directory preds
+```

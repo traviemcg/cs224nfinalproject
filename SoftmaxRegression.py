@@ -19,12 +19,8 @@ class SoftmaxRegression(nn.Module):
     def predict_proba(self, input):
         scores = self.forward(input)
         p = F.softmax(scores, dim=-1)
+        print(p.shape)
         return p
-    
-    def predict(self, input):
-        p = self.predict_proba(input)
-        _, preds = p.max(-1)
-        return preds
 
 class MultiSoftmaxRegression():
     def __init__(self, hidden_size, num_train_samples, num_train_epochs):
@@ -32,12 +28,12 @@ class MultiSoftmaxRegression():
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)
 
-        self.lr = 1e-3
+        self.lr = 5e-5
         self.adam_epsilon = 1e-8
         self.max_grad_norm = 1.0
-
-        self.start_optimizer = torch.optim.SGD(self.model_start_idx.parameters(), lr=self.lr, momentum=0.9)
-        self.end_optimizer = torch.optim.SGD(self.model_end_idx.parameters(), lr=self.lr, momentum=0.9)
+        
+        self.start_optimizer = AdamW(self.model_start_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
+        self.end_optimizer = AdamW(self.model_end_idx .parameters(), lr=self.lr, eps=self.adam_epsilon)
         
         self.total_steps = num_train_samples * num_train_epochs
         self.start_scheduler = get_linear_schedule_with_warmup(self.start_optimizer, num_warmup_steps=0, num_training_steps=self.total_steps)
@@ -79,6 +75,10 @@ class MultiSoftmaxRegression():
         return loss
 
     def predict(self, inputs, device):
+        """ Function to predict the start and end endices in a question answer sequence
+            inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
+            device: string ('cuda' or 'cpu') tells pytorch where to run computations
+        """
 
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
@@ -86,9 +86,28 @@ class MultiSoftmaxRegression():
         self.model_start_idx.eval()
         self.model_end_idx.eval()
 
+
+        S = self.model_start_idx
+        E = self.model_end_idx
+
         with torch.no_grad():
-            start_idx = self.model_start_idx.predict(inputs)
-            end_idx = self.model_end_idx.predict(inputs)
+            start_scores = S(inputs)
+            end_scores = E(inputs)
+
+            start_null = start_scores[:, 0]
+            end_null = end_scores[:, 0]
+            s_null = start_null + end_null
+
+            start_non_null, start_non_null_idx = start_scores[:, 1:].max(-1)
+            end_non_null, end_non_null_idx = end_scores[:, 1:].max(-1)
+            s_non_null = start_non_null + end_non_null
+
+            threshold = 0
+            non_null_more_likely_than_null = s_non_null >= s_null + threshold
+            
+            # Add one because argmax was missing the null entry, multiply by mask to force idx where null is more probable to zero
+            start_idx = non_null_more_likely_than_null*(start_non_null_idx+1)
+            end_idx = non_null_more_likely_than_null*(end_non_null_idx+1)
 
         return start_idx.cpu().numpy(), end_idx.cpu().numpy()
     
@@ -108,15 +127,15 @@ if __name__ == "__main__":
     torch.manual_seed(SEED)
 
     batch_size = 3
-    seq_len = 4
-    hidden_size = 5
+    seq_len = 7
+    hidden_size = 8
 
     inputs = torch.randn((batch_size, seq_len, hidden_size)) # matrix of size (batch_size, seq_len, hidden_size)
-    start_idx_targets = torch.tensor([0, 0, 2]) # matrix of size (batch_size) where entry is class idx
-    end_idx_targets = torch.tensor([1, 0, 3]) # matrix of size (batch_size) where entry is class idx
+    start_idx_targets = torch.tensor([4, 0, 2]) # matrix of size (batch_size) where entry is class idx
+    end_idx_targets = torch.tensor([6, 0, 3]) # matrix of size (batch_size) where entry is class idx
 
-    max_epoch = 10000
-    print_every = 500
+    max_epoch = 20000
+    print_every = 1000
     epoch = 0
     device = "cpu"
     model = MultiSoftmaxRegression(hidden_size, batch_size, max_epoch)

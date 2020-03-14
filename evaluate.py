@@ -195,17 +195,22 @@ def save_metrics(pred_dir, dev_file, mode):
         print(layer, exact_score, f1_score)
 
     results = pd.DataFrame({'layer':layers, 'exact':exact, 'f1':f1})
-    results.to_csv(pred_dir + mode + "_results.csv", index = False)
+    
+    save_dir = os.path.abspath(pred_dir+"/../")
+    csv_name = mode + "results.csv"
+
+    results.to_csv(save_dir+csv_name, index = False)
 
 if __name__ == '__main__':
 
   pred_dir = sys.argv[1]
-  mode = sys.argv[2]
-  assert mode=='Has_Ans' or mode=='No_Ans' or mode =='All', print("Second argument 'mode' must be one of 'Has_Ans', 'No_Ans, or 'All")
   dev_file = "squad-master/data/dev-v2.0.json"
 
   if pred_dir[-1] != "/":
       pred_dir = pred_dir + "/"
 
-  convert_preds_to_json(pred_dir)
-  save_metrics(pred_dir, dev_file, mode)
+  modes = ['Has_Ans', 'No_Ans', 'All']
+  for mode in modes:
+    print("For mode={}".format(mode))
+    convert_preds_to_json(pred_dir)
+    save_metrics(pred_dir, dev_file, mode)

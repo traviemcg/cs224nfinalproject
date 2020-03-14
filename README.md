@@ -116,13 +116,13 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 ### Probes
 
 ```
-python qa_probes.py [pretrained/finetuned] [cpu/gpu] epochs
-e.g. python qa_probes.py pretrained cpu 1
+python qa_probes_iterative.py [pretrained/finetuned] [cpu/gpu] epochs
+e.g. python qa_probes_iterative.py pretrained cpu 1
 ```
 
 ### Evaluation
 
 ```
-python evaluate.py pretrained_epoch_[#]/pretrained_preds
-python evaluate.py fine_tuned_epoch_[#]/fine_tuned_preds
+python evaluate.py experiment_directory
 ```
+The script looks inside experiment directory for `\[pretrained/fine_tuned\]\_epoch\_\[#\]/\[pretrained/fine_tuned\]_preds/*.csv` to calculate metrics. Note, this is the default output of `qa_probes_iterative.py`.

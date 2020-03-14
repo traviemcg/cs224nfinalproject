@@ -154,8 +154,8 @@ def main(data_file, pred_file):
     merge_eval(out_eval, no_ans_eval, 'no_ans')
 
   exact, f1 = out_eval['exact'], out_eval['f1']
-  exact_no_ans, f1_no_ans = out_eval['has_ans_exact'], out_eval['has_ans_f1']
-  exact_has_ans, f1_has_ans = out_eval['no_ans_exact'], out_eval['no_ans_f1']
+  exact_no_ans, f1_no_ans = out_eval['no_ans_exact'], out_eval['no_ans_f1']
+  exact_has_ans, f1_has_ans = out_eval['has_ans_exact'], out_eval['has_ans_f1']
 
   return exact, f1, exact_no_ans, f1_no_ans, exact_has_ans, f1_has_ans
 

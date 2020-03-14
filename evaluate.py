@@ -137,10 +137,6 @@ def main(data_file, pred_file, mode):
   qid_to_has_ans = make_qid_to_has_ans(dataset)  # maps qid to True/False
   has_ans_qids = [k for k, v in qid_to_has_ans.items() if v]
   no_ans_qids = [k for k, v in qid_to_has_ans.items() if not v]
-  if mode == 'has_ans':
-    no_ans_qids = False
-  if mode == 'no_ans':
-    has_ans_qids = False
   
   exact_raw, f1_raw = get_raw_scores(dataset, preds)
   
@@ -151,14 +147,23 @@ def main(data_file, pred_file, mode):
 
   if has_ans_qids:
     has_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=has_ans_qids)
-    merge_eval(out_eval, has_ans_eval, 'HasAns')
+    merge_eval(out_eval, has_ans_eval, 'has_ans')
   
   if no_ans_qids:
     no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids)
-    merge_eval(out_eval, no_ans_eval, 'NoAns')
+    merge_eval(out_eval, no_ans_eval, 'no_ans')
 
-  print(out_eval['exact'], out_eval['f1'])
-  return out_eval['exact'], out_eval['f1']
+  if mode == 'all':
+    exact, f1 = out_eval['exact'], out_eval['f1']
+  elif mode == 'has_ans':
+    exact, f1 = out_eval['has_ans_exact'], out_eval['has_ans_f1']
+  elif mode == 'no_ans':
+    exact, f1 = out_eval['no_ans_exact'], out_eval['no_ans_f1']
+  else:
+    print("Error in main() in evaluate.py, invalid mode")
+    exact, f1 = None, None
+
+  return exact, f1
 
 
 def convert_preds_to_json(pred_dir):

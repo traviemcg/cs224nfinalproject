@@ -17,14 +17,17 @@ def eval_model(model_prefix,
                dev_file = "dev-v2.0.json",
                layers = 12,
                train_size = 130139,
-               hidden_dim = 768):
+               hidden_dim = 768,
+               batch_size = 4,
+               max_seq_length = 384,
+               device = 'gpu'):
 
     # Load probe
     print("Loading probes")
     probes = []
     for i in range(layers):
         probe = MultiSoftmaxRegression(768, 130139, 5)
-        probe.load(probe_dir, layer)
+        probe.load(probe_dir, i)
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
@@ -116,7 +119,7 @@ def eval_model(model_prefix,
     # Save predictions
     print("Saving predictions")
     if not os.path.exists(pred_dir):
-        os.mkdir(it_pred_dir)
+        os.mkdir(pred_dir)
     for i, pred in enumerate(predictions):
         pred.to_csv(pred_dir + "/pred_layer_" + str(i+1) + ".csv", index = False)
 

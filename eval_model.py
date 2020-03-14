@@ -27,7 +27,7 @@ def eval_model(model_prefix,
     probes = []
     for i in range(layers):
         probe = MultiSoftmaxRegression(768, 130139, 5)
-        probe.load(probe_dir, i)
+        probe.load(probe_dir, i+1)
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)

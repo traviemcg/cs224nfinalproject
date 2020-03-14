@@ -20,7 +20,7 @@ def eval_model(model_prefix,
                hidden_dim = 768,
                batch_size = 4,
                max_seq_length = 384,
-               device = 'gpu'):
+               device = 'cuda'):
 
     # Load probe
     print("Loading probes")

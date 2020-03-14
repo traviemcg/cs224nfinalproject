@@ -32,12 +32,12 @@ class MultiSoftmaxRegression():
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)
 
-        self.lr = 3e-5
+        self.lr = 1e-3
         self.adam_epsilon = 1e-8
         self.max_grad_norm = 1.0
 
-        self.start_optimizer = AdamW(self.model_start_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
-        self.end_optimizer = AdamW(self.model_end_idx .parameters(), lr=self.lr, eps=self.adam_epsilon)
+        self.start_optimizer = torch.optim.SGD(self.model_start_idx.parameters(), lr=self.lr, momentum=0.9)
+        self.end_optimizer = torch.optim.SGD(self.model_end_idx.parameters(), lr=self.lr, momentum=0.9)
         
         self.total_steps = num_train_samples * num_train_epochs
         self.start_scheduler = get_linear_schedule_with_warmup(self.start_optimizer, num_warmup_steps=0, num_training_steps=self.total_steps)

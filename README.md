@@ -98,7 +98,7 @@ tmux a -t albert_base
 conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 
-python run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
+python run_squad.py --model_type albert --model_name_or_path twmkn9/albert-base-v2-squad2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
 
 tmux detach
 ```

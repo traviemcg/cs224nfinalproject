@@ -125,7 +125,7 @@ def merge_eval(main_eval, new_eval, prefix):
   for k in new_eval:
     main_eval['%s_%s' % (prefix, k)] = new_eval[k]
 
-def main(data_file, pred_file, mode):
+def main(data_file, pred_file):
   with open(data_file) as f:
     dataset_json = json.load(f)
     dataset = dataset_json['data']
@@ -153,17 +153,11 @@ def main(data_file, pred_file, mode):
     no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids)
     merge_eval(out_eval, no_ans_eval, 'no_ans')
 
-  if mode == 'all':
-    exact, f1 = out_eval['exact'], out_eval['f1']
-  elif mode == 'has_ans':
-    exact, f1 = out_eval['has_ans_exact'], out_eval['has_ans_f1']
-  elif mode == 'no_ans':
-    exact, f1 = out_eval['no_ans_exact'], out_eval['no_ans_f1']
-  else:
-    print("Error in main() in evaluate.py, invalid mode")
-    exact, f1 = None, None
+  exact, f1 = out_eval['exact'], out_eval['f1']
+  exact_no_ans, f1_no_ans = out_eval['has_ans_exact'], out_eval['has_ans_f1']
+  exact_has_ans, f1_has_ans = out_eval['no_ans_exact'], out_eval['no_ans_f1']
 
-  return exact, f1
+  return exact, f1, exact_no_ans, f1_no_ans, exact_has_ans, f1_has_ans
 
 
 def convert_preds_to_json(pred_dir):
@@ -183,37 +177,44 @@ def convert_preds_to_json(pred_dir):
         f.write(x)
         f.close()
 
-def save_metrics(pred_dir, dev_file, mode):
+def save_metrics(pred_dir, dev_file):
 
-    layers = np.array([1,2,3,4,5,6,7,8,9,10,11,12])
-    exact = np.zeros(12)
-    f1 = np.zeros(12)
+    num_layers = 12
+    layers = np.arange(num_layers)+1
+    exact, f1 = np.zeros(num_layers), np.zeros(num_layers)
+    exact_no_ans, f1_no_ans = np.zeros(num_layers), np.zeros(num_layers)
+    exact_has_ans, f1_has_ans = np.zeros(num_layers), np.zeros(num_layers)
 
     for json_file in glob.glob(pred_dir + "*.json"):
 
         layer = int(json_file[len(pred_dir) + len("pred_layer_"):-5])
-        exact_score, f1_score = main(dev_file, json_file, mode)
-        exact[layer - 1] = exact_score
-        f1[layer - 1] = f1_score
-        print(layer, exact_score, f1_score)
+        l = layer-1 # layer index is layer-1
+        exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(dev_file, json_file)
 
-    results = pd.DataFrame({'layer':layers, 'exact':exact, 'f1':f1})
-    
-    save_dir = os.path.abspath(pred_dir+"/../")
-    csv_name = "/" + mode + "_results.csv"
+    results = pd.DataFrame({'layer':layers, 'exact':exact, 'f1':f1, 'exact_no_ans':exact_no_ans, 'f1_no_ans':f1_no_ans, 'exact_has_ans':exact_has_ans, 'f1_has_ans':f1_has_ans})
+    print(results)
+
+    save_dir = os.path.abspath(pred_dir+"/../") + "/"
+    csv_name = "results.csv"
 
     results.to_csv(save_dir+csv_name, index = False)
 
 if __name__ == '__main__':
 
-  pred_dir = sys.argv[1]
   dev_file = "squad-master/data/dev-v2.0.json"
-
-  if pred_dir[-1] != "/":
-      pred_dir = pred_dir + "/"
-
+  experiment_dir = sys.argv[1]
+  if experiment_dir[-1] != "/":
+      experiment_dir = experiment_dir + "/"
+  model = ['pretrained', 'fine_tuned']
   modes = ['has_ans', 'no_ans', 'all']
-  for mode in modes:
-    print("For mode={}".format(mode))
-    convert_preds_to_json(pred_dir)
-    save_metrics(pred_dir, dev_file, mode)
+
+  for epoch_name in os.listdir(experiment_dir):
+    epoch_dir = experiment_dir + epoch_name
+    if os.path.isdir(epoch_dir):
+      for possible_pred_name in os.listdir(epoch_dir):
+        pred_dir = epoch_dir + "/" + possible_pred_name + "/"
+        if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
+          print(pred_dir)
+          convert_preds_to_json(pred_dir)
+          save_metrics(pred_dir, dev_file)
+          print("")

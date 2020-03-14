@@ -208,13 +208,14 @@ if __name__ == '__main__':
   model = ['pretrained', 'fine_tuned']
   modes = ['has_ans', 'no_ans', 'all']
 
-  for epoch_name in os.listdir(experiment_dir):
+  epoch_names = sorted(os.listdir(experiment_dir))
+  for epoch_name in epoch_names:
     epoch_dir = experiment_dir + epoch_name
     if os.path.isdir(epoch_dir):
       for possible_pred_name in os.listdir(epoch_dir):
         pred_dir = epoch_dir + "/" + possible_pred_name + "/"
         if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
           print(pred_dir)
-          convert_preds_to_json(pred_dir)
-          save_metrics(pred_dir, dev_file)
+          #convert_preds_to_json(pred_dir)
+          #save_metrics(pred_dir, dev_file)
           print("")

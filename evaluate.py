@@ -87,7 +87,7 @@ def get_raw_scores(dataset, preds):
           # For unanswerable questions, only correct answer is empty string
           gold_answers = ['']
         if qid not in preds:
-          print('Missing prediction for %s' % qid)
+          # print('Missing prediction for %s' % qid)
           continue
         a_pred = preds[qid]
         # Take max over all gold answers
@@ -137,6 +137,14 @@ def main(data_file, pred_file):
   qid_to_has_ans = make_qid_to_has_ans(dataset)  # maps qid to True/False
   has_ans_qids = [k for k, v in qid_to_has_ans.items() if v]
   no_ans_qids = [k for k, v in qid_to_has_ans.items() if not v]
+
+  has_ans_qids_in_pred = [qid for qid in has_ans_qids if qid in preds]
+  no_ans_qids_in_pred = [qid for qid in no_ans_qids if qid in preds]
+
+  if has_ans_qids != has_ans_qids_in_pred:
+    print("Missing some qids with answers")
+  if no_ans_qids != no_ans_qids_in_pred:
+    print("Missing some qids with no answers")
   
   exact_raw, f1_raw = get_raw_scores(dataset, preds)
   
@@ -146,11 +154,11 @@ def main(data_file, pred_file):
   out_eval = make_eval_dict(exact_thresh, f1_thresh)
 
   if has_ans_qids:
-    has_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=has_ans_qids)
+    has_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=has_ans_qids_in_pred)
     merge_eval(out_eval, has_ans_eval, 'has_ans')
   
   if no_ans_qids:
-    no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids)
+    no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids_in_pred)
     merge_eval(out_eval, no_ans_eval, 'no_ans')
 
   exact, f1 = out_eval['exact'], out_eval['f1']

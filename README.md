@@ -119,3 +119,10 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 python qa_probes.py [pretrained/finetuned] [cpu/gpu] epochs
 e.g. python qa_probes.py pretrained cpu 1
 ```
+
+### Evaluation
+
+```
+python evaluate.py pretrained_epoch_[#]/pretrained_preds
+python evaluate.py fine_tuned_epoch_[#]/fine_tuned_preds
+```

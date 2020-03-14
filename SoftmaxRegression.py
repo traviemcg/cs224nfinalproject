@@ -10,9 +10,10 @@ class SoftmaxRegression(nn.Module):
         self.W = nn.Linear(self.hidden_size, 1, bias=True)
         self.W.weight.data.normal_(mean=0.0, std=0.02)
         self.W.bias.data.zero_()
+        self.dropout = nn.Dropout(p=0.1)
     
     def forward(self, input):
-        scores = self.W(input).squeeze(-1)
+        scores = self.W(self.dropout(input)).squeeze(-1)
         return scores
     
     def predict_proba(self, input):
@@ -31,7 +32,7 @@ class MultiSoftmaxRegression():
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)
 
-        self.lr = 1e-5
+        self.lr = 3e-5
         self.adam_epsilon = 1e-8
         self.max_grad_norm = 1.0
 

@@ -216,6 +216,6 @@ if __name__ == '__main__':
         pred_dir = epoch_dir + "/" + possible_pred_name + "/"
         if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
           print(pred_dir)
-          #convert_preds_to_json(pred_dir)
-          #save_metrics(pred_dir, dev_file)
+          convert_preds_to_json(pred_dir)
+          save_metrics(pred_dir, dev_file)
           print("")

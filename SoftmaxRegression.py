@@ -31,7 +31,7 @@ class MultiSoftmaxRegression():
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)
 
-        self.lr = 1e-4
+        self.lr = 1e-5
         self.adam_epsilon = 1e-8
         self.max_grad_norm = 1.0
 
@@ -114,7 +114,6 @@ if __name__ == "__main__":
     start_idx_targets = torch.tensor([0, 0, 2]) # matrix of size (batch_size) where entry is class idx
     end_idx_targets = torch.tensor([1, 0, 3]) # matrix of size (batch_size) where entry is class idx
 
-    lr = 1e-3
     max_epoch = 10000
     print_every = 500
     epoch = 0

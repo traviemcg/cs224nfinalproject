@@ -137,6 +137,10 @@ def main(data_file, pred_file, mode):
   qid_to_has_ans = make_qid_to_has_ans(dataset)  # maps qid to True/False
   has_ans_qids = [k for k, v in qid_to_has_ans.items() if v]
   no_ans_qids = [k for k, v in qid_to_has_ans.items() if not v]
+  if mode == 'has_ans':
+    no_ans_qids = False
+  if mode == 'no_ans':
+    has_ans_qids = False
   
   exact_raw, f1_raw = get_raw_scores(dataset, preds)
   
@@ -145,15 +149,13 @@ def main(data_file, pred_file, mode):
   
   out_eval = make_eval_dict(exact_thresh, f1_thresh)
 
-  if mode == 'Has_Ans' or mode == 'All':
-    if has_ans_qids:
-      has_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=has_ans_qids)
-      merge_eval(out_eval, has_ans_eval, 'HasAns')
+  if has_ans_qids:
+    has_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=has_ans_qids)
+    merge_eval(out_eval, has_ans_eval, 'HasAns')
   
-  if mode == 'No_Ans' or mode == 'All':
-    if no_ans_qids:
-      no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids)
-      merge_eval(out_eval, no_ans_eval, 'NoAns')
+  if no_ans_qids:
+    no_ans_eval = make_eval_dict(exact_thresh, f1_thresh, qid_list=no_ans_qids)
+    merge_eval(out_eval, no_ans_eval, 'NoAns')
 
   print(out_eval['exact'], out_eval['f1'])
   return out_eval['exact'], out_eval['f1']
@@ -161,10 +163,6 @@ def main(data_file, pred_file, mode):
 
 def convert_preds_to_json(pred_dir):
     for csv_file in glob.glob(pred_dir + "*.csv"):
-
-        if csv_file == pred_dir + "*" + "results.csv":
-            continue
-
         prefix = csv_file[:-4]
 
         data = {}
@@ -197,7 +195,7 @@ def save_metrics(pred_dir, dev_file, mode):
     results = pd.DataFrame({'layer':layers, 'exact':exact, 'f1':f1})
     
     save_dir = os.path.abspath(pred_dir+"/../")
-    csv_name = mode + "results.csv"
+    csv_name = "/" + mode + "_results.csv"
 
     results.to_csv(save_dir+csv_name, index = False)
 
@@ -209,7 +207,7 @@ if __name__ == '__main__':
   if pred_dir[-1] != "/":
       pred_dir = pred_dir + "/"
 
-  modes = ['Has_Ans', 'No_Ans', 'All']
+  modes = ['has_ans', 'no_ans', 'all']
   for mode in modes:
     print("For mode={}".format(mode))
     convert_preds_to_json(pred_dir)

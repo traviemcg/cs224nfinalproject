@@ -20,14 +20,14 @@ def eval_model(model_prefix,
                hidden_dim = 768,
                batch_size = 4,
                max_seq_length = 384,
-               device = 'gpu'):
+               device = 'cuda'):
 
     # Load probe
     print("Loading probes")
     probes = []
     for i in range(layers):
         probe = MultiSoftmaxRegression(768, 130139, 5)
-        probe.load(probe_dir, i)
+        probe.load(probe_dir, i+1)
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)

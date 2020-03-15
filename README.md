@@ -122,7 +122,7 @@ e.g. python3 qa_probes_iterative.py pretrained cpu 1
 
 Another option, to load and use all layer probes to make new predictions
 ```
-export EPOCH_DIR=01_lr1e-5/fine_tuned_epoch_1/
+export EPOCH_DIR=01_lr1e-5/fine_tuned_epoch_1
 python3 eval_model.py fine_tuned $EPOCH_DIR/fine_tuned_probes $EPOCH_DIR/fine_tuned_preds cpu
 ```
 

@@ -31,15 +31,6 @@ conda install pandas
 ```
 
 ```
-## (OPTIONAL) Make environment available in Jupyter, and install things needed for 'Transformers' notebooks
-conda install -n transformers ipykernel
-conda install -c anaconda jupyter
-conda install -c conda-forge ipywidgets
-conda update nbformat
-python3 -m ipykernel install --user --name=transformers
-```
-
-```
 ## Install the 'Transformers' package
 cd transformers-master
 pip install .
@@ -128,12 +119,12 @@ python3 eval_model.py fine_tuned $EPOCH_DIR/fine_tuned_probes $EPOCH_DIR/fine_tu
 
 ### Evaluation
 
+Evaluation can be done over a whole experiment directory
 ```
 python3 evaluate.py experiment_directory exper
 ```
-The script looks inside experiment directory for `\[pretrained/fine_tuned\]\_epoch\_\[#\]/\[pretrained/fine_tuned\]_preds/*.csv` to calculate metrics. Note, this is the default output of `qa_probes_iterative.py`.
 
-Alternatively, to specify the preds directly, use:
+or one specific prediction directory
 ```
 python3 evaluate.py preds_directory preds
 ```

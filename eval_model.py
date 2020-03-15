@@ -134,8 +134,8 @@ if __name__ == "__main__":
         model_prefix = "twmkn9/albert-base-v2-squad2"
 
     probe_dir = sys.argv[2]
-    if probe_dir[-1] != "/":
-      probe_dir = probe_dir[0:-2]
+    if probe_dir[-1] == "/":
+      probe_dir = probe_dir[0:-1]
     
     pred_dir = sys.argv[3]
     if not os.path.exists(pred_dir):

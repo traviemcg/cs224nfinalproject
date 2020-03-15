@@ -126,17 +126,15 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 4:
         print("Usage")
-        print("    [pretrained/fine_tuned] [experiment or probe dir] device [exper/probes]")
-
-    if sys.argv[1] == "pretrained":
-        model_prefix = "albert-base-v2"
-    elif sys.argv[1] == "fine_tuned":
-        model_prefix = "twmkn9/albert-base-v2-squad2"
+        print("    [experiment or probe dir] [exper/probes] device")
 
     # Directory to use for preds or exper
-    experiment_dir = sys.argv[2]
+    experiment_dir = sys.argv[1]
     if experiment_dir[-1] != "/":
         experiment_dir = experiment_dir + "/"
+
+    # Whether passing preds or exper dir
+    use_probes_or_exper_dir = sys.argv[2]
 
     # Device
     if sys.argv[3] == "cpu":
@@ -144,12 +142,14 @@ if __name__ == "__main__":
     elif sys.argv[3] == "gpu":
         device = "cuda"
 
-    # Whether passing preds or exper dir
-    use_probes_or_exper_dir = sys.argv[4]
-
     if use_probes_or_exper_dir == "exper":
         epoch_names = sorted(os.listdir(experiment_dir))
         for epoch_name in epoch_names:
+            if "pretrained" in epoch_name:
+                model_prefix = "albert-base-v2"
+            if "fine_tuned" in epoch_name:
+                model_prefix = "twmkn9/albert-base-v2-squad2" 
+
             epoch_dir = experiment_dir + epoch_name
             if os.path.isdir(epoch_dir):
                 for possible_probe_name in os.listdir(epoch_dir):
@@ -163,6 +163,10 @@ if __name__ == "__main__":
     elif use_probes_or_exper_dir == "probes":
 
         probe_dir = experiment_dir
+        if "pretrained" in probe_dir:
+            model_prefix = "albert-base-v2"
+        if "fine_tuned" in probe_dir:
+            model_prefix = "twmkn9/albert-base-v2-squad2" 
         pred_dir = os.path.abspath(probe_dir+"/../")
 
         eval_model(model_prefix, probe_dir, pred_dir, device=device)

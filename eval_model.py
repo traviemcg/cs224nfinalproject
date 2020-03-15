@@ -126,25 +126,46 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 4:
         print("Usage")
-        print("    [pretrained/fine_tuned] probe_dir pred_dir device")
+        print("    [pretrained/fine_tuned] [experiment or probe dir] device [exper/probes]")
 
     if sys.argv[1] == "pretrained":
         model_prefix = "albert-base-v2"
     elif sys.argv[1] == "fine_tuned":
         model_prefix = "twmkn9/albert-base-v2-squad2"
 
-    probe_dir = sys.argv[2]
-    if probe_dir[-1] == "/":
-      probe_dir = probe_dir[0:-1]
-    
-    pred_dir = sys.argv[3]
-    if not os.path.exists(pred_dir):
-        os.mkdir(pred_dir)
+    # Directory to use for preds or exper
+    experiment_dir = sys.argv[2]
+    if experiment_dir[-1] != "/":
+        experiment_dir = experiment_dir + "/"
 
     # Device
-    if sys.argv[4] == "cpu":
+    if sys.argv[3] == "cpu":
         device = "cpu"
-    elif sys.argv[4] == "gpu":
+    elif sys.argv[3] == "gpu":
         device = "cuda"
 
-    eval_model(model_prefix, probe_dir, pred_dir, device=device)
+    # Whether passing preds or exper dir
+    use_probes_or_exper_dir = sys.argv[4]
+
+    if use_probes_or_exper_dir == "exper":
+        epoch_names = sorted(os.listdir(experiment_dir))
+        for epoch_name in epoch_names:
+            epoch_dir = experiment_dir + epoch_name
+            if os.path.isdir(epoch_dir):
+                for possible_probe_name in os.listdir(epoch_dir):
+                    probe_dir = epoch_dir + "/" + possible_probe_name + "/"
+                    if os.path.isdir(probe_dir) and probe_dir[-6:] == 'probes/':
+                        print(probe_dir)
+                        pred_dir = os.path.abspath(probe_dir+"/../")
+                        eval_model(model_prefix, probe_dir, pred_dir, device=device)
+                        print("")
+  
+    elif use_probes_or_exper_dir == "probes":
+
+        probe_dir = experiment_dir
+        pred_dir = os.path.abspath(probe_dir+"/../")
+
+        eval_model(model_prefix, probe_dir, pred_dir, device=device)
+
+    else:
+        print("Invalid argument for 'use_probes_or_exper_dir', should be 'exper' or 'probes'")

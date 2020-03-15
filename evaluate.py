@@ -205,12 +205,12 @@ def save_metrics(pred_dir, dev_file):
 if __name__ == '__main__':
 
   dev_file = "squad-master/data/dev-v2.0.json"
+  
   experiment_dir = sys.argv[1]
   if experiment_dir[-1] != "/":
       experiment_dir = experiment_dir + "/"
   model = ['pretrained', 'fine_tuned']
   modes = ['has_ans', 'no_ans', 'all']
-
 
   use_preds_or_exper_dir = sys.argv[2]
   

@@ -145,18 +145,21 @@ if __name__ == "__main__":
     if use_probes_or_exper_dir == "exper":
         epoch_names = sorted(os.listdir(experiment_dir))
         for epoch_name in epoch_names:
+
             if "pretrained" in epoch_name:
+                pretrained_or_fine_tuned = "pretrained"
                 model_prefix = "albert-base-v2"
             if "fine_tuned" in epoch_name:
-                model_prefix = "twmkn9/albert-base-v2-squad2" 
+                pretrained_or_fine_tuned = "fine_tuned"
+                model_prefix = "twmkn9/albert-base-v2-squad2"
 
             epoch_dir = experiment_dir + epoch_name
             if os.path.isdir(epoch_dir):
                 for possible_probe_name in os.listdir(epoch_dir):
                     probe_dir = epoch_dir + "/" + possible_probe_name + "/"
-                    if os.path.isdir(probe_dir) and probe_dir[-6:] == 'probes/':
+                    if os.path.isdir(probe_dir) and probe_dir[-7:] == 'probes/':
                         print(probe_dir)
-                        pred_dir = os.path.abspath(probe_dir+"/../")
+                        pred_dir = os.path.abspath(probe_dir+"/../" + pretrained_or_fine_tuned + "_preds/")
                         eval_model(model_prefix, probe_dir, pred_dir, device=device)
                         print("")
   

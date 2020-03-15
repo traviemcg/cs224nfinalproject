@@ -104,17 +104,29 @@ python3 run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_
 Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'HasAns_exact': 75.39518900343643, 'HasAns_f1': 82.04167868004215, 'HasAns_total': 2910, 'NoAns_exact': 81.7550505050505, 'NoAns_f1': 81.7550505050505, 'NoAns_total': 3168, 'best_exact': 78.72655478775913, 'best_exact_thresh': 0.0, 'best_f1': 81.90873395178066, 'best_f1_thresh': 0.0}
 ```
 
-### Probes
+### Probe training
 
 ```
 python3 qa_probes_iterative.py [pretrained/finetuned] [cpu/gpu] epochs
 e.g. python3 qa_probes_iterative.py pretrained cpu 1
 ```
 
-Another option, to load and use all layer probes to make new predictions
+### Probe prediction
+
+```
+python3 evaluate.py [experiment/probes_dir] [exper/probes] device
+```
+
+Predictions can be done over a whole experiment directory
+```
+export EXPER_DIR=01_lr1e-5/
+python3 evaluate.py $EXPER_DIR exper cpu
+```
+
+or one specific probe directory
 ```
 export EPOCH_DIR=01_lr1e-5/fine_tuned_epoch_1
-python3 eval_model.py fine_tuned $EPOCH_DIR/fine_tuned_probes $EPOCH_DIR/fine_tuned_preds cpu
+python3 evaluate.py $EPOCH_DIR/fine_tuned_probes probes cpu
 ```
 
 ### Evaluation

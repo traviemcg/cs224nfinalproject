@@ -12,22 +12,13 @@ import pandas as pd
 def eval_model(model_prefix,
                probe_dir,
                pred_dir,
-               epochs,
                data_dir = "squad-master/data/",
                dev_file = "dev-v2.0.json",
                layers = 12,
-               train_size = 130139,
                hidden_dim = 768,
                batch_size = 4,
                max_seq_length = 384,
                device = 'cuda'):
-
-    # Load probe
-    print("Loading probes")
-    probes = []
-    for i in range(layers):
-        probe = MultiSoftmaxRegression(768, 130139, 5)
-        probe.load(probe_dir, i+1)
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
@@ -53,6 +44,14 @@ def eval_model(model_prefix,
 
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
+
+    # Load probe
+    print("Loading probes")
+    probes = []
+    for i in range(layers):
+        p = MultiSoftmaxRegression(hidden_dim, 1, 1)
+        p.load(probe_dir, i+1)
+        probes.append(p)
 
     # Extract IDs
     print("Extracting dev IDs")
@@ -99,15 +98,12 @@ def eval_model(model_prefix,
                 for i, p in enumerate(probes):
 
                     # Extract predicted indicies
-                    print("A prediction is about to be made")
-                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold = -1e14)
+                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 
-                    # Throw out invalid predictions
-                    tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-
                     # Extract predicted answer
+                    tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
                     answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
 
                     # No answer
@@ -128,9 +124,9 @@ if __name__ == "__main__":
 
     dev = "dev-v2.0.json"
 
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 3:
         print("Usage")
-        print("    [pretrained/fine_tuned]probe_dir pred_dir epochs")
+        print("    [pretrained/fine_tuned]probe_dir pred_dir")
 
     if sys.argv[1] == "pretrained":
         model_prefix = "albert-base-v2"
@@ -139,6 +135,5 @@ if __name__ == "__main__":
 
     probe_dir = sys.argv[2]
     pred_dir = sys.argv[3]
-    epochs = int(sys.argv[4])
 
     eval_model(model_prefix, probe_dir, pred_dir, epochs)

@@ -30,6 +30,9 @@ def send_epochs(model_prefix,
     train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
     dev_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file)
 
+    train_examples = train_examples[0:8]
+    dev_examples = dev_examples[0:8]
+
     # Extract train features
     print("Loading train features")
     train_features, train_dataset = squad_convert_examples_to_features(

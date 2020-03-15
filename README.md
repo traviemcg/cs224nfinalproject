@@ -36,7 +36,7 @@ conda install -n transformers ipykernel
 conda install -c anaconda jupyter
 conda install -c conda-forge ipywidgets
 conda update nbformat
-python -m ipykernel install --user --name=transformers
+python3 -m ipykernel install --user --name=transformers
 ```
 
 ```
@@ -60,7 +60,7 @@ tmux a -t albert_xlarge
 conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 
-python run_squad.py --model_type albert --model_name_or_path ktrapeznikov/albert-xlarge-v2-squad-v2 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xlarge_fine/
+python3 run_squad.py --model_type albert --model_name_or_path ktrapeznikov/albert-xlarge-v2-squad-v2 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xlarge_fine/
 
 tmux detach
 ```
@@ -78,7 +78,7 @@ tmux a -t albert_xxlarge
 conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 
-python run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
+python3 run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
 
 tmux detach
 ```
@@ -98,7 +98,7 @@ tmux a -t albert_base
 conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
 
-python run_squad.py --model_type albert --model_name_or_path twmkn9/albert-base-v2-squad2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
+python3 run_squad.py --model_type albert --model_name_or_path twmkn9/albert-base-v2-squad2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
 
 tmux detach
 ```
@@ -106,7 +106,7 @@ tmux detach
 To use the model
 
 ```
-python run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_fine/ --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine_test/
+python3 run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_fine/ --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine_test/
 ```
 
 ```
@@ -116,23 +116,23 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 ### Probes
 
 ```
-python qa_probes_iterative.py [pretrained/finetuned] [cpu/gpu] epochs
-e.g. python qa_probes_iterative.py pretrained cpu 1
+python3 qa_probes_iterative.py [pretrained/finetuned] [cpu/gpu] epochs
+e.g. python3 qa_probes_iterative.py pretrained cpu 1
 ```
 
 Another option, to load and use probes to make new predictions
 ```
-e.g. python eval_model.py fine_tuned 01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes/ test_dir gpu
+e.g. python3 eval_model.py fine_tuned 01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes/ test_dir gpu
 ```
 
 ### Evaluation
 
 ```
-python evaluate.py experiment_directory exper
+python3 evaluate.py experiment_directory exper
 ```
 The script looks inside experiment directory for `\[pretrained/fine_tuned\]\_epoch\_\[#\]/\[pretrained/fine_tuned\]_preds/*.csv` to calculate metrics. Note, this is the default output of `qa_probes_iterative.py`.
 
 Alternatively, to specify the preds directly, use:
 ```
-python evaluate.py preds_directory preds
+python3 evaluate.py preds_directory preds
 ```

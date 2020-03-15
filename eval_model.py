@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     probe_dir = sys.argv[2]
     if probe_dir[-1] != "/":
-      probe_dir = probe_dir[0:-1]
+      probe_dir = probe_dir[0:-2]
     
     pred_dir = sys.argv[3]
     if not os.path.exists(pred_dir):

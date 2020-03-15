@@ -120,6 +120,11 @@ python qa_probes_iterative.py [pretrained/finetuned] [cpu/gpu] epochs
 e.g. python qa_probes_iterative.py pretrained cpu 1
 ```
 
+Another option, to load and use probes to make new predictions
+```
+e.g. python eval_model.py fine_tuned 01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes/ test_dir gpu
+```
+
 ### Evaluation
 
 ```

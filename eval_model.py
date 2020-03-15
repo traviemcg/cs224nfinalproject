@@ -135,6 +135,11 @@ if __name__ == "__main__":
 
     probe_dir = sys.argv[2]
     pred_dir = sys.argv[3]
-    device = sys.argv[4]
 
-    eval_model(model_prefix, probe_dir, pred_dir)
+    # Device
+    if sys.argv[4] == "cpu":
+        device = "cpu"
+    elif sys.argv[2] == "gpu":
+        device = "cuda"
+
+    eval_model(model_prefix, probe_dir, pred_dir, device=device)

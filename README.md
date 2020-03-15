@@ -108,7 +108,7 @@ python3 predict.py probes $EPOCH_DIR/fine_tuned_probes cpu
 ### Evaluation
 
 ```
-python3 predict.py [exper/probes] [experiment/probes_dir]
+python3 evaluate.py [exper/probes] [experiment/probes_dir]
 ```
 
 Evaluation can be done over a whole experiment directory:

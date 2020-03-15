@@ -81,6 +81,7 @@ class MultiSoftmaxRegression():
         """
 
         _, seq_len, _ = inputs.shape
+        inputs = inputs.to(device)
 
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
@@ -104,8 +105,8 @@ class MultiSoftmaxRegression():
 
             for start_curr in range(1, seq_len):
                 start_score = start_scores[:, start_curr]
-                end_scores = end_scores[:, start_curr:min(start_curr+max_answer_length, seq_len)]
-                end_score, end_idx = end_scores.max(-1)
+                end_scores_valid = end_scores[:, start_curr:min(start_curr+max_answer_length, seq_len)]
+                end_score, end_idx = end_scores_valid.max(-1)
                 end_curr = end_idx+start_curr
                 score_curr = start_score + end_score
                 if score_curr >= score_best:

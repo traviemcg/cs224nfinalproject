@@ -172,22 +172,8 @@ def send_epochs(model_prefix,
                         start_idx = int(start_idx[0])
                         end_idx = int(end_idx[0])
 
-                        # Throw out invalid predictions
-                        tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-                        context_len = batch[2][j].sum()
-                        question_len = max_seq_length - context_len
-                        if start_idx >= len(tokens):
-                            start_idx, end_idx = 0, 0
-                        if end_idx >= len(tokens):
-                            start_idx, end_idx = 0, 0
-                        if end_idx < start_idx:
-                            start_idx, end_idx = 0, 0
-                        max_answer_length = 22
-                        length = end_idx - start_idx + 1
-                        if length > max_answer_length:
-                            start_idx, end_idx = 0, 0
-
                         # Extract predicted answer
+                        tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
                         answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
 
                         # No answer

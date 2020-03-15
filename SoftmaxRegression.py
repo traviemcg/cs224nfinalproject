@@ -74,7 +74,7 @@ class MultiSoftmaxRegression():
 
         return loss
 
-    def predict(self, inputs, device, threshold = -500000):
+    def predict(self, inputs, device, threshold = -50000, max_answer_length = 22):
         """ Function to predict the start and end endices in a question answer sequence
             inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
@@ -104,7 +104,7 @@ class MultiSoftmaxRegression():
             score_best = start_scores[:, start_best] + end_scores[:, end_best]
 
             for start_curr in range(1, seq_len):
-                for end_curr in range(start_curr, seq_len):
+                for end_curr in range(start_curr, min(start_curr+max_answer_length, seq_len)):
                     score_curr = start_scores[:, start_curr] + end_scores[:, end_curr]
                     if score_curr >= score_best:
                         score_best = score_curr

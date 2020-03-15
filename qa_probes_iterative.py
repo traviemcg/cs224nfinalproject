@@ -180,8 +180,6 @@ def send_epochs(model_prefix,
                             start_idx, end_idx = 0, 0
                         if end_idx >= len(tokens):
                             start_idx, end_idx = 0, 0
-                        #if start_idx < question_len:
-                        #    start_idx, end_idx = 0, 0
                         if end_idx < start_idx:
                             start_idx, end_idx = 0, 0
                         max_answer_length = 22

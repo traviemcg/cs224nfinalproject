@@ -80,6 +80,8 @@ class MultiSoftmaxRegression():
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
         """
 
+        batch_size, seq_len, hidden_size = inputs.shape
+
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
 
@@ -96,19 +98,23 @@ class MultiSoftmaxRegression():
 
             start_null = start_scores[:, 0]
             end_null = end_scores[:, 0]
-            s_null = start_null + end_null
+            score_null = start_null + end_null
 
-            start_non_null, start_non_null_idx = start_scores[:, 1:].max(-1)
-            end_non_null, end_non_null_idx = end_scores[:, 1:].max(-1)
-            s_non_null = start_non_null + end_non_null
+            start_best, end_best = 1, 1
+            score_best = start_scores[:, start_best] + end_scores[:, end_best]
 
-            non_null_more_likely_than_null = s_non_null >= (s_null + threshold)
+            for start_curr in range(1, seq_len):
+                for end_curr in range(start_curr, seq_len):
+                    score_curr = start_scores[:, start_curr] + end_scores[:, end_curr]
+                    if score_curr >= score_best:
+                        score_best = score_curr
+                        start_best, end_best = start_curr, end_curr
+
+            non_null_more_likely_than_null = score_best >= (score_null + threshold)
             
             # Add one because argmax was missing the null entry, multiply by mask to force idx where null is more probable to zero
-            start_idx = non_null_more_likely_than_null*(start_non_null_idx+1)
-            end_idx = non_null_more_likely_than_null*(end_non_null_idx+1)
-
-            print(start_idx, end_idx)
+            start_idx = non_null_more_likely_than_null*(start_best+1)
+            end_idx = non_null_more_likely_than_null*(end_best+1)
 
         return start_idx.cpu().numpy(), end_idx.cpu().numpy()
     

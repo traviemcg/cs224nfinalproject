@@ -50,7 +50,7 @@ def eval_model(model_prefix,
     probes = []
     for i in range(layers):
         p = MultiSoftmaxRegression(hidden_dim, 1, 1)
-        p.load(probe_dir, i+1)
+        p.load(probe_dir, i+1, device)
         probes.append(p)
 
     # Extract IDs

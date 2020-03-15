@@ -24,10 +24,8 @@ curl https://sh.rustup.rs -sSf | sh # only on mac os
 ## Create conda environment with necessary packages, where pytorch may vary pending system but is at pytorch.org
 conda create -n transformers python=3.7
 conda activate transformers
-pip install --upgrade pip
-pip install --upgrade tensorflow
-conda install pytorch torchvision -c pytorch
-conda install pandas
+pip install --upgrade pip tensorflow
+conda install pytorch torchvision -c pytorch pandas
 ```
 
 ```
@@ -36,42 +34,34 @@ cd transformers-master
 pip install .
 ```
 
+```
+## Some useful tmux commands
+tmux ls
+tmux new -s session_name
+tmux a -t session_name
+tmux detach
+```
+
 ### Using models
 
 #### Community models
 
-We are going to run eval with a Transformer community fine-tuned ALBERT [xlarge_v2](https://huggingface.co/ktrapeznikov/albert-xlarge-v2-squad-v2) and [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512).
-
-_xlarge_v2_
+First let's try using the community fine-tuned ALBERT [xlarge_v2](https://huggingface.co/ktrapeznikov/albert-xlarge-v2-squad-v2)
 
 ```
-tmux new -s albert_xlarge
-tmux a -t albert_xlarge
-
-conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
-
 python3 run_squad.py --model_type albert --model_name_or_path ktrapeznikov/albert-xlarge-v2-squad-v2 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xlarge_fine/
-
-tmux detach
 ```
 
 ```
 Results: {'exact': 84.33695294504771, 'f1': 87.35841153592796, 'total': 6078, 'HasAns_exact': 81.47766323024055, 'HasAns_f1': 87.78846230768734, 'HasAns_total': 2910, 'NoAns_exact': 86.96338383838383, 'NoAns_f1': 86.96338383838383, 'NoAns_total': 3168, 'best_exact': 84.33695294504771, 'best_exact_thresh': 0.0, 'best_f1': 87.35841153592791, 'best_f1_thresh': 0.0}
 ```
 
-_xxlarge_v1_
+And community fine-tuned ALBERT [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512)
 
 ```
-tmux new -s albert_xxlarge
-tmux a -t albert_xxlarge
-
-conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
-
 python3 run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
-
-tmux detach
 ```
 
 ```
@@ -80,21 +70,14 @@ Results: {'exact': 85.32411977624218, 'f1': 88.83829560426527, 'total': 6078, 'H
 
 #### Training our own
 
-We're training our own _base_v2_ on SQuAD from the pretrained albert base.
+We're training our own [base_v2](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from the pretrained albert base.
 
 ```
-tmux new -s albert_base
-tmux a -t albert_base
-
-conda activate transformers
 export SQUAD_DIR=../../squad-master/data/
-
 python3 run_squad.py --model_type albert --model_name_or_path twmkn9/albert-base-v2-squad2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
-
-tmux detach
 ```
 
-To use the model
+To use the model locally
 
 ```
 python3 run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_fine/ --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine_test/
@@ -114,19 +97,19 @@ e.g. python3 qa_probes_iterative.py pretrained cpu 1
 ### Probe prediction
 
 ```
-python3 evaluate.py [experiment/probes_dir] [exper/probes] device
+python3 eval_model.py [experiment/probes_dir] [exper/probes] device
 ```
 
 Predictions can be done over a whole experiment directory
 ```
 export EXPER_DIR=01_lr1e-5/
-python3 evaluate.py $EXPER_DIR exper cpu
+python3 eval_model.py $EXPER_DIR exper cpu
 ```
 
 or one specific probe directory
 ```
 export EPOCH_DIR=01_lr1e-5/fine_tuned_epoch_1
-python3 evaluate.py $EPOCH_DIR/fine_tuned_probes probes cpu
+python3 eval_model.py $EPOCH_DIR/fine_tuned_probes probes cpu
 ```
 
 ### Evaluation

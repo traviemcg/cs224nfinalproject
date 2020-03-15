@@ -27,8 +27,11 @@ def send_epochs(model_prefix,
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
-    train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
+    train_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file) # change to train file
     dev_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file)
+    
+    train_examples = train_examples[0:8]
+    dev_examples = dev_examples[0:8]
 
     # Extract train features
     print("Loading train features")
@@ -171,21 +174,20 @@ def send_epochs(model_prefix,
 
                         # Throw out invalid predictions
                         tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-                        """
-                        question_mask = batch[2]
-                        if start_index >= len(tokens):
+                        context_len = batch[2][j].sum()
+                        question_len = max_seq_length - context_len
+                        if start_idx >= len(tokens):
                             start_idx, end_idx = 0, 0
-                        if end_index >= len(tokens):
+                        if end_idx >= len(tokens):
                             start_idx, end_idx = 0, 0
-                        if start_index <= batch[2]:
-                            start_idx, end_idx = 0, 0
-                        if end_index < start_index:
+                        #if start_idx < question_len:
+                        #    start_idx, end_idx = 0, 0
+                        if end_idx < start_idx:
                             start_idx, end_idx = 0, 0
                         max_answer_length = 22
-                        length = end_index - start_index + 1
+                        length = end_idx - start_idx + 1
                         if length > max_answer_length:
                             start_idx, end_idx = 0, 0
-                        """
 
                         # Extract predicted answer
                         answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])

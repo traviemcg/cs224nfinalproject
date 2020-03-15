@@ -1,13 +1,13 @@
-import numpy as np
-from transformers import *
-import torch
-from tqdm import tqdm, trange
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
-from transformers.data.processors.squad import SquadV2Processor
-import sys
-from SoftmaxRegression import MultiSoftmaxRegression
 import os
+import sys
+import numpy as np
 import pandas as pd
+import torch
+from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+from tqdm import tqdm, trange
+from transformers import *
+from transformers.data.processors.squad import SquadV2Processor
+from probe import Probe
 
 def eval_model(model_prefix,
                probe_dir,
@@ -49,7 +49,7 @@ def eval_model(model_prefix,
     print("Loading probes")
     probes = []
     for i in range(layers):
-        p = MultiSoftmaxRegression(hidden_dim, 1, 1)
+        p = Probe(hidden_dim)
         p.load(probe_dir, i+1, device)
         probes.append(p)
 
@@ -126,15 +126,15 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 4:
         print("Usage")
-        print("    [experiment or probe dir] [exper/probes] device")
-
-    # Directory to use for preds or exper
-    experiment_dir = sys.argv[1]
-    if experiment_dir[-1] != "/":
-        experiment_dir = experiment_dir + "/"
+        print("    python3 predict.py [exper/probes] [experiment/probe dir] [cpu/gpu]")
 
     # Whether passing preds or exper dir
-    use_probes_or_exper_dir = sys.argv[2]
+    use_probes_or_exper_dir = sys.argv[1]
+
+    # Directory to use for preds or exper
+    experiment_dir = sys.argv[2]
+    if experiment_dir[-1] != "/":
+        experiment_dir = experiment_dir + "/"
 
     # Device
     if sys.argv[3] == "cpu":

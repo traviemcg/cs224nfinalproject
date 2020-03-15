@@ -19,27 +19,30 @@ class SoftmaxRegression(nn.Module):
     def predict_proba(self, input):
         scores = self.forward(input)
         p = F.softmax(scores, dim=-1)
-        print(p.shape)
         return p
 
-class MultiSoftmaxRegression():
-    def __init__(self, hidden_size, num_train_samples, num_train_epochs):
+class Probe():
+    def __init__(self, hidden_size, lr=5e-5, adam_epsilon=1e-8, max_grad_norm=1.0):
         self.hidden_size = hidden_size
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)
 
-        self.lr = 5e-5
-        self.adam_epsilon = 1e-8
-        self.max_grad_norm = 1.0
+        self.lr = lr
+        self.adam_epsilon = adam_epsilon
+        self.max_grad_norm = max_grad_norm
         
         self.start_optimizer = AdamW(self.model_start_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
-        self.end_optimizer = AdamW(self.model_end_idx .parameters(), lr=self.lr, eps=self.adam_epsilon)
+        self.end_optimizer = AdamW(self.model_end_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
         
-        self.total_steps = num_train_samples * num_train_epochs
-        self.start_scheduler = get_linear_schedule_with_warmup(self.start_optimizer, num_warmup_steps=0, num_training_steps=self.total_steps)
-        self.end_scheduler = get_linear_schedule_with_warmup(self.end_optimizer, num_warmup_steps=0, num_training_steps=self.total_steps)
+        self.start_scheduler = None
+        self.end_scheduler = None
 
-    def train(self, inputs, start_targets, end_targets, device):
+    def train(self, inputs, start_targets, end_targets, device, num_train_samples=0, num_train_epochs=0):
+
+        if self.start_scheduler == None or self.end_scheduler == None:
+            total_steps = num_train_samples * num_train_epochs
+            self.start_scheduler = get_linear_schedule_with_warmup(self.start_optimizer, num_warmup_steps=0, num_training_steps=total_steps)
+            self.end_scheduler = get_linear_schedule_with_warmup(self.end_optimizer, num_warmup_steps=0, num_training_steps=total_steps)
         
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
@@ -74,10 +77,12 @@ class MultiSoftmaxRegression():
 
         return loss
 
-    def predict(self, inputs, device, threshold = 0, max_answer_length = 22):
+    def predict(self, inputs, device, threshold=0, max_answer_length=22):
         """ Function to predict the start and end endices in a question answer sequence
             inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
+            threshold: integer (e.g. 0) controlling tradeoff between answer and no answer prediction
+            max_answer_length: integer (e.g. 22) constraining search space by giving maximum answer length
         """
 
         _, seq_len, _ = inputs.shape
@@ -148,10 +153,10 @@ if __name__ == "__main__":
     print_every = 1000
     epoch = 0
     device = "cpu"
-    model = MultiSoftmaxRegression(hidden_size, batch_size, max_epoch)
+    model = Probe(hidden_size)
     while epoch < max_epoch:
         epoch += 1
-        loss = model.train(inputs, start_idx_targets, end_idx_targets, device)
+        loss = model.train(inputs, start_idx_targets, end_idx_targets, device, batch_size, max_epoch)
         
         if epoch%print_every==0:
             print("epoch {}, loss {:.2f}".format(epoch, loss))
@@ -163,7 +168,7 @@ if __name__ == "__main__":
         os.mkdir(save_dir)
     model.save(save_dir, 0)
 
-    model = MultiSoftmaxRegression(hidden_size, batch_size, max_epoch)
-    model.load(save_dir, 0)
+    model = Probe(hidden_size)
+    model.load(save_dir, 0, device)
 
     print("After load predict: ", (model.predict(inputs, device)))

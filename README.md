@@ -2,13 +2,13 @@
 
 Ths project is for CS224N: Natural Language Processing with Deep Learning at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
 
-Our paper is here. This repository will walk through all steps necessary to reproduce the results.
+Our paper is here TODO. This repository will walk through all steps necessary to reproduce the results.
 
 There are three major components to this respository:
 
-- [ALBERT-master](https://github.com/google-research/ALBERT) Google AI's original ALBERT implementation
 - [squad-master](https://github.com/minggg/squad) CS224N's repository providing SQuAD 2.0 data and a BiDAF model
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
+- Our scripts for training, using, and evaluating with probes
 
 ### Setting up
 
@@ -90,36 +90,36 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 ### Probe training
 
 ```
-python3 qa_probes_iterative.py [pretrained/finetuned] [cpu/gpu] epochs
-e.g. python3 qa_probes_iterative.py pretrained cpu 1
+python3 train.py [pretrained/finetuned] [cpu/gpu] epochs
+e.g. python3 train.py pretrained cpu 1
 ```
 
 ### Probe prediction
 
 ```
-python3 eval_model.py [experiment/probes_dir] [exper/probes] device
+python3 predict.py [experiment/probes_dir] [exper/probes] [cpu/gpu]
 ```
 
 Predictions can be done over a whole experiment directory
 ```
 export EXPER_DIR=01_lr1e-5/
-python3 eval_model.py $EXPER_DIR exper cpu
+python3 predict.py exper $EXPER_DIR cpu
 ```
 
 or one specific probe directory
 ```
 export EPOCH_DIR=01_lr1e-5/fine_tuned_epoch_1
-python3 eval_model.py $EPOCH_DIR/fine_tuned_probes probes cpu
+python3 predict.py probes $EPOCH_DIR/fine_tuned_probes cpu
 ```
 
 ### Evaluation
 
 Evaluation can be done over a whole experiment directory
 ```
-python3 evaluate.py experiment_directory exper
+python3 evaluate.py exper experiment_directory
 ```
 
 or one specific prediction directory
 ```
-python3 evaluate.py preds_directory preds
+python3 evaluate.py preds preds_directory
 ```

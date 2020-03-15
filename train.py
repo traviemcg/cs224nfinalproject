@@ -1,13 +1,13 @@
-import numpy as np
-from transformers import *
-import torch
-from tqdm import tqdm, trange
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
-from transformers.data.processors.squad import SquadV2Processor
-import sys
-from SoftmaxRegression import MultiSoftmaxRegression
 import os
+import sys
+import numpy as np
 import pandas as pd
+import torch
+from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+from tqdm import tqdm, trange
+from transformers import *
+from transformers.data.processors.squad import SquadV2Processor
+from probe import Probe
 
 def send_epochs(model_prefix,
                  data_dir,
@@ -29,9 +29,6 @@ def send_epochs(model_prefix,
     processor = SquadV2Processor()
     train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
     dev_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file)
-
-    #train_examples = train_examples[0:8]
-    #dev_examples = dev_examples[0:8]
 
     # Extract train features
     print("Loading train features")
@@ -70,7 +67,7 @@ def send_epochs(model_prefix,
     print("Initializing probes")
     probes = []
     for i in range(layers):
-        p = MultiSoftmaxRegression(hidden_dim, len(train_examples), epochs)
+        p = Probe(hidden_dim)
         probes.append(p)
 
     # Extract IDs
@@ -120,7 +117,7 @@ def send_epochs(model_prefix,
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, num_train_samples=len(train_examples), num_train_epochs=epochs)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")
@@ -200,7 +197,7 @@ if __name__ == "__main__":
     # Usage message
     if len(sys.argv) != 4:
         print('Usage:')
-        print('   python3 qa_probes_iterative.py [pretrained/fine_tuned] [cpu/gpu] epochs')
+        print('   python3 train.py [pretrained/fine_tuned] [cpu/gpu] epochs')
 
     # Model
     if sys.argv[1] == "pretrained":

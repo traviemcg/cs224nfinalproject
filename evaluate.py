@@ -1,23 +1,6 @@
 '''
-This file uses the offical evaluation script for SQuAD version 2.0.
-
-It takes as input a directory created by qa_probes_iterative.py,
-which corresponds to predictions made after a certain epoch
-
-It then writes those predictions to json, and evaluates those predictions
-
+This file is based on the offical evaluation script for SQuAD version 2.0.
 '''
-
-
-
-
-"""Official evaluation script for SQuAD version 2.0.
-
-In addition to basic functionality, we also compute additional statistics and
-plot precision-recall curves if an additional na_prob.json file is provided.
-This file is expected to map question ID's to the model's predicted probability
-that a question is unanswerable.
-"""
 import argparse
 import collections
 import json
@@ -205,14 +188,18 @@ def save_metrics(pred_dir, dev_file):
 if __name__ == '__main__':
 
   dev_file = "squad-master/data/dev-v2.0.json"
-  
-  experiment_dir = sys.argv[1]
+
+  if len(sys.argv) != 3:
+      print("Usage")
+      print("    python3 evaluate.py [exper/probes] [experiment/preds dir]")
+
+  use_preds_or_exper_dir = sys.argv[1]
+
+  experiment_dir = sys.argv[2]
   if experiment_dir[-1] != "/":
       experiment_dir = experiment_dir + "/"
   model = ['pretrained', 'fine_tuned']
   modes = ['has_ans', 'no_ans', 'all']
-
-  use_preds_or_exper_dir = sys.argv[2]
   
   if use_preds_or_exper_dir == "exper":
 

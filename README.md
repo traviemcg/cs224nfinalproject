@@ -101,22 +101,24 @@ python3 predict.py exper $EXPER_DIR cpu
 
 or to run predictions for probes in one specific probes directory:
 ```
-export EPOCH_DIR=01_lr1e-5/fine_tuned_epoch_1/
-python3 predict.py probes $EPOCH_DIR/fine_tuned_probes cpu
+export PROBES_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes
+python3 predict.py probes $PROBES_DIR cpu
 ```
 
 ### Evaluation
 
 ```
-python3 evaluate.py [exper/probes] [experiment/probes_dir]
+python3 evaluate.py [exper/probes] [experiment/preds_dir]
 ```
 
 Evaluation can be done over a whole experiment directory:
 ```
-python3 evaluate.py exper experiment_directory
+export EXPER_DIR=01_lr1e-5/
+python3 evaluate.py exper $EXPER_DIR
 ```
 
 or one specific directory of predictions:
 ```
-python3 evaluate.py preds preds_directory
+export PREDS_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_preds
+python3 evaluate.py preds $PREDS_DIR
 ```

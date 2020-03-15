@@ -136,4 +136,4 @@ if __name__ == "__main__":
     probe_dir = sys.argv[2]
     pred_dir = sys.argv[3]
 
-    eval_model(model_prefix, probe_dir, pred_dir, epochs)
+    eval_model(model_prefix, probe_dir, pred_dir)

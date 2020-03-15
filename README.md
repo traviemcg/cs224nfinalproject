@@ -1,4 +1,4 @@
-## Default Project++
+## Importance of Depth and Fine-tuning in BERT-models
 
 Ths project is for CS224N: Natural Language Processing with Deep Learning at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
 
@@ -8,7 +8,7 @@ There are three major components to this respository:
 
 - [squad-master](https://github.com/minggg/squad) CS224N's repository providing SQuAD 2.0 data and a BiDAF model
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
-- Our scripts for training, using, and evaluating with probes
+- Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
 
 ### Setting up
 

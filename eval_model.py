@@ -139,7 +139,7 @@ if __name__ == "__main__":
     # Device
     if sys.argv[4] == "cpu":
         device = "cpu"
-    elif sys.argv[2] == "gpu":
+    elif sys.argv[4] == "gpu":
         device = "cuda"
 
     eval_model(model_prefix, probe_dir, pred_dir, device=device)

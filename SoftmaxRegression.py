@@ -103,11 +103,14 @@ class MultiSoftmaxRegression():
             score_best = start_scores[:, start_best] + end_scores[:, end_best]
 
             for start_curr in range(1, seq_len):
-                for end_curr in range(start_curr, min(start_curr+max_answer_length, seq_len)):
-                    score_curr = start_scores[:, start_curr] + end_scores[:, end_curr]
-                    if score_curr >= score_best:
-                        score_best = score_curr
-                        start_best, end_best = start_curr, end_curr
+                start_score = start_scores[:, start_curr]
+                end_scores = end_scores[:, start_curr:min(start_curr+max_answer_length, seq_len)]
+                end_score, end_idx = end_scores.max(-1)
+                end_curr = end_idx+start_curr
+                score_curr = start_score + end_score
+                if score_curr >= score_best:
+                    score_best = score_curr
+                    start_best, end_best = start_curr, end_curr
 
             non_null_more_likely_than_null = score_best >= (score_null + threshold)
             

@@ -124,9 +124,9 @@ if __name__ == "__main__":
 
     dev = "dev-v2.0.json"
 
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print("Usage")
-        print("    [pretrained/fine_tuned]probe_dir pred_dir")
+        print("    [pretrained/fine_tuned] probe_dir pred_dir device")
 
     if sys.argv[1] == "pretrained":
         model_prefix = "albert-base-v2"
@@ -135,5 +135,6 @@ if __name__ == "__main__":
 
     probe_dir = sys.argv[2]
     pred_dir = sys.argv[3]
+    device = sys.argv[4]
 
     eval_model(model_prefix, probe_dir, pred_dir)

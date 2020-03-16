@@ -12,7 +12,6 @@ from probe import Probe
 def send_epochs(model_prefix,
                  data_dir,
                  train_file,
-                 dev_file,
                  epoch_dir,
                  probe_dir,
                  pred_dir,
@@ -28,7 +27,6 @@ def send_epochs(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
-    dev_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file)
 
     # Extract train features
     print("Loading train features")
@@ -39,19 +37,6 @@ def send_epochs(model_prefix,
         doc_stride=128,
         max_query_length=64,
         is_training=True,
-        return_dataset="pt",
-        threads=1,
-    )
-
-    # Extract dev features
-    print("Loading dev features")
-    dev_features, dev_dataset = squad_convert_examples_to_features(
-        examples=dev_examples,
-        tokenizer=tokenizer,
-        max_seq_length=max_seq_length,
-        doc_stride=128,
-        max_query_length=64,
-        is_training=False,
         return_dataset="pt",
         threads=1,
     )
@@ -69,13 +54,6 @@ def send_epochs(model_prefix,
     for i in range(layers):
         p = Probe(hidden_dim)
         probes.append(p)
-
-    # Extract IDs
-    print("Extracting dev IDs")
-    n = len(dev_examples)
-    q_ids = []
-    for i in range(n):
-        q_ids.append(dev_examples[i].qas_id)
 
     # Training epochs
     for epoch in range(epochs):
@@ -117,7 +95,7 @@ def send_epochs(model_prefix,
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, num_train_samples=len(train_examples), num_train_epochs=epochs)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")
@@ -127,95 +105,43 @@ def send_epochs(model_prefix,
         for i, p in enumerate(probes):
             p.save(it_probe_dir, i + 1)
 
-        # Initialize dev data loader
-        eval_sampler = SequentialSampler(dev_dataset)
-        eval_dataloader = DataLoader(dev_dataset, sampler = eval_sampler, batch_size = batch_size)
-
-        # Initialize predictions
-        predictions = []
-        for i in range(layers):
-            pred = pd.DataFrame()
-            pred['Id'] = q_ids
-            pred['Predicted'] = [""] * len(dev_examples)
-            predictions.append(pred)
-
-        # Evaluation batches
-        print("Predicting on dev set")
-        for batch in tqdm(eval_dataloader, desc = "Evaluating"):
-            model.eval()
-            batch = tuple(t.to(device) for t in batch)
-            
-            with torch.no_grad():
-                inputs = {
-                        "input_ids": batch[0],
-                        "attention_mask": batch[1],
-                        "token_type_ids": batch[2],
-                    }
-
-                # Albert forward pass
-                idx = batch[3]
-                outputs = model(**inputs)
-                attention_hidden_states = outputs[2][1:]
-
-                # Compute prediction
-                for j, index in enumerate(idx):
-                    index = int(index.item())
-                    if index >= n:
-                        break
-                    for i, p in enumerate(probes):
-
-                        # Extract predicted indicies
-                        start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0)
-                        start_idx = int(start_idx[0])
-                        end_idx = int(end_idx[0])
-
-                        # Extract predicted answer
-                        tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-                        answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
-
-                        # No answer
-                        if answer == '[CLS]':
-                            answer = ''
-
-                        # Populate output
-                        predictions[i]['Predicted'][index] = answer
-
-        # Save predictions
-        print("Saving predictions")
-        it_pred_dir = it_epoch_dir + "/" + pred_dir
-        if not os.path.exists(it_pred_dir):
-            os.mkdir(it_pred_dir)
-        for i, pred in enumerate(predictions):
-            pred.to_csv(it_pred_dir + "/pred_layer_" + str(i+1) + ".csv", index = False)
-
 if __name__ == "__main__":
 
-    # Train and dev set
+    # Train set
     train = "train-v2.0.json"
-    dev = "dev-v2.0.json"
 
     # Usage message
     if len(sys.argv) != 4:
         print('Usage:')
-        print('   python3 train.py [pretrained/fine_tuned] [cpu/gpu] epochs')
+        print('   python3 train.py [pretrained/fine_tuned/both] [cpu/gpu] epochs')
 
     # Model
     if sys.argv[1] == "pretrained":
-        model_prefix = "albert-base-v2"
-        epoch_dir = "pretrained_epoch"
-        probe_dir = "pretrained_probes"
-        pred_dir = "pretrained_preds"
+        model_prefixes = ["albert-base-v2"]
+        epoch_dirs = ["pretrained_epoch"]
+        probe_dirs = ["pretrained_probes"]
+        pred_dirs = ["pretrained_preds"]
     elif sys.argv[1] == "fine_tuned":
-        model_prefix = "twmkn9/albert-base-v2-squad2"
-        epoch_dir = "fine_tuned_epoch"
-        probe_dir = "fine_tuned_probes"
-        pred_dir = "fine_tuned_preds"
+        model_prefixes = ["twmkn9/albert-base-v2-squad2"]
+        epoch_dirs = ["fine_tuned_epoch"]
+        probe_dirs = ["fine_tuned_probes"]
+        pred_dirs = ["fine_tuned_preds"]
+    elif sys.argv[1] == "both":
+        model_prefixes = ["albert-base-v2", "twmkn9/albert-base-v2-squad2"]
+        epoch_dirs = ["pretrained_epoch", "fine_tuned_epoch"]
+        probe_dirs = ["pretrained_probes", "fine_tuned_probes"]
+        pred_dirs = ["pretrained_preds", "fine_tuned_preds"]
+    else:
+        print("Incorrect model argument! Should be in [pretrained/fine_tuned/both]")
+
 
     # Device
     if sys.argv[2] == "cpu":
         device = "cpu"
     elif sys.argv[2] == "gpu":
         device = "cuda"
+    else:
+        print("Incorrect device argument! Should be in [cpu/gpu]")
 
     # Training epochs
     epochs = int(sys.argv[3])
@@ -224,14 +150,18 @@ if __name__ == "__main__":
     torch.manual_seed(1)
 
     # Send epochs
-    send_epochs(model_prefix,
-                 data_dir = "squad-master/data/",
-                 train_file = train,
-                 dev_file = dev,
-                 epoch_dir = epoch_dir,
-                 probe_dir = probe_dir,
-                 pred_dir = pred_dir,
-                 epochs = epochs,
-                 hidden_dim = 768,
-                 max_seq_length = 384,
-                 device = device)
+    for i in range(len(model_prefixes)):
+        model_prefix = model_prefixes[i]
+        epoch_dir = epoch_dirs[i]
+        probe_dir = probe_dirs[i]
+        pred_dir = pred_dirs[i]
+        send_epochs(model_prefix,
+                    data_dir = "squad-master/data/",
+                    train_file = train,
+                    epoch_dir = epoch_dir,
+                    probe_dir = probe_dir,
+                    pred_dir = pred_dir,
+                    epochs = epochs,
+                    hidden_dim = 768,
+                    max_seq_length = 384,
+                    device = device)

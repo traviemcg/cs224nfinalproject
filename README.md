@@ -79,12 +79,12 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 ### Probe training
 
 ```
-python3 train.py [pretrained/finetuned] [cpu/gpu] epochs
+python3 train.py [pretrained/fine_tuned/both] [cpu/gpu] epochs
 ```
 
-To train probes for each layer of pretrained ALBERT on the cpu for 1 epoch:
+To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu for 3 epoch:
 ```
-python3 train.py pretrained cpu 1
+python3 train.py both gpu 3
 ```
 
 ### Probe prediction

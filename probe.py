@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import AdamW, get_linear_schedule_with_warmup
+from transformers import AdamW
 
 class SoftmaxRegression(nn.Module):
     def __init__(self, hidden_size):
@@ -33,16 +33,8 @@ class Probe():
         
         self.start_optimizer = AdamW(self.model_start_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
         self.end_optimizer = AdamW(self.model_end_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
-        
-        self.start_scheduler = None
-        self.end_scheduler = None
 
-    def train(self, inputs, start_targets, end_targets, device, num_train_samples=0, num_train_epochs=0):
-
-        if self.start_scheduler == None or self.end_scheduler == None:
-            total_steps = num_train_samples * num_train_epochs
-            self.start_scheduler = get_linear_schedule_with_warmup(self.start_optimizer, num_warmup_steps=0, num_training_steps=total_steps)
-            self.end_scheduler = get_linear_schedule_with_warmup(self.end_optimizer, num_warmup_steps=0, num_training_steps=total_steps)
+    def train(self, inputs, start_targets, end_targets, device):
         
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
@@ -68,9 +60,6 @@ class Probe():
             
             self.start_optimizer.step()
             self.end_optimizer.step()
-
-            self.start_scheduler.step()
-            self.end_scheduler.step()
 
             self.model_start_idx.zero_grad()
             self.model_end_idx.zero_grad()
@@ -161,7 +150,7 @@ if __name__ == "__main__":
     model = Probe(hidden_size)
     while epoch < max_epoch:
         epoch += 1
-        loss = model.train(inputs, start_idx_targets, end_idx_targets, device, batch_size, max_epoch)
+        loss = model.train(inputs, start_idx_targets, end_idx_targets, device)
         
         if epoch%print_every==0:
             print("epoch {}, loss {:.2f}".format(epoch, loss))

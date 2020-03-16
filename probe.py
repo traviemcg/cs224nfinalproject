@@ -77,16 +77,20 @@ class Probe():
 
         return loss
 
-    def predict(self, inputs, device, threshold=0, question_length=1, max_answer_length=22):
+    def predict(self, inputs, device, threshold=0, context_start=1, context_end=None, max_answer_length=22):
         """ Function to predict the start and end endices in a question answer sequence
             inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
             threshold: integer (e.g. 0) controlling tradeoff between answer and no answer prediction
-            question_length: integer (e.g. 1 if only start token) can be specified to avoid selecting tokens in question
+            context_start: integer (e.g. 1 if only start token at 0) can be specified to avoid selecting tokens in question
+            contenxt_end: integer (e.g. seq_len if full sequence) can be specified to avoid selecting tokens in question
             max_answer_length: integer (e.g. 22) constraining search space by giving maximum answer length
         """
 
         _, seq_len, _ = inputs.shape
+        if context_end == None:
+            context_end = seq_len
+        
         inputs = inputs.to(device)
 
         self.model_start_idx.to(device)
@@ -106,12 +110,12 @@ class Probe():
             end_null = end_scores[:, 0]
             score_null = start_null + end_null
 
-            start_best, end_best = question_length, question_length
+            start_best, end_best = context_start, context_start
             score_best = start_scores[:, start_best] + end_scores[:, end_best]
 
-            for start_curr in range(question_length, seq_len):
+            for start_curr in range(context_start, context_end):
                 start_score = start_scores[:, start_curr]
-                end_scores_valid = end_scores[:, start_curr:min(start_curr+max_answer_length, seq_len)]
+                end_scores_valid = end_scores[:, start_curr:min(start_curr+max_answer_length, context_end)]
                 end_score, end_idx = end_scores_valid.max(-1)
                 end_curr = end_idx+start_curr
                 score_curr = start_score + end_score
@@ -119,7 +123,7 @@ class Probe():
                     score_best = score_curr
                     start_best, end_best = start_curr, end_curr
 
-            print(question_length, score_best, score_null)
+            print(score_best, score_null)
 
             non_null_more_likely_than_null = score_best >= (score_null + threshold)
             

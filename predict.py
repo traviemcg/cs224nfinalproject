@@ -100,13 +100,11 @@ def eval_model(model_prefix,
                 for i, p in enumerate(probes):
 
                     # Find where context starts
-                    print(batch[2][j])
-                    context_start = torch.argmax(torch.flip(batch[2][j], [0]))
-                    context_end = torch.argmax(batch[2][j])
-                    print(context_start)
+                    context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item())
+                    context_end = int(torch.argmax(batch[2][j]).item())
 
                     # Extract predicted indicies
-                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=-5, question_length=question_length)
+                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=-5, context_start=context_start, context_end=context_end)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 

@@ -112,6 +112,8 @@ class Probe():
                     score_best = score_curr
                     start_best, end_best = start_curr, end_curr
 
+            print(start_best, end_best)
+
             non_null_more_likely_than_null = score_best >= (score_null + threshold)
             
             # Add one because argmax was missing the null entry, multiply by mask to force idx where null is more probable to zero

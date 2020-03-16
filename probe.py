@@ -31,10 +31,10 @@ class Probe():
         self.adam_epsilon = adam_epsilon
         self.max_grad_norm = max_grad_norm
         
-        self.start_optimizer = AdamW(self.model_start_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
-        self.end_optimizer = AdamW(self.model_end_idx.parameters(), lr=self.lr, eps=self.adam_epsilon)
+        self.start_optimizer = AdamW(self.model_start_idx.parameters(), lr=self.lr, eps=self.adam_epsilon, correct_bias=False)
+        self.end_optimizer = AdamW(self.model_end_idx.parameters(), lr=self.lr, eps=self.adam_epsilon, correct_bias=False)
 
-    def train(self, inputs, start_targets, end_targets, device):
+    def train(self, inputs, start_targets, end_targets, device, weight=None):
         
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
@@ -50,8 +50,15 @@ class Probe():
             start_targets.clamp_(0, ignored_index)
             end_targets.clamp_(0, ignored_index)
 
-            start_loss = nn.CrossEntropyLoss(ignore_index=ignored_index)(start_scores, start_targets)
-            end_loss = nn.CrossEntropyLoss(ignore_index=ignored_index)(end_scores, end_targets)
+            if weight is not None:
+                start_weight = weight[0, :]
+                end_weight = weight[1, :]
+            else:
+                start_weight = None
+                end_weight = None
+
+            start_loss = nn.CrossEntropyLoss(weight=start_weight, ignore_index=ignored_index)(start_scores, start_targets)
+            end_loss = nn.CrossEntropyLoss(weight=end_weight, ignore_index=ignored_index)(end_scores, end_targets)
             loss = (start_loss+end_loss)/2.0
             loss.backward()
             

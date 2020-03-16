@@ -82,7 +82,12 @@ Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'H
 python3 train.py [pretrained/fine_tuned/both] [cpu/gpu] epochs
 ```
 
-To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu for 3 epoch:
+To train probes for each layer of a pretrained ALBERT on the cpu for 1 epoch (e.g. for debugging locally):
+```
+python3 train.py pretrained cpu 1
+```
+
+To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu for 3 epoch (e.g. on a vm):
 ```
 python3 train.py both gpu 3
 ```

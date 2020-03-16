@@ -41,6 +41,12 @@ def send_epochs(model_prefix,
         threads=1,
     )
 
+    # Load class weight file, if it exists
+    if os.path.isfile('class_weights.pkl'):
+        weight = torch.load('class_weights.pkl', map_location=device).to(device)
+    else:
+        weight = None
+
     # Initialize ALBERT model
     config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
@@ -95,7 +101,7 @@ def send_epochs(model_prefix,
 
                     # Train probes
                     for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device)
+                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")
@@ -131,17 +137,12 @@ if __name__ == "__main__":
         epoch_dirs = ["pretrained_epoch", "fine_tuned_epoch"]
         probe_dirs = ["pretrained_probes", "fine_tuned_probes"]
         pred_dirs = ["pretrained_preds", "fine_tuned_preds"]
-    else:
-        print("Incorrect model argument! Should be in [pretrained/fine_tuned/both]")
-
 
     # Device
     if sys.argv[2] == "cpu":
         device = "cpu"
     elif sys.argv[2] == "gpu":
         device = "cuda"
-    else:
-        print("Incorrect device argument! Should be in [cpu/gpu]")
 
     # Training epochs
     epochs = int(sys.argv[3])

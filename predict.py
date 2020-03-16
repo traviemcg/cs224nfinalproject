@@ -172,9 +172,11 @@ if __name__ == "__main__":
         probe_dir = experiment_dir
         if "pretrained" in probe_dir:
             model_prefix = "albert-base-v2"
+            pretrained_or_fine_tuned = "pretrained"
         if "fine_tuned" in probe_dir:
-            model_prefix = "twmkn9/albert-base-v2-squad2" 
-        pred_dir = os.path.abspath(probe_dir+"/../")
+            model_prefix = "twmkn9/albert-base-v2-squad2"
+            pretrained_or_fine_tuned = "fine_tuned"
+        pred_dir = os.path.abspath(probe_dir+"/../"+pretrained_or_fine_tuned+"_preds/")
 
         eval_model(model_prefix, probe_dir, pred_dir, device=device)
 

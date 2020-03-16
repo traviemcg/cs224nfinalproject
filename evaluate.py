@@ -163,7 +163,7 @@ def convert_preds_to_json(pred_dir):
         f.write(x)
         f.close()
 
-def save_metrics(pred_dir, dev_file):
+def save_metrics(pred_dir, dev_path):
 
     num_layers = 12
     layers = np.arange(num_layers)+1
@@ -175,7 +175,7 @@ def save_metrics(pred_dir, dev_file):
 
         layer = int(json_file[len(pred_dir) + len("pred_layer_"):-5])
         l = layer-1 # layer index is layer-1
-        exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(dev_file, json_file)
+        exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(dev_path, json_file)
 
     results = pd.DataFrame({'layer':layers, 'exact':exact, 'f1':f1, 'exact_no_ans':exact_no_ans, 'f1_no_ans':f1_no_ans, 'exact_has_ans':exact_has_ans, 'f1_has_ans':f1_has_ans})
     print(results)
@@ -187,7 +187,9 @@ def save_metrics(pred_dir, dev_file):
 
 if __name__ == '__main__':
 
-  dev_file = "squad-master/data/dev-v2.0.json"
+  data_dir = "squad-master/data/"
+  dev_file = "dev-v2.0.json"
+  dev_path = data_dir+dev_file
 
   if len(sys.argv) != 3:
       print("Usage")
@@ -212,7 +214,7 @@ if __name__ == '__main__':
           if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
             print(pred_dir)
             convert_preds_to_json(pred_dir)
-            save_metrics(pred_dir, dev_file)
+            save_metrics(pred_dir, dev_path)
             print("")
 
   elif use_preds_or_exper_dir == "preds":
@@ -223,7 +225,7 @@ if __name__ == '__main__':
         pred_dir = pred_dir + "/"
 
     convert_preds_to_json(pred_dir)
-    save_metrics(pred_dir, dev_file)
+    save_metrics(pred_dir, dev_path)
 
   else:
     print("Invalid argument for 'use_preds_or_exper_dir', should be 'exper' or 'preds'")

@@ -25,8 +25,6 @@ def eval_model(model_prefix,
     processor = SquadV2Processor()
     dev_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file)
 
-    dev_examples = dev_examples[:8]
-
     # Extract dev features
     print("Loading dev features")
     dev_features, dev_dataset = squad_convert_examples_to_features(
@@ -99,7 +97,7 @@ def eval_model(model_prefix,
                     break
                 for i, p in enumerate(probes):
 
-                    # Find where context starts
+                    # Find where context starts and ends, since we want to predict in context
                     context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item())
                     context_end = int(torch.argmax(batch[2][j]).item())
 

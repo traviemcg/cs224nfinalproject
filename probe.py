@@ -72,7 +72,7 @@ class Probe():
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
             threshold: integer (e.g. 0) controlling tradeoff between answer and no answer prediction
             context_start: integer (e.g. 1 if only start token at 0) can be specified to avoid selecting tokens in question
-            contenxt_end: integer (e.g. seq_len if full sequence) can be specified to avoid selecting tokens in question
+            contenxt_end: integer (e.g. seq_len if full sequence) can be specified to avoid looking at tokens in padding
             max_answer_length: integer (e.g. 22) constraining search space by giving maximum answer length
         """
 

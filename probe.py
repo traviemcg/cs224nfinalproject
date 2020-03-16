@@ -66,7 +66,7 @@ class Probe():
 
         return loss
 
-    def predict(self, inputs, device, threshold=1.0, context_start=1, context_end=None, max_answer_length=5):
+    def predict(self, inputs, device, threshold=1.0, context_start=1, context_end=None, max_answer_length=7):
         """ Function to predict the start and end endices in a question answer sequence
             inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
             device: string ('cuda' or 'cpu') tells pytorch where to run computations

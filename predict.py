@@ -102,7 +102,7 @@ def eval_model(model_prefix,
                     context_end = int(torch.argmax(batch[2][j]).item())
 
                     # Extract predicted indicies
-                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=-5, context_start=context_start, context_end=context_end)
+                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0.9, context_start=context_start, context_end=context_end)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 

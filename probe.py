@@ -92,8 +92,8 @@ class Probe():
         E = self.model_end_idx
 
         with torch.no_grad():
-            start_scores = S.predict_proba(inputs)
-            end_scores = E.predict_proba(inputs)
+            start_scores = S(inputs)
+            end_scores = E(inputs)
 
             start_null = start_scores[:, 0]
             end_null = end_scores[:, 0]

@@ -100,7 +100,7 @@ def eval_model(model_prefix,
                 for i, p in enumerate(probes):
 
                     # Extract predicted indicies
-                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0)
+                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=-5)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 

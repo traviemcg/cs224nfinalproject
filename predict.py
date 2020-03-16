@@ -99,8 +99,12 @@ def eval_model(model_prefix,
                     break
                 for i, p in enumerate(probes):
 
+                    # Find question length
+                    context_length = batch[2][j].sum(-1)
+                    question_length = max_seq_length-context_length+1
+
                     # Extract predicted indicies
-                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=-5)
+                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=-5, question_length=question_length)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 

@@ -77,11 +77,12 @@ class Probe():
 
         return loss
 
-    def predict(self, inputs, device, threshold=0, max_answer_length=22):
+    def predict(self, inputs, device, threshold=0, question_length=1, max_answer_length=22):
         """ Function to predict the start and end endices in a question answer sequence
             inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
             threshold: integer (e.g. 0) controlling tradeoff between answer and no answer prediction
+            question_length: integer (e.g. 1 if only start token) can be specified to avoid selecting tokens in question
             max_answer_length: integer (e.g. 22) constraining search space by giving maximum answer length
         """
 
@@ -105,10 +106,10 @@ class Probe():
             end_null = end_scores[:, 0]
             score_null = start_null + end_null
 
-            start_best, end_best = 1, 1
+            start_best, end_best = question_length, question_length
             score_best = start_scores[:, start_best] + end_scores[:, end_best]
 
-            for start_curr in range(1, seq_len):
+            for start_curr in range(question_length, seq_len):
                 start_score = start_scores[:, start_curr]
                 end_scores_valid = end_scores[:, start_curr:min(start_curr+max_answer_length, seq_len)]
                 end_score, end_idx = end_scores_valid.max(-1)

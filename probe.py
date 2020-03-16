@@ -119,7 +119,7 @@ class Probe():
                     score_best = score_curr
                     start_best, end_best = start_curr, end_curr
 
-            print(score_best, score_null)
+            print(question_length, score_best, score_null)
 
             non_null_more_likely_than_null = score_best >= (score_null + threshold)
             

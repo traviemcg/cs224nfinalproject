@@ -101,7 +101,7 @@ def eval_model(model_prefix,
 
                     # Find question length
                     print(batch[2][j])
-                    context_length = batch[2][j].sum(-2)
+                    context_length = batch[2][j].sum()
                     question_length = max_seq_length-context_length+1
 
                     # Extract predicted indicies

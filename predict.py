@@ -25,6 +25,8 @@ def eval_model(model_prefix,
     processor = SquadV2Processor()
     dev_examples = processor.get_train_examples(data_dir = data_dir, filename = dev_file)
 
+    dev_examples = dev_examples[:8]
+
     # Extract dev features
     print("Loading dev features")
     dev_features, dev_dataset = squad_convert_examples_to_features(

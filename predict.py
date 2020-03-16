@@ -101,7 +101,7 @@ def eval_model(model_prefix,
 
                     # Find where context starts
                     print(batch[2][j])
-                    _, context_start = batch[2][j].max()
+                    context_start = torch.argmax(batch[2][j])
                     print(context_start)
 
                     # Extract predicted indicies

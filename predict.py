@@ -101,7 +101,7 @@ def eval_model(model_prefix,
 
                     # Find where context starts
                     print(batch[2][j])
-                    context_start = torch.argmax(torch.flip(batch[2][j], 0))
+                    context_start = torch.argmax(torch.flip(batch[2][j], [0]))
                     context_end = torch.argmax(batch[2][j])
                     print(context_start)
 

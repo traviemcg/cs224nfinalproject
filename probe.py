@@ -92,15 +92,15 @@ class Probe():
         E = self.model_end_idx
 
         with torch.no_grad():
-            start_scores = S(inputs)
-            end_scores = E(inputs)
+            start_scores = S.predict_proba(inputs)
+            end_scores = E.predict_proba(inputs)
 
             start_null = start_scores[:, 0]
             end_null = end_scores[:, 0]
-            score_null = start_null + end_null
+            score_null = start_null * end_null
 
             start_best, end_best = context_start, context_start
-            score_best = start_scores[:, start_best] + end_scores[:, end_best]
+            score_best = start_scores[:, start_best] * end_scores[:, end_best]
 
             for start_curr in range(context_start, context_end):
                 start_score = start_scores[:, start_curr]

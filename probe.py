@@ -92,15 +92,15 @@ class Probe():
         E = self.model_end_idx
 
         with torch.no_grad():
-            start_scores = S.predict_proba(inputs)
-            end_scores = E.predict_proba(inputs)
+            start_scores = S(inputs)
+            end_scores = E(inputs)
 
             start_null = start_scores[:, 0]
             end_null = end_scores[:, 0]
-            score_null = start_null * end_null
+            score_null = start_null + end_null
 
             start_best, end_best = context_start, context_start
-            score_best = start_scores[:, start_best] * end_scores[:, end_best]
+            score_best = start_scores[:, start_best] + end_scores[:, end_best]
 
             for start_curr in range(context_start, context_end):
                 start_score = start_scores[:, start_curr]
@@ -112,13 +112,11 @@ class Probe():
                     score_best = score_curr
                     start_best, end_best = start_curr, end_curr
 
-            print(start_best, end_best)
-
             non_null_more_likely_than_null = score_best >= (score_null + threshold)
             
             # Add one because argmax was missing the null entry, multiply by mask to force idx where null is more probable to zero
-            start_idx = non_null_more_likely_than_null*(start_best+1)
-            end_idx = non_null_more_likely_than_null*(end_best+1)
+            start_idx = non_null_more_likely_than_null*start_best
+            end_idx = non_null_more_likely_than_null*end_best
 
         return start_idx.cpu().numpy(), end_idx.cpu().numpy()
     

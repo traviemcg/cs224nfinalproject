@@ -112,7 +112,7 @@ def send_epochs(model_prefix,
 
             # Take gradient steps for batch
             for i, p in enumerate(probes):
-                p.step(batch_loss[i], device)
+                p.step(batch_loss[i].clone(), device)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")

@@ -9,6 +9,7 @@ There are three major components to this respository:
 - [squad-master](https://github.com/minggg/squad) CS224N's repository providing SQuAD 2.0 data and a BiDAF model
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
 - Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
+- If one would like to train with class weighting, we have provided [class weights](class_weights.py) to generate a pkl file which will be used when it exists
 
 ## Setting up
 
@@ -91,6 +92,12 @@ To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu fo
 ```
 python3 train.py both gpu 3
 ```
+
+To use class weighting (OPTIONAL), before training run
+```
+python3 class_weights.py [pretrained/fine_tuned] [cpu/gpu]
+```
+where the model prefix is specified to ensure the right tokenizer is used.
 
 ### Probe prediction
 

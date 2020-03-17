@@ -12,13 +12,13 @@ from probe import Probe
 def eval_model(model_prefix,
                probe_dir,
                pred_dir,
-               data_dir = "squad-master/data/",
-               dev_file = "dev-v2.0.json",
-               layers = 12,
-               hidden_dim = 768,
-               batch_size = 4,
-               max_seq_length = 384,
-               device = 'cuda'):
+               data_dir,
+               dev_file,
+               layers,
+               hidden_dim,
+               batch_size,
+               max_seq_length,
+               device):
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
@@ -126,8 +126,7 @@ def eval_model(model_prefix,
 
 if __name__ == "__main__":
 
-    dev = "dev-v2.0.json"
-
+    # Usage message
     if len(sys.argv) != 4:
         print("Usage")
         print("    python3 predict.py [exper/probes] [experiment/probe dir] [cpu/gpu]")
@@ -146,10 +145,10 @@ if __name__ == "__main__":
     elif sys.argv[3] == "gpu":
         device = "cuda"
 
+    # Do evaluation for whole experiment
     if use_probes_or_exper_dir == "exper":
         epoch_names = sorted(os.listdir(experiment_dir))
         for epoch_name in epoch_names:
-
             if "pretrained" in epoch_name:
                 pretrained_or_fine_tuned = "pretrained"
                 model_prefix = "albert-base-v2"
@@ -164,11 +163,20 @@ if __name__ == "__main__":
                     if os.path.isdir(probe_dir) and probe_dir[-7:] == 'probes/':
                         print(probe_dir)
                         pred_dir = os.path.abspath(probe_dir+"/../" + pretrained_or_fine_tuned + "_preds/")
-                        eval_model(model_prefix, probe_dir, pred_dir, device=device)
+                        eval_model(model_prefix,
+                                   probe_dir,
+                                   pred_dir,
+                                   data_dir = "squad-master/data/",
+                                   dev_file = "dev-v2.0.json",
+                                   layers = 12,
+                                   hidden_dim = 768,
+                                   batch_size = 4,
+                                   max_seq_length = 384,
+                                   device = device)
                         print("")
   
+    # Do prediction for single probes directory
     elif use_probes_or_exper_dir == "probes":
-
         probe_dir = experiment_dir
         if "pretrained" in probe_dir:
             model_prefix = "albert-base-v2"
@@ -178,7 +186,13 @@ if __name__ == "__main__":
             pretrained_or_fine_tuned = "fine_tuned"
         pred_dir = os.path.abspath(probe_dir+"/../"+pretrained_or_fine_tuned+"_preds/")
 
-        eval_model(model_prefix, probe_dir, pred_dir, device=device)
-
-    else:
-        print("Invalid argument for 'use_probes_or_exper_dir', should be 'exper' or 'probes'")
+        eval_model(model_prefix,
+                   probe_dir,
+                   pred_dir,
+                   data_dir = "squad-master/data/",
+                   dev_file = "dev-v2.0.json",
+                   layers = 12,
+                   hidden_dim = 768,
+                   batch_size = 4,
+                   max_seq_length = 384,
+                   device = device)

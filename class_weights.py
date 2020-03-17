@@ -12,7 +12,7 @@ def get_weights(model_prefix,
                 data_dir,
                 train_file,
                 max_seq_length,
-                device = 'cpu'):
+                device):
 
 
     # Extract examples
@@ -66,15 +66,12 @@ def get_weights(model_prefix,
 
 if __name__ == "__main__":
 
-    # Train set
-    train = "train-v2.0.json"
-
     # Usage message
     if len(sys.argv) != 3:
         print('Usage:')
         print('   python3 class_weights.py [pretrained/fine_tuned] [cpu/gpu]')
 
-        # Model
+    # Model
     if sys.argv[1] == "pretrained":
         model_prefixes = ["albert-base-v2"]
         epoch_dirs = ["pretrained_epoch"]
@@ -100,6 +97,6 @@ if __name__ == "__main__":
         pred_dir = pred_dirs[i]
         get_weights(model_prefix,
                     data_dir = "squad-master/data/",
-                    train_file = train,
+                    train_file = "train-v2.0.json",
                     max_seq_length = 384,
                     device = device)

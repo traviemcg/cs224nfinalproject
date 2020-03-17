@@ -187,47 +187,44 @@ def save_metrics(pred_dir, dev_path):
 
 if __name__ == '__main__':
 
-  data_dir = "squad-master/data/"
-  dev_file = "dev-v2.0.json"
-  dev_path = data_dir+dev_file
-
+  # Usage message
   if len(sys.argv) != 3:
       print("Usage")
       print("    python3 evaluate.py [exper/probes] [experiment/preds dir]")
 
+  # Single preds or experiment directory
   use_preds_or_exper_dir = sys.argv[1]
 
+  # Path to directory
   experiment_dir = sys.argv[2]
   if experiment_dir[-1] != "/":
       experiment_dir = experiment_dir + "/"
   model = ['pretrained', 'fine_tuned']
   modes = ['has_ans', 'no_ans', 'all']
   
+  # Do evaluation for whole experiment
   if use_preds_or_exper_dir == "exper":
 
     epoch_names = sorted(os.listdir(experiment_dir))
+
     for epoch_name in epoch_names:
       epoch_dir = experiment_dir + epoch_name
+      
       if os.path.isdir(epoch_dir):
         for possible_pred_name in os.listdir(epoch_dir):
           pred_dir = epoch_dir + "/" + possible_pred_name + "/"
+          
           if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
             print(pred_dir)
             convert_preds_to_json(pred_dir)
-            save_metrics(pred_dir, dev_path)
+            save_metrics(pred_dir, dev_path="squad-master/data/dev-v2.0.json")
             print("")
 
+  # Do evaluation for signle preds directory
   elif use_preds_or_exper_dir == "preds":
-
     pred_dir = experiment_dir
-
     if pred_dir[-1] != "/":
         pred_dir = pred_dir + "/"
 
     convert_preds_to_json(pred_dir)
-    save_metrics(pred_dir, dev_path)
-
-  else:
-    print("Invalid argument for 'use_preds_or_exper_dir', should be 'exper' or 'preds'")
-
-
+    save_metrics(pred_dir, dev_path="squad-master/data/dev-v2.0.json")

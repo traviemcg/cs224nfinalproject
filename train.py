@@ -10,18 +10,17 @@ from transformers.data.processors.squad import SquadV2Processor
 from probe import Probe
 
 def send_epochs(model_prefix,
-                 data_dir,
-                 train_file,
-                 epoch_dir,
-                 probe_dir,
-                 pred_dir,
-                 epochs,
-                 batch_size = 8,
-                 layers = 12,
-                 hidden_dim = 768,
-                 max_seq_length = 384,
-                 device = 'cpu'):
-
+                data_dir,
+                train_file,
+                epoch_dir,
+                probe_dir,
+                pred_dir,
+                epochs,
+                batch_size,
+                layers,
+                hidden_dim,
+                max_seq_length,
+                device):
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
@@ -115,9 +114,6 @@ def send_epochs(model_prefix,
 
 if __name__ == "__main__":
 
-    # Train set
-    train = "train-v2.0.json"
-
     # Usage message
     if len(sys.argv) != 4:
         print('Usage:')
@@ -160,11 +156,13 @@ if __name__ == "__main__":
         pred_dir = pred_dirs[i]
         send_epochs(model_prefix,
                     data_dir = "squad-master/data/",
-                    train_file = train,
+                    train_file = "train-v2.0.json",
                     epoch_dir = epoch_dir,
                     probe_dir = probe_dir,
                     pred_dir = pred_dir,
                     epochs = epochs,
+                    batch_size = 8,
+                    layers = 12,
                     hidden_dim = 768,
                     max_seq_length = 384,
                     device = device)

@@ -36,6 +36,9 @@ class Probe():
 
     def train(self, inputs, start_targets, end_targets, device, weight=None):
         
+        inputs = inputs.to(device)
+        start_targets = start_targets.to(device)
+        end_targets = end_targets.to(device)
         self.model_start_idx.to(device)
         self.model_end_idx.to(device)
 
@@ -43,6 +46,8 @@ class Probe():
         self.model_end_idx.train()
 
         with torch.set_grad_enabled(True):
+            batch_loss = 0
+
             start_scores = self.model_start_idx(inputs)
             end_scores = self.model_end_idx(inputs)
             
@@ -59,25 +64,23 @@ class Probe():
 
             start_loss = nn.CrossEntropyLoss(weight=start_weight, ignore_index=ignored_index)(start_scores, start_targets)
             end_loss = nn.CrossEntropyLoss(weight=end_weight, ignore_index=ignored_index)(end_scores, end_targets)
-            loss = (start_loss+end_loss)/2.0
+            loss = ((start_loss+end_loss)/2.0).sum()
 
-        return loss
+            self.model_start_idx.to(device)
+            self.model_end_idx.to(device)
 
-    def step(self, loss, device):
+            loss.backward()
+            
+            torch.nn.utils.clip_grad_norm_(self.model_start_idx.parameters(), self.max_grad_norm)
+            torch.nn.utils.clip_grad_norm_(self.model_end_idx.parameters(), self.max_grad_norm)
+            
+            self.start_optimizer.step()
+            self.end_optimizer.step()
 
-        self.model_start_idx.to(device)
-        self.model_end_idx.to(device)
+            self.model_start_idx.zero_grad()
+            self.model_end_idx.zero_grad()
 
-        loss.backward()
-        
-        torch.nn.utils.clip_grad_norm_(self.model_start_idx.parameters(), self.max_grad_norm)
-        torch.nn.utils.clip_grad_norm_(self.model_end_idx.parameters(), self.max_grad_norm)
-        
-        self.start_optimizer.step()
-        self.end_optimizer.step()
-
-        self.model_start_idx.zero_grad()
-        self.model_end_idx.zero_grad()
+        return batch_loss
 
     def predict(self, inputs, device, threshold=1.0, context_start=1, context_end=None, max_answer_length=17):
         """ Function to predict the start and end endices in a question answer sequence

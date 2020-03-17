@@ -100,24 +100,13 @@ def send_epochs(model_prefix,
 
             with torch.autograd.set_detect_anomaly(True):
 
-                # Initialize batch loss for each probe to zero
-                batch_loss = torch.ones(layers, dtype=torch.float32, device=device, requires_grad=True)
+                # Get labels, and update probes for batch
+                start = batch[3] # (batch_size)
+                end  = batch[4] # (batch_size)
 
-                # Update probes
-                for j in range(batch[7].shape[0]):
-                    print(j)
-
-                    # Get loss for each example in batch
-                    start = batch[3][j].clone().unsqueeze(0).to(device)
-                    end  = batch[4][j].clone().unsqueeze(0).to(device)
-
-                    for i, p in enumerate(probes):
-                        hiddens = all_layer_hidden_states[i][j].clone().unsqueeze(0).to(device)
-                        batch_loss[i] = batch_loss[i].clone() + p.train(hiddens, start, end, device, weight=weight)
-
-                # Take gradient steps for batch
                 for i, p in enumerate(probes):
-                    p.step(batch_loss[i].clone(), device)
+                    hiddens = all_layer_hidden_states[i] # (batch_size, max_seq_len, hidden_size)
+                    p.train(hiddens, start, end, device, weight=weight)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")

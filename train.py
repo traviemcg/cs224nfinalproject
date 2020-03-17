@@ -98,15 +98,13 @@ def send_epochs(model_prefix,
             # Extract hiddent states
             all_layer_hidden_states = outputs[3][1:]
 
-            with torch.autograd.set_detect_anomaly(True):
+            # Get labels, and update probes for batch
+            start = batch[3] # (batch_size)
+            end  = batch[4] # (batch_size)
 
-                # Get labels, and update probes for batch
-                start = batch[3] # (batch_size)
-                end  = batch[4] # (batch_size)
-
-                for i, p in enumerate(probes):
-                    hiddens = all_layer_hidden_states[i] # (batch_size, max_seq_len, hidden_size)
-                    p.train(hiddens, start, end, device, weight=weight)
+            for i, p in enumerate(probes):
+                hiddens = all_layer_hidden_states[i] # (batch_size, max_seq_len, hidden_size)
+                p.train(hiddens, start, end, device, weight=weight)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")

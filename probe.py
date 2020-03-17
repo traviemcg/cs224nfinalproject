@@ -64,10 +64,8 @@ class Probe():
 
             start_loss = nn.CrossEntropyLoss(weight=start_weight, ignore_index=ignored_index)(start_scores, start_targets)
             end_loss = nn.CrossEntropyLoss(weight=end_weight, ignore_index=ignored_index)(end_scores, end_targets)
+            print(start_loss)
             loss = ((start_loss+end_loss)/2.0).sum()
-
-            self.model_start_idx.to(device)
-            self.model_end_idx.to(device)
 
             loss.backward()
             

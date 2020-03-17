@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+from torch.utils.data import DataLoader, RandomSampler
 from tqdm import tqdm, trange
 from transformers import *
 from transformers.data.processors.squad import SquadV2Processor
@@ -108,7 +108,7 @@ def send_epochs(model_prefix,
 
                 # Get loss for each example in batch
                 for i, p in enumerate(probes):
-                    batch_loss[i] = batch_loss[i] + p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
+                    batch_loss[i] = batch_loss[i].clone() + p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
 
             # Take gradient steps for batch
             for i, p in enumerate(probes):

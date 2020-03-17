@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+from torch.utils.data import DataLoader, SequentialSampler
 from tqdm import tqdm, trange
 from transformers import *
 from transformers.data.processors.squad import SquadV2Processor

@@ -60,18 +60,24 @@ class Probe():
             start_loss = nn.CrossEntropyLoss(weight=start_weight, ignore_index=ignored_index)(start_scores, start_targets)
             end_loss = nn.CrossEntropyLoss(weight=end_weight, ignore_index=ignored_index)(end_scores, end_targets)
             loss = (start_loss+end_loss)/2.0
-            loss.backward()
-            
-            torch.nn.utils.clip_grad_norm_(self.model_start_idx.parameters(), self.max_grad_norm)
-            torch.nn.utils.clip_grad_norm_(self.model_end_idx.parameters(), self.max_grad_norm)
-            
-            self.start_optimizer.step()
-            self.end_optimizer.step()
-
-            self.model_start_idx.zero_grad()
-            self.model_end_idx.zero_grad()
 
         return loss
+
+    def step(self, loss, device):
+
+        self.model_start_idx.to(device)
+        self.model_end_idx.to(device)
+
+        loss.backward()
+        
+        torch.nn.utils.clip_grad_norm_(self.model_start_idx.parameters(), self.max_grad_norm)
+        torch.nn.utils.clip_grad_norm_(self.model_end_idx.parameters(), self.max_grad_norm)
+        
+        self.start_optimizer.step()
+        self.end_optimizer.step()
+
+        self.model_start_idx.zero_grad()
+        self.model_end_idx.zero_grad()
 
     def predict(self, inputs, device, threshold=1.0, context_start=1, context_end=None, max_answer_length=7):
         """ Function to predict the start and end endices in a question answer sequence

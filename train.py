@@ -16,7 +16,7 @@ def send_epochs(model_prefix,
                  probe_dir,
                  pred_dir,
                  epochs,
-                 batch_size = 4,
+                 batch_size = 8,
                  layers = 12,
                  hidden_dim = 768,
                  max_seq_length = 384,
@@ -79,29 +79,34 @@ def send_epochs(model_prefix,
         for batch in tqdm(train_dataloader, desc = "Iteration"):
             model.eval()
             batch = tuple(t.to(device) for t in batch)
-            
-            with torch.no_grad():
 
-                inputs = {
-                    "input_ids": batch[0],
-                    "attention_mask": batch[1],
-                    "token_type_ids": batch[2],
-                    "start_positions": batch[3],
-                    "end_positions": batch[4],
-                }
+            inputs = {
+                "input_ids": batch[0],
+                "attention_mask": batch[1],
+                "token_type_ids": batch[2],
+                "start_positions": batch[3],
+                "end_positions": batch[4],
+            }
 
-                # Albert forward pass
-                outputs = model(**inputs)
-                attention_hidden_states = outputs[3][1:]
+            # Albert forward pass
+            outputs = model(**inputs)
+            attention_hidden_states = outputs[3][1:]
 
-                # Update probes
-                for j in range(batch[7].shape[0]):
-                    start = batch[3][j].clone().unsqueeze(0).to(device)
-                    end  = batch[4][j].clone().unsqueeze(0).to(device)
+            # Initialize batch loss for each probe to zero
+            batch_loss = [0.0]*layers
 
-                    # Train probes
-                    for i, p in enumerate(probes):
-                        p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
+            # Update probes
+            for j in range(batch[7].shape[0]):
+                start = batch[3][j].clone().unsqueeze(0).to(device)
+                end  = batch[4][j].clone().unsqueeze(0).to(device)
+
+                # Get loss for each example in batch
+                for i, p in enumerate(probes):
+                    batch_loss[i] += p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
+
+            # Take gradient steps for batch
+            for i, p in enumerate(probes):
+                p.step(batch_loss[i], device)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")

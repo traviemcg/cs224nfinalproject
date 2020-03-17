@@ -79,14 +79,14 @@ class Probe():
         self.model_start_idx.zero_grad()
         self.model_end_idx.zero_grad()
 
-    def predict(self, inputs, device, threshold=1.0, context_start=1, context_end=None, max_answer_length=7):
+    def predict(self, inputs, device, threshold=1.0, context_start=1, context_end=None, max_answer_length=17):
         """ Function to predict the start and end endices in a question answer sequence
             inputs: tensor (batch_size, seq_len, hidden_size) are attention weighted hidden state outputs
             device: string ('cuda' or 'cpu') tells pytorch where to run computations
             threshold: float (e.g. 1.0 for no ans score*1.0) controlling tradeoff between answer and no answer prediction
             context_start: integer (e.g. 1 if only start token at 0) can be specified to avoid selecting tokens in question
             contenxt_end: integer (e.g. seq_len if full sequence) can be specified to avoid looking at tokens in padding
-            max_answer_length: integer (e.g. 17 for longest, 5 for most in Squad2.0) constraining search space by giving maximum answer length
+            max_answer_length: integer (e.g. 17 for longestmin Squad2.0) constraining search space by giving maximum answer length
         """
 
         _, seq_len, _ = inputs.shape

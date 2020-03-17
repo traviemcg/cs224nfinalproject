@@ -77,7 +77,8 @@ def send_epochs(model_prefix,
 
         # Training batches
         for batch in tqdm(train_dataloader, desc = "Iteration"):
-            model.eval()
+
+            # Get batch on the right device and prepare input dict
             batch = tuple(t.to(device) for t in batch)
 
             inputs = {
@@ -87,9 +88,13 @@ def send_epochs(model_prefix,
                 "start_positions": batch[3],
                 "end_positions": batch[4],
             }
-
+            
             # Albert forward pass
-            outputs = model(**inputs)
+            model.eval()
+            with torch.no_grad():
+                outputs = model(**inputs)
+
+            # Extract hiddent states
             attention_hidden_states = outputs[3][1:]
 
             # Initialize batch loss for each probe to zero
@@ -102,7 +107,7 @@ def send_epochs(model_prefix,
 
                 # Get loss for each example in batch
                 for i, p in enumerate(probes):
-                    batch_loss[i] += p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
+                    batch_loss[i] = batch_loss[i] + p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
 
             # Take gradient steps for batch
             for i, p in enumerate(probes):

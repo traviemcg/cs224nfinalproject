@@ -105,9 +105,9 @@ def send_epochs(model_prefix,
             for j in range(batch[7].shape[0]):
 
                 # Get loss for each example in batch
-                tart = batch[3][j].unsqueeze(0).to(device).clone()
+                start = batch[3][j].unsqueeze(0).to(device).clone()
                 end  = batch[4][j].unsqueeze(0).to(device).clone()
-                
+
                 for i, p in enumerate(probes):
                     hiddens = all_layer_hidden_states[i][j].unsqueeze(0).to(device).clone()
                     batch_loss[i] = batch_loss[i].clone() + p.train(hiddens, start, end, device, weight=weight)

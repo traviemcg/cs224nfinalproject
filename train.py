@@ -93,7 +93,7 @@ def send_epochs(model_prefix,
             attention_hidden_states = outputs[3][1:]
 
             # Initialize batch loss for each probe to zero
-            batch_loss = [0.0]*layers
+            batch_loss = torch.ones(layers, dtype=torch.float32, device=device, requires_grad=True)
 
             # Update probes
             for j in range(batch[7].shape[0]):

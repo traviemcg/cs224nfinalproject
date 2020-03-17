@@ -27,6 +27,7 @@ def send_epochs(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
+    train_examples = train_examples[0:24]
 
     # Extract train features
     print("Loading train features")

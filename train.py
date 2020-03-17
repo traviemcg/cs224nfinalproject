@@ -27,7 +27,6 @@ def send_epochs(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
-    train_examples = train_examples[0:24]
 
     # Extract train features
     print("Loading train features")
@@ -96,7 +95,7 @@ def send_epochs(model_prefix,
                 outputs = model(**inputs)
 
             # Extract hiddent states
-            all_layer_hidden_states = outputs[3][1:]
+            all_layer_hidden_states = outputs[3][1:] # (layers, batch_size, max_seq_len, hidden_size)
 
             # Get labels, and update probes for batch
             start = batch[3] # (batch_size)

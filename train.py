@@ -98,23 +98,25 @@ def send_epochs(model_prefix,
             # Extract hiddent states
             all_layer_hidden_states = outputs[3][1:]
 
-            # Initialize batch loss for each probe to zero
-            batch_loss = torch.ones(layers, dtype=torch.float32, device=device, requires_grad=True)
+            with torch.autograd.set_detect_anomaly(True):
 
-            # Update probes
-            for j in range(batch[7].shape[0]):
+                # Initialize batch loss for each probe to zero
+                batch_loss = torch.ones(layers, dtype=torch.float32, device=device, requires_grad=True)
 
-                # Get loss for each example in batch
-                start = batch[3][j].unsqueeze(0).to(device).clone()
-                end  = batch[4][j].unsqueeze(0).to(device).clone()
+                # Update probes
+                for j in range(batch[7].shape[0]):
 
+                    # Get loss for each example in batch
+                    start = batch[3][j].unsqueeze(0).to(device).clone()
+                    end  = batch[4][j].unsqueeze(0).to(device).clone()
+
+                    for i, p in enumerate(probes):
+                        hiddens = all_layer_hidden_states[i][j].unsqueeze(0).to(device).clone()
+                        batch_loss[i] = batch_loss[i].clone() + p.train(hiddens, start, end, device, weight=weight)
+
+                # Take gradient steps for batch
                 for i, p in enumerate(probes):
-                    hiddens = all_layer_hidden_states[i][j].unsqueeze(0).to(device).clone()
-                    batch_loss[i] = batch_loss[i].clone() + p.train(hiddens, start, end, device, weight=weight)
-
-            # Take gradient steps for batch
-            for i, p in enumerate(probes):
-                p.step(batch_loss[i].clone(), device)
+                    p.step(batch_loss[i].clone(), device)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")

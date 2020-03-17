@@ -96,19 +96,21 @@ def send_epochs(model_prefix,
                 outputs = model(**inputs)
 
             # Extract hiddent states
-            attention_hidden_states = outputs[3][1:]
+            all_layer_hidden_states = outputs[3][1:]
 
             # Initialize batch loss for each probe to zero
             batch_loss = torch.ones(layers, dtype=torch.float32, device=device, requires_grad=True)
 
             # Update probes
             for j in range(batch[7].shape[0]):
-                start = batch[3][j].clone().unsqueeze(0).to(device)
-                end  = batch[4][j].clone().unsqueeze(0).to(device)
 
                 # Get loss for each example in batch
+                tart = batch[3][j].unsqueeze(0).to(device).clone()
+                end  = batch[4][j].unsqueeze(0).to(device).clone()
+                
                 for i, p in enumerate(probes):
-                    batch_loss[i] = batch_loss[i].clone() + p.train(attention_hidden_states[i][j].unsqueeze(0), start, end, device, weight=weight)
+                    hiddens = all_layer_hidden_states[i][j].unsqueeze(0).to(device).clone()
+                    batch_loss[i] = batch_loss[i].clone() + p.train(hiddens, start, end, device, weight=weight)
 
             # Take gradient steps for batch
             for i, p in enumerate(probes):

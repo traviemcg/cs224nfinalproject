@@ -24,7 +24,6 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    dev_examples = dev_examples[0:10]
 
     # Extract dev features
     print("Loading dev features")
@@ -114,7 +113,7 @@ def eval_model(model_prefix,
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
 
-                if (predictions[0].loc[question_ids[i], 'Id'] == "ddbccaa3c57fee6bb3af0c234"):
+                if (predictions[0].loc[question_ids[i], 'Id'] == "ddbccaa3c57fee6bb3af0c234" or "cb78dc6ee3132bc8e4bdabc1a"):
                     print(question)
                     print(tokenizer.convert_tokens_to_string(tokens))
 
@@ -152,7 +151,7 @@ def eval_model(model_prefix,
                         predictions[i].loc[question_ids[i], 'Score'] = score
                     
                     # Increment to new question id (note, for duplicate answers this gets us back to where we were)
-                    question_ids[i] += 1        
+                    question_ids[i] += 1
 
     # Save predictions
     print("Saving predictions")

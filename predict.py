@@ -24,7 +24,6 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    dev_examples = dev_examples[-20:]
 
     # Extract dev features
     print("Loading dev features")
@@ -95,7 +94,7 @@ def eval_model(model_prefix,
             for j, index in enumerate(idx):
                 index = int(index.item())
                 feature = dev_features[index]
-                unique_id = int(feature.unique_id-1000000000)
+                unique_id = int(feature.unique_id-1000000000) # subtract to remove this number they add when making unique ids
 
                 if index >= n:
                     break
@@ -121,8 +120,6 @@ def eval_model(model_prefix,
 
                     # Populate output
                     layer_pred_df = predictions[i]
-                    print(unique_id, dev_examples[unique_id].qas_id, answer)
-                    print(layer_pred_df.loc[unique_id])
                     layer_pred_df.loc[unique_id]['Predicted'] = answer
 
     # Save predictions

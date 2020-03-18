@@ -86,7 +86,7 @@ class Probe():
             threshold: float (e.g. 1.0 for no ans score*1.0) controlling tradeoff between answer and no answer prediction
             context_start: tensor (batch_size) can be specified to avoid selecting tokens in question e.g. 1 if only start token at 0
             contenxt_end: tensor (batch_size) can be specified to avoid looking at tokens in padding e.g. seq_len if full sequence
-            max_answer_length: integer (e.g. 17 for longest in Squad2.0) constraining search space by giving maximum answer length
+            max_answer_length: integer (e.g. 17 for longest in Squad2.0 by words not tokens) constraining search space by giving maximum answer length in tokens
         """
 
         # TODO: Make work over batches of greater than size 1

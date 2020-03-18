@@ -24,6 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
+    dev_examples = dev_examples[0:10]
 
     # Extract dev features
     print("Loading dev features")
@@ -112,6 +113,10 @@ def eval_model(model_prefix,
                 question_start = 1
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
+
+                if (predictions[0].loc[question_ids[i], 'Id'] == "ddbccaa3c57fee6bb3af0c234"):
+                    print(question)
+                    print(tokenizer.convert_tokens_to_string(tokens))
 
                 # For each layer ...
                 for i, p in enumerate(probes):

@@ -64,7 +64,8 @@ def eval_model(model_prefix,
     eval_sampler = SequentialSampler(dev_dataset)
     eval_dataloader = DataLoader(dev_dataset, sampler = eval_sampler, batch_size = batch_size)
 
-    print(len(eval_dataloader))
+    print(len(dev_dataset))
+    print(len(eval_dataloader)) # this is 1600, which implies 1600*4=6400 examples. But we only have 6078...
 
     # Initialize predictions
     predictions = []

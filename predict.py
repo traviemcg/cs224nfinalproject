@@ -24,7 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    #dev_examples = dev_examples[0:20]
+    dev_examples = dev_examples[0:20]
 
     # Extract dev features
     print("Loading dev features")
@@ -75,9 +75,14 @@ def eval_model(model_prefix,
         pred['Score'] = [0] * len(dev_examples)
         predictions.append(pred)
 
+    # List to keep track of how many unique questions we've seen in each df, questions with
+    # contexts longer than max seq len get split into multiple features based on doc_stride
+    # a good alternative we may implement later is recording for all features, then simplifying with groupby and max
+    # e.g. df.sort_values('score', ascending=False).drop_duplicates(['Id'])
+    question_ids = [0]*layers 
+
     # Evaluation batches
     print("Predicting on dev set")
-    question_ids = [0]*layers
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
         batch = tuple(t.to(device) for t in batch)
@@ -109,16 +114,15 @@ def eval_model(model_prefix,
                 question_start = 1
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
-                
-                if index == 6077:
-                    print(index, dev_examples[index].qas_id)
-                    tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-                    print(tokenizer.convert_tokens_to_string(tokens))
 
                 for i, p in enumerate(probes):
 
                     # Extract predicted indicies
-                    score, start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0, context_start=context_start, context_end=context_end)
+                    score, start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), 
+                                                          device, 
+                                                          threshold=0, 
+                                                          context_start=context_start, 
+                                                          context_end=context_end)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 
@@ -131,16 +135,16 @@ def eval_model(model_prefix,
 
                     # Check if the question is already in the dataframe, and populate keeping higher scoring answer in case of duplicates
                     if (predictions[i]['Question'] == question).any():
-                        old_score = predictions[i]['Score'].loc[question_ids[i]] 
+                        old_score = predictions[i].loc[question_ids[i], 'Score'] 
                         if score > old_score:
-                            predictions[i]['Predicted'].loc[question_ids[i]] = answer
-                            predictions[i]['Score'].loc[question_ids[i]] = score
+                            predictions[i].loc[question_ids[i], 'Predicted'] = answer
+                            predictions[i].loc[question_ids[i], 'Score'] = score
                         else:
                             continue
                     else:
-                        predictions[i]['Question'].loc[question_ids[i]] = question
-                        predictions[i]['Predicted'].loc[question_ids[i]] = answer
-                        predictions[i]['Score'].loc[question_ids[i]] = score
+                        predictions[i].loc[question_ids[i], 'Question'] = question
+                        predictions[i].loc[question_ids[i], 'Predicted'] = answer
+                        predictions[i].loc[question_ids[i], 'Score'] = score
                         question_ids[i] += 1        
 
     # Save predictions

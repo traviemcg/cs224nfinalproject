@@ -64,6 +64,8 @@ def eval_model(model_prefix,
     eval_sampler = SequentialSampler(dev_dataset)
     eval_dataloader = DataLoader(dev_dataset, sampler = eval_sampler, batch_size = batch_size)
 
+    print(len(eval_dataloader))
+
     # Initialize predictions
     predictions = []
     for i in range(layers):

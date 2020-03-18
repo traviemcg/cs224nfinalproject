@@ -24,7 +24,6 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    dev_examples = dev_examples[-10:]
 
     # Extract dev features
     print("Loading dev features")
@@ -121,8 +120,6 @@ def eval_model(model_prefix,
 
                     # Populate output
                     predictions[i]['Predicted'][predictions[i]['Id']==dev_examples[unique_id].qas_id] = answer
-
-                print(predictions[i])
 
     # Save predictions
     print("Saving predictions")

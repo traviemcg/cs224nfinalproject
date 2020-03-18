@@ -121,8 +121,8 @@ def eval_model(model_prefix,
 
                     # Populate output
                     layer_pred_df = predictions[i]
-                    print(layer_pred_df['Id']==dev_examples[unique_id].qas_id)
-                    layer_pred_df.loc[layer_pred_df['Id']==dev_examples[unique_id].qas_id, 'Predicted'] = answer
+                    print(dev_examples[unique_id].qas_id, answer)
+                    layer_pred_df['Predicted'][layer_pred_df['Id']==dev_examples[unique_id].qas_id] = answer
 
     # Save predictions
     print("Saving predictions")

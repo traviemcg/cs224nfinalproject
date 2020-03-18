@@ -100,7 +100,7 @@ def eval_model(model_prefix,
                 if index >= n:
                     break
 
-                for i, p in enumerate(probes[5:8]):
+                for i, p in enumerate(probes):
 
                     # Find where context starts and ends, since we want to predict in context
                     context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item())
@@ -120,7 +120,6 @@ def eval_model(model_prefix,
                         answer = ''
 
                     # Populate output
-                    print(dev_examples[unique_id].qas_id, answer)
                     predictions[i]['Predicted'][predictions[i]['Id']==dev_examples[unique_id].qas_id] = answer
 
                 print(predictions[i])

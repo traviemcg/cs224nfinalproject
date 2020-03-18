@@ -1,6 +1,6 @@
 # Importance of Depth and Fine-tuning in BERT-models
 
-Ths project is for CS224N: Natural Language Processing with Deep Learning at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
+Ths project started in [CS224N: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/) at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
 
 Our paper is here TODO. This repository will walk through all steps necessary to reproduce the results.
 
@@ -9,7 +9,7 @@ There are three major components to this respository:
 - [squad-master](https://github.com/minggg/squad) CS224N's repository providing SQuAD 2.0 data and a BiDAF model
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
 - Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
-- If one would like to train with class weighting, we have provided [class weights](class_weights.py) to generate a pkl file which will be used when it exists
+- If one would like to train with class weighting, we have provided [class weights](class_weights.py) to generate a pkl file of class weights (used automatically by [training](train.py) when it exists)
 
 ## Setting up
 
@@ -117,7 +117,7 @@ export PROBES_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes
 python3 predict.py probes $PROBES_DIR cpu
 ```
 
-### Evaluation
+### Probe evaluation
 
 ```
 python3 evaluate.py [exper/probes] [experiment/preds_dir]

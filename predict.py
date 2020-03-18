@@ -24,6 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
+    dev_examples = [-20:]
 
     # Extract dev features
     print("Loading dev features")

@@ -64,22 +64,19 @@ def eval_model(model_prefix,
     eval_sampler = SequentialSampler(dev_dataset)
     eval_dataloader = DataLoader(dev_dataset, sampler = eval_sampler, batch_size = batch_size)
 
-    
-    print(len(dev_examples)) # this is 6078, so sometime between transfer from this to dev dataset it gets bigger
-    print(len(dev_features)) # this is also 6398, so at least dev features aligns with dev dataset
-    print(len(dev_dataset)) # this is 6398, we were expecting 6078 ?
-    print(len(eval_dataloader)) # this is 1600, which implies 1600*4=6400 examples. But we only have 6078...
-
     # Initialize predictions
     predictions = []
     for i in range(layers):
         pred = pd.DataFrame()
         pred['Id'] = q_ids
         pred['Predicted'] = [""] * len(dev_examples)
+        pred['Question'] = [""] * len(dev_examples)
+        pred['Score'] = [0] * len(dev_examples)
         predictions.append(pred)
 
     # Evaluation batches
     print("Predicting on dev set")
+    question_ids = [0]*layers
     for batch in tqdm(eval_dataloader, desc = "Evaluating"):
         model.eval()
         batch = tuple(t.to(device) for t in batch)
@@ -102,6 +99,18 @@ def eval_model(model_prefix,
 
                 if index >= n:
                     break
+
+                # Extract tokens for the current batch
+                tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
+                
+                # Find where context starts and ends, since we want to predict in context
+                context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item()) - 1
+                context_end = int(torch.argmax(batch[2][j]).item())
+
+                # Find the question, subtracting 1 to chop off the [SEP] token
+                question_start = 1
+                question_end = context_start
+                question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
                 
                 if index == 6077:
                     print(index, dev_examples[index].qas_id)
@@ -110,32 +119,38 @@ def eval_model(model_prefix,
 
                 for i, p in enumerate(probes):
 
-                    # Find where context starts and ends, since we want to predict in context
-                    context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item())
-                    context_end = int(torch.argmax(batch[2][j]).item())
-
                     # Extract predicted indicies
-                    start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0, context_start=context_start, context_end=context_end)
+                    score, start_idx, end_idx = p.predict(attention_hidden_states[i][j].unsqueeze(0), device, threshold=0, context_start=context_start, context_end=context_end)
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 
                     # Extract predicted answer
-                    tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
                     answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
 
                     # No answer
                     if answer == '[CLS]':
                         answer = ''
 
-                    # Populate output
-                    predictions[i]['Predicted'][predictions[i]['Id']==dev_examples[index].qas_id] = answer
+                    # Check if the question is already in the dataframe, and populate keeping higher scoring answer in case of duplicates
+                    if (predictions[i]['Question'] == question).any():
+                        old_score = predictions[i]['Score'].loc[question_ids[i]] 
+                        if score > old_score:
+                            predictions[i]['Predicted'].loc[question_ids[i]] = answer
+                            predictions[i]['Score'].loc[question_ids[i]] = score
+                        else:
+                            continue
+                    else:
+                        predictions[i]['Question'].loc[question_ids[i]] = question
+                        predictions[i]['Predicted'].loc[question_ids[i]] = answer
+                        predictions[i]['Score'].loc[question_ids[i]] = score
+                        question_ids[i] += 1        
 
     # Save predictions
     print("Saving predictions")
     if not os.path.exists(pred_dir):
         os.mkdir(pred_dir)
     for i, pred in enumerate(predictions):
-        pred.to_csv(pred_dir + "/pred_layer_" + str(i+1) + ".csv", index = False)
+        pred[['Id', 'Predicted']].to_csv(pred_dir + "/pred_layer_" + str(i+1) + ".csv", index = False)
 
 if __name__ == "__main__":
 

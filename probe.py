@@ -127,11 +127,12 @@ class Probe():
 
             non_null_more_likely_than_null = score_best >= (score_null+threshold)
             
-            # Add one because argmax was missing the null entry, multiply by mask to force idx where null is more probable to zero
+            # Multiply by mask to force idx where null is more probable to zero
+            score = non_null_more_likely_than_null*score_best+(1-non_null_more_likely_than_null)*score_null
             start_idx = non_null_more_likely_than_null*start_best
             end_idx = non_null_more_likely_than_null*end_best
 
-        return start_idx.cpu().numpy(), end_idx.cpu().numpy()
+        return score.cpu().numpy(), start_idx.cpu().numpy(), end_idx.cpu().numpy()
     
     def save(self, probe_dir, layer):
         torch.save(self.model_start_idx.state_dict(), probe_dir + "/layer_" + str(layer) + "_start_idx")

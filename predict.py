@@ -9,6 +9,8 @@ from transformers import *
 from transformers.data.processors.squad import SquadV2Processor
 from probe import Probe
 
+from multiprocessing import Pool, cpu_count
+
 def squad_convert_examples_to_features(
     examples, tokenizer, max_seq_length, doc_stride, max_query_length, is_training, return_dataset=False, threads=1
 ):

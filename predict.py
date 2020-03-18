@@ -27,19 +27,18 @@ def eval_model(model_prefix,
 
     # Extract dev features
     print("Loading dev features")
-    dev_features, dev_dataset = squad_convert_examples_to_features(
-        examples=dev_examples,
-        tokenizer=tokenizer,
-        max_seq_length=max_seq_length,
-        doc_stride=128,
-        max_query_length=64,
-        is_training=False,
-        return_dataset="pt",
-        threads=1,
-    )
+    dev_features, dev_dataset = squad_convert_examples_to_features(examples=dev_examples,
+                                                                   tokenizer=tokenizer,
+                                                                   max_seq_length=max_seq_length,
+                                                                   doc_stride=128,
+                                                                   max_query_length=64,
+                                                                   is_training=False,
+                                                                   return_dataset="pt",
+                                                                   threads=1)
 
     # Initialize ALBERT model
     config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate
@@ -77,7 +76,7 @@ def eval_model(model_prefix,
     # List to keep track of how many unique questions we've seen in each df, questions with
     # contexts longer than max seq len get split into multiple features based on doc_stride
     # a good alternative we may implement later is recording for all features, then simplifying with groupby and max
-    # e.g. df.sort_values('score', ascending=False).drop_duplicates(['Id'])
+    # e.g. something like df.sort_values('Score', ascending=False).drop_duplicates(['Question'])
     question_ids = [0]*layers 
 
     # Evaluation batches
@@ -114,6 +113,7 @@ def eval_model(model_prefix,
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
 
+                # For each layer ...
                 for i, p in enumerate(probes):
 
                     # Extract predicted indicies
@@ -125,31 +125,29 @@ def eval_model(model_prefix,
                     start_idx = int(start_idx[0])
                     end_idx = int(end_idx[0])
 
-                    # Extract predicted answer
+                    # Extract predicted answer, converting start tokens to empty strings (no answer)
                     answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
-
-                    # No answer
                     if answer == '[CLS]':
                         answer = ''
 
-                    # Check if the question is already in the dataframe, if it is go back momentarily and keep the higher score
-                    # if it is not, then assign the new value to the dataframe. Favor keeping non null predictions since the answer
-                    # could have been in the cutoff context. If our old and new predictions are both null, we don't really care which we keep
+                    # Check if the question is already in the dataframe, if it is go back to the last question id and keep the higher score.
+                    # Favor keeping non null predictions since the answer could have been in the cutoff context. 
+                    # If our old and new predictions are both null, we don't really care which we keep.
+                    # If the question is not already in the dataframe, then assign it to the dataframe. 
                     if (predictions[i]['Question'] == question).any():
                         question_ids[i] -= 1  
                         old_score = predictions[i].loc[question_ids[i], 'Score'] 
-                        if score > old_score and answer != '':
+                        old_answer = predictions[i].loc[question_ids[i], 'Predicted']
+                        if (score > old_score and answer != '') or (old_answer == '' and answer != ''):
                             predictions[i].loc[question_ids[i], 'Predicted'] = answer
                             predictions[i].loc[question_ids[i], 'Score'] = score
-                            question_ids[i] += 1 
-                        else:
-                            question_ids[i] += 1 
-                            continue
                     else:
                         predictions[i].loc[question_ids[i], 'Question'] = question
                         predictions[i].loc[question_ids[i], 'Predicted'] = answer
                         predictions[i].loc[question_ids[i], 'Score'] = score
-                        question_ids[i] += 1        
+                    
+                    # Increment to new question id (note, for duplicate answers this gets us back to where we were)
+                    question_ids[i] += 1        
 
     # Save predictions
     print("Saving predictions")

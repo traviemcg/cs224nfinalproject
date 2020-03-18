@@ -24,6 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
+    #dev_examples = dev_examples[0:20]
 
     # Extract dev features
     print("Loading dev features")
@@ -97,9 +98,6 @@ def eval_model(model_prefix,
             for j, index in enumerate(idx):
                 index = int(index.item())
 
-                if index >= n:
-                    break
-
                 # Extract tokens for the current batch
                 tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
                 
@@ -107,7 +105,7 @@ def eval_model(model_prefix,
                 context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item()) - 1
                 context_end = int(torch.argmax(batch[2][j]).item())
 
-                # Find the question, subtracting 1 to chop off the [SEP] token
+                # Find the question, starting right after [CLS] and subtracting 1 to chop off the [SEP] token
                 question_start = 1
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])

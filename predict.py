@@ -64,7 +64,8 @@ def eval_model(model_prefix,
     eval_sampler = SequentialSampler(dev_dataset)
     eval_dataloader = DataLoader(dev_dataset, sampler = eval_sampler, batch_size = batch_size)
 
-    print(len(dev_examples))
+    print(len(dev_features))
+    print(len(dev_examples)) # this is 6078, so sometime between transfer from this to dev dataset it gets bigger
     print(len(dev_dataset)) # this is 6398, we were expecting 6078 ?
     print(len(eval_dataloader)) # this is 1600, which implies 1600*4=6400 examples. But we only have 6078...
 

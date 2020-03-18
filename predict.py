@@ -93,12 +93,14 @@ def eval_model(model_prefix,
             # Compute prediction on eval indices
             for j, index in enumerate(idx):
                 index = int(index.item())
-                
-                feature = dev_features[index]
-                print(index, dev_examples[index].qas_id)
 
                 if index >= n:
                     break
+                
+                if index == 6077:
+                    print(index, dev_examples[index].qas_id)
+                    tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
+                    print(tokenizer.convert_tokens_to_string(tokens))
 
                 for i, p in enumerate(probes):
 

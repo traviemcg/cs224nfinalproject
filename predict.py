@@ -24,7 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    dev_examples = dev_examples[-20:]
+    dev_examples = dev_examples[-10ß0:]
 
     # Extract dev features
     print("Loading dev features")
@@ -88,7 +88,6 @@ def eval_model(model_prefix,
 
             # Albert forward pass
             idx = batch[3]
-            print(idx)
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 
@@ -97,8 +96,7 @@ def eval_model(model_prefix,
                 index = int(index.item())
                 
                 feature = dev_features[index]
-                unique_id = int(feature.unique_id-1000000000)
-                print(index, unique_id, dev_examples[unique_id].qas_id)
+                print(index, dev_examples[index].qas_id)
 
                 if index >= n:
                     break
@@ -116,6 +114,7 @@ def eval_model(model_prefix,
 
                     # Extract predicted answer
                     tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
+                    print(convert_tokens_to_string(tokens[start_idx:end_idx + 1]))
                     answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
 
                     # No answer
@@ -123,7 +122,7 @@ def eval_model(model_prefix,
                         answer = ''
 
                     # Populate output
-                    predictions[i]['Predicted'][predictions[i]['Id']==dev_examples[unique_id].qas_id] = answer
+                    predictions[i]['Predicted'][predictions[i]['Id']==dev_examples[index].qas_id] = answer
 
     # Save predictions
     print("Saving predictions")

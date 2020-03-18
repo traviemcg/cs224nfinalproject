@@ -16,3 +16,6 @@ fine_tuned_probes
 
 # Ignore anything in samples we haven't already committed
 transformers-master/examples/*
+
+# Ignore probes/preds
+0*

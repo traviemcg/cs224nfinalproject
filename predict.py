@@ -90,11 +90,16 @@ def eval_model(model_prefix,
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 
-            # Compute prediction
+            # Compute prediction on eval indices
             for j, index in enumerate(idx):
                 index = int(index.item())
+                feature = dev_features[index]
+                unique_id = int(feature.unique_id)
+                print(unique_id)
+
                 if index >= n:
                     break
+
                 for i, p in enumerate(probes):
 
                     # Find where context starts and ends, since we want to predict in context
@@ -115,7 +120,8 @@ def eval_model(model_prefix,
                         answer = ''
 
                     # Populate output
-                    predictions[i]['Predicted'][index] = answer
+                    layer_pred_df = predictions[i]
+                    layer_pred_df[layer_pred_df['Id']==unique_id]['Predicted'] = answer
 
     # Save predictions
     print("Saving predictions")

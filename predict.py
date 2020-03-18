@@ -24,7 +24,6 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    dev_examples = dev_examples[-100:]
 
     # Extract dev features
     print("Loading dev features")
@@ -114,7 +113,6 @@ def eval_model(model_prefix,
 
                     # Extract predicted answer
                     tokens = tokenizer.convert_ids_to_tokens(batch[0][j])
-                    print(tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1]))
                     answer = tokenizer.convert_tokens_to_string(tokens[start_idx:end_idx + 1])
 
                     # No answer

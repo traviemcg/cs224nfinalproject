@@ -24,6 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
+    dev_examples = dev_examples[-20:]
 
     # Extract dev features
     print("Loading dev features")
@@ -87,14 +88,17 @@ def eval_model(model_prefix,
 
             # Albert forward pass
             idx = batch[3]
+            print(idx)
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]
 
             # Compute prediction on eval indices
             for j, index in enumerate(idx):
                 index = int(index.item())
+                
                 feature = dev_features[index]
                 unique_id = int(feature.unique_id-1000000000)
+                print(index, unique_id, dev_examples[unique_id].qas_id)
 
                 if index >= n:
                     break

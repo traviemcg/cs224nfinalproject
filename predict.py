@@ -24,7 +24,6 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
-    dev_examples = dev_examples[0:20]
 
     # Extract dev features
     print("Loading dev features")
@@ -133,13 +132,18 @@ def eval_model(model_prefix,
                     if answer == '[CLS]':
                         answer = ''
 
-                    # Check if the question is already in the dataframe, and populate keeping higher scoring answer in case of duplicates
+                    # Check if the question is already in the dataframe, if it is go back momentarily and keep the higher score
+                    # if it is not, then assign the new value to the dataframe. Favor keeping non null predictions since the answer
+                    # could have been in the cutoff context. If our old and new predictions are both null, we don't really care which we keep
                     if (predictions[i]['Question'] == question).any():
+                        question_ids[i] -= 1  
                         old_score = predictions[i].loc[question_ids[i], 'Score'] 
-                        if score > old_score:
+                        if score > old_score and answer != '':
                             predictions[i].loc[question_ids[i], 'Predicted'] = answer
                             predictions[i].loc[question_ids[i], 'Score'] = score
+                            question_ids[i] += 1 
                         else:
+                            question_ids[i] += 1 
                             continue
                     else:
                         predictions[i].loc[question_ids[i], 'Question'] = question

@@ -120,9 +120,10 @@ def eval_model(model_prefix,
                         answer = ''
 
                     # Populate output
-                    layer_pred_df = predictions[i]
                     print(dev_examples[unique_id].qas_id, answer)
-                    layer_pred_df['Predicted'][layer_pred_df['Id']==dev_examples[unique_id].qas_id] = answer
+                    predictions[i]['Predicted'][predictions[i]['Id']==dev_examples[unique_id].qas_id] = answer
+
+                print(predictions[i])
 
     # Save predictions
     print("Saving predictions")

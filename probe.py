@@ -128,7 +128,7 @@ class Probe():
             non_null_more_likely_than_null = score_best >= (score_null+threshold)
             
             # Multiply by mask to force idx where null is more probable to zero
-            score = non_null_more_likely_than_null*score_best+(1-non_null_more_likely_than_null)*score_null
+            score = non_null_more_likely_than_null*score_best+(~non_null_more_likely_than_null)*score_null
             start_idx = non_null_more_likely_than_null*start_best
             end_idx = non_null_more_likely_than_null*end_best
 

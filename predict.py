@@ -113,7 +113,7 @@ def eval_model(model_prefix,
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
 
-                if (predictions[0].loc[question_ids[i], 'Id'] == "ddbccaa3c57fee6bb3af0c234" or "cb78dc6ee3132bc8e4bdabc1a"):
+                if (predictions[0].loc[question_ids[i], 'Id'] == "ddbccaa3c57fee6bb3af0c234") or (predictions[0].loc[question_ids[i], 'Id'] == "cb78dc6ee3132bc8e4bdabc1a"):
                     print(question)
                     print(tokenizer.convert_tokens_to_string(tokens))
 

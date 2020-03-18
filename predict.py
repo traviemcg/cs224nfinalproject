@@ -24,6 +24,7 @@ def eval_model(model_prefix,
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
     dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
+    dev_examples = dev_examples[-10:]
 
     # Extract dev features
     print("Loading dev features")
@@ -94,12 +95,12 @@ def eval_model(model_prefix,
             for j, index in enumerate(idx):
                 index = int(index.item())
                 feature = dev_features[index]
-                unique_id = int(feature.unique_id-1000000000) # subtract to remove this number they add when making unique ids
+                unique_id = int(feature.unique_id-1000000000)
 
                 if index >= n:
                     break
 
-                for i, p in enumerate(probes):
+                for i, p in enumerate(probes[0]):
 
                     # Find where context starts and ends, since we want to predict in context
                     context_start = int(max_seq_length - torch.argmax(torch.flip(batch[2][j], [0])).item())
@@ -120,7 +121,8 @@ def eval_model(model_prefix,
 
                     # Populate output
                     layer_pred_df = predictions[i]
-                    layer_pred_df.loc[unique_id]['Predicted'] = answer
+                    print(layer_pred_df['Id']==dev_examples[unique_id].qas_id)
+                    layer_pred_df[layer_pred_df['Id']==dev_examples[unique_id].qas_id]['Predicted'] = answer
 
     # Save predictions
     print("Saving predictions")

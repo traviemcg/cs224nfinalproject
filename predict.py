@@ -144,7 +144,7 @@ def eval_model(model_prefix,
                         question_ids[i] -= 1  
                         old_score = predictions[i].loc[question_ids[i], 'Score'] 
                         old_answer = predictions[i].loc[question_ids[i], 'Predicted']
-                        if (score > old_score and answer != '') or (old_answer == '' and answer != ''):
+                        if score > old_score:
                             predictions[i].loc[question_ids[i], 'Predicted'] = answer
                             predictions[i].loc[question_ids[i], 'Score'] = score
                     else:

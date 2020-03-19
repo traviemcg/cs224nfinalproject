@@ -113,13 +113,6 @@ def eval_model(model_prefix,
                 question_end = context_start
                 question = tokenizer.convert_tokens_to_string(tokens[question_start:question_end-1])
 
-                if (predictions[0]['Question'] == question).any():
-                    print(question, predictions[0].loc[question_ids[0]-1, 'Id'])
-                    print(tokenizer.convert_tokens_to_string(tokens))
-                if (predictions[0].loc[question_ids[0], 'Id'] == "ddbccaa3c57fee6bb3af0c234") or (predictions[0].loc[question_ids[0], 'Id'] == "cb78dc6ee3132bc8e4bdabc1a":
-                    print(question)
-                    print(tokenizer.convert_tokens_to_string(tokens))
-
                 # For each layer ...
                 for i, p in enumerate(probes):
 
@@ -137,11 +130,17 @@ def eval_model(model_prefix,
                     if answer == '[CLS]':
                         answer = ''
 
-                    # Check if the question is already in the dataframe, if it is go back to the last question id and keep the higher score.
+                    # Check if the question is the same as the last one, if it is go back to the last question id and keep the higher score.
                     # Favor keeping non null predictions since the answer could have been in the cutoff context. 
                     # If our old and new predictions are both null, we don't really care which we keep.
-                    # If the question is not already in the dataframe, then assign it to the dataframe. 
-                    if (predictions[i]['Question'] == question).any():
+                    # If the question is not already in the dataframe, then assign it to the dataframe.
+                    # Note we first handle the case where there are no prior questions by storing them since we know there are no duplicates
+                    if question_ids[i] == 0:
+                        predictions[i].loc[question_ids[i], 'Question'] = question
+                        predictions[i].loc[question_ids[i], 'Predicted'] = answer
+                        predictions[i].loc[question_ids[i], 'Score'] = score
+
+                    elif (predictions[i].loc[int(question_ids[i]-1), 'Question'] == question):
                         question_ids[i] -= 1  
                         old_score = predictions[i].loc[question_ids[i], 'Score'] 
                         old_answer = predictions[i].loc[question_ids[i], 'Predicted']

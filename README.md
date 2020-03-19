@@ -60,10 +60,10 @@ Results: {'exact': 85.32411977624218, 'f1': 88.83829560426527, 'total': 6078, 'H
 
 ### Training our own
 
-Now, on to training our own [base_v2](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from a pretrained ALBERT base.
+Now, on to training our own ALBERT [base_v2](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from a pretrained ALBERT base.
 ```
 export SQUAD_DIR=../../squad-master/data/
-python3 run_squad.py --model_type albert --model_name_or_path twmkn9/albert-base-v2-squad2 --do_train --do_eval --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/ --overwrite_cache
+python3 run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/
 ```
 
 To use the model locally
@@ -73,6 +73,12 @@ python3 run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_
 
 ```
 Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'HasAns_exact': 75.39518900343643, 'HasAns_f1': 82.04167868004215, 'HasAns_total': 2910, 'NoAns_exact': 81.7550505050505, 'NoAns_f1': 81.7550505050505, 'NoAns_total': 3168, 'best_exact': 78.72655478775913, 'best_exact_thresh': 0.0, 'best_f1': 81.90873395178066, 'best_f1_thresh': 0.0}
+```
+
+And for BERT [base](https://huggingface.co/bert-base-uncased)
+
+```
+python3 run_squad.py --model_type bert --model_name_or_path bert-base-uncased --do_train --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/base_fine/
 ```
 
 ## Probes

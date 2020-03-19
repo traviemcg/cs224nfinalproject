@@ -131,10 +131,8 @@ def eval_model(model_prefix,
                         answer = ''
 
                     # Check if the question is the same as the last one, if it is go back to the last question id and keep the higher score.
-                    # Favor keeping non null predictions since the answer could have been in the cutoff context. 
-                    # If our old and new predictions are both null, we don't really care which we keep.
                     # If the question is not already in the dataframe, then assign it to the dataframe.
-                    # Note we first handle the case where there are no prior questions by storing them since we know there are no duplicates
+                    # Note we first handle the case where there are no prior questions by storing since we know there are no duplicates
                     if question_ids[i] == 0:
                         predictions[i].loc[question_ids[i], 'Question'] = question
                         predictions[i].loc[question_ids[i], 'Predicted'] = answer
@@ -143,7 +141,6 @@ def eval_model(model_prefix,
                     elif (predictions[i].loc[int(question_ids[i]-1), 'Question'] == question):
                         question_ids[i] -= 1  
                         old_score = predictions[i].loc[question_ids[i], 'Score'] 
-                        old_answer = predictions[i].loc[question_ids[i], 'Predicted']
                         if score > old_score:
                             predictions[i].loc[question_ids[i], 'Predicted'] = answer
                             predictions[i].loc[question_ids[i], 'Score'] = score

@@ -162,34 +162,46 @@ def eval_model(model_prefix,
 if __name__ == "__main__":
 
     # Usage message
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print("Usage")
-        print("    python3 predict.py [exper/probes] [experiment/probe dir] [cpu/gpu]")
+        print("    python3 predict.py [exper/probes] [experiment/probe dir] [albert/bert] [cpu/gpu]")
 
-    # Whether passing preds or exper dir
+    # Whether passing probes or exper dir
     use_probes_or_exper_dir = sys.argv[1]
 
-    # Directory to use for preds or exper
+    # Directory to use for probes or exper
     experiment_dir = sys.argv[2]
     if experiment_dir[-1] != "/":
         experiment_dir = experiment_dir + "/"
 
+    # Whether using ALBERT or BERT
+    use_albert_or_bert = sys.argv[3]
+
     # Device
-    if sys.argv[3] == "cpu":
+    if sys.argv[4] == "cpu":
         device = "cpu"
-    elif sys.argv[3] == "gpu":
+    elif sys.argv[4] == "gpu":
         device = "cuda"
 
     # Do evaluation for whole experiment
     if use_probes_or_exper_dir == "exper":
         epoch_names = sorted(os.listdir(experiment_dir))
+
         for epoch_name in epoch_names:
+
             if "pretrained" in epoch_name:
                 pretrained_or_fine_tuned = "pretrained"
-                model_prefix = "albert-base-v2"
-            if "fine_tuned" in epoch_name:
+                if use_albert_or_bert == "albert":
+                    model_prefix = "albert-base-v2"
+                elif use_albert_or_bert == "bert":
+                    model_prefix = "bert-base-uncased"
+
+            elif "fine_tuned" in epoch_name:
                 pretrained_or_fine_tuned = "fine_tuned"
-                model_prefix = "twmkn9/albert-base-v2-squad2"
+                if use_albert_or_bert == "albert":
+                    model_prefix = "twmkn9/albert-base-v2-squad2"
+                elif use_albert_or_bert == "bert":
+                    model_prefix = "twmkn9/bert-base-uncased-squad2"
 
             epoch_dir = experiment_dir + epoch_name
             if os.path.isdir(epoch_dir):
@@ -205,7 +217,7 @@ if __name__ == "__main__":
                                    dev_file = "dev-v2.0.json",
                                    layers = 12,
                                    hidden_dim = 768,
-                                   batch_size = 4,
+                                   batch_size = 8,
                                    max_seq_length = 384,
                                    device = device)
                         print("")
@@ -214,11 +226,19 @@ if __name__ == "__main__":
     elif use_probes_or_exper_dir == "probes":
         probe_dir = experiment_dir
         if "pretrained" in probe_dir:
-            model_prefix = "albert-base-v2"
             pretrained_or_fine_tuned = "pretrained"
-        if "fine_tuned" in probe_dir:
-            model_prefix = "twmkn9/albert-base-v2-squad2"
+            if use_albert_or_bert == "albert":
+                model_prefix = "albert-base-v2"
+            elif use_albert_or_bert == "bert":
+                model_prefix = "bert-base-uncased"
+
+        elif "fine_tuned" in probe_dir:
             pretrained_or_fine_tuned = "fine_tuned"
+            if use_albert_or_bert == "albert":
+                model_prefix = "twmkn9/albert-base-v2-squad2"
+            elif use_albert_or_bert == "bert":
+                model_prefix = "twmkn9/bert-base-uncased-squad2"
+        
         pred_dir = os.path.abspath(probe_dir+"/../"+pretrained_or_fine_tuned+"_preds/")
 
         eval_model(model_prefix,
@@ -228,6 +248,6 @@ if __name__ == "__main__":
                    dev_file = "dev-v2.0.json",
                    layers = 12,
                    hidden_dim = 768,
-                   batch_size = 4,
+                   batch_size = 8,
                    max_seq_length = 384,
                    device = device)

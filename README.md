@@ -90,17 +90,17 @@ Results: {'exact': 72.35932872655479, 'f1': 75.75355132564763, 'total': 6078, 'H
 ### Probe training
 
 ```
-python3 train.py [pretrained/fine_tuned/both] [cpu/gpu] epochs
+python3 train.py [pretrained/fine_tuned/both] [albert/bert] [cpu/gpu] epochs
 ```
 
 To train probes for each layer of a pretrained ALBERT on the cpu for 1 epoch (e.g. for debugging locally):
 ```
-python3 train.py pretrained cpu 1
+python3 train.py pretrained albert cpu 1
 ```
 
 To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu for 3 epoch (e.g. on a vm):
 ```
-python3 train.py both gpu 3
+python3 train.py both albert gpu 3
 ```
 
 To use class weighting (OPTIONAL), before training run
@@ -112,19 +112,19 @@ where the model prefix is specified to ensure the right tokenizer is used.
 ### Probe prediction
 
 ```
-python3 predict.py [exper/probes] [experiment/probes_dir] [cpu/gpu]
+python3 predict.py [exper/probes] [experiment/probes_dir] [albert/bert] [cpu/gpu]
 ```
 
-To run predictions for probes over a whole experiment directory:
+To run predictions for probes over a whole ALBERT experiment directory:
 ```
 export EXPER_DIR=01_lr1e-5/
-python3 predict.py exper $EXPER_DIR cpu
+python3 predict.py exper $EXPER_DIR albert cpu
 ```
 
-or to run predictions for probes in one specific probes directory:
+or to run predictions for probes in one specific BERT probes directory:
 ```
 export PROBES_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes
-python3 predict.py probes $PROBES_DIR cpu
+python3 predict.py probes $PROBES_DIR bert cpu
 ```
 
 ### Probe evaluation
@@ -133,14 +133,14 @@ python3 predict.py probes $PROBES_DIR cpu
 python3 evaluate.py [exper/probes] [experiment/preds_dir]
 ```
 
-Evaluation can be done over a whole experiment directory:
+Evaluation can be done over a whole ALBERT experiment directory:
 ```
 export EXPER_DIR=01_lr1e-5/
-python3 evaluate.py exper $EXPER_DIR
+python3 evaluate.py exper $EXPER_DIR albert
 ```
 
 or one specific directory of predictions:
 ```
 export PREDS_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_preds
-python3 evaluate.py preds $PREDS_DIR
+python3 evaluate.py preds $PREDS_DIR bert
 ```

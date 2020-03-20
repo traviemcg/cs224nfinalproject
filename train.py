@@ -115,38 +115,55 @@ def send_epochs(model_prefix,
 if __name__ == "__main__":
 
     # Usage message
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print('Usage:')
-        print('   python3 train.py [pretrained/fine_tuned/both] [cpu/gpu] epochs')
+        print('   python3 train.py [pretrained/fine_tuned/both] [albert/base] [cpu/gpu] epochs')
 
-    # Model
-    if sys.argv[1] == "pretrained":
-        model_prefixes = ["albert-base-v2"]
-        epoch_dirs = ["pretrained_epoch"]
-        probe_dirs = ["pretrained_probes"]
-        pred_dirs = ["pretrained_preds"]
-    elif sys.argv[1] == "fine_tuned":
-        model_prefixes = ["twmkn9/albert-base-v2-squad2"]
-        epoch_dirs = ["fine_tuned_epoch"]
-        probe_dirs = ["fine_tuned_probes"]
-        pred_dirs = ["fine_tuned_preds"]
-    elif sys.argv[1] == "both":
-        model_prefixes = ["albert-base-v2", "twmkn9/albert-base-v2-squad2"]
-        epoch_dirs = ["pretrained_epoch", "fine_tuned_epoch"]
-        probe_dirs = ["pretrained_probes", "fine_tuned_probes"]
-        pred_dirs = ["pretrained_preds", "fine_tuned_preds"]
+    # Whether pretrained, fine tuned, or both
+    pre_fine_both = sys.argv[1]
+
+    # Whether using ALBERT or BERT
+    use_albert_or_bert = sys.argv[2]
 
     # Device
-    if sys.argv[2] == "cpu":
+    if sys.argv[3] == "cpu":
         device = "cpu"
-    elif sys.argv[2] == "gpu":
+    elif sys.argv[3] == "gpu":
         device = "cuda"
 
     # Training epochs
-    epochs = int(sys.argv[3])
+    epochs = int(sys.argv[4])
 
     # Set random seed
     torch.manual_seed(1)
+
+    # Get the right model prefixes and directories
+    if pre_fine_both == "pretrained":
+        epoch_dirs = ["pretrained_epoch"]
+        probe_dirs = ["pretrained_probes"]
+        pred_dirs = ["pretrained_preds"]
+        if use_albert_or_bert == "albert":
+            model_prefixes = ["albert-base-v2"]
+        elif use_albert_or_bert == "bert":
+            model_prefix = ["bert-base-uncased"]
+
+    elif pre_fine_both == "fine_tuned":
+        epoch_dirs = ["fine_tuned_epoch"]
+        probe_dirs = ["fine_tuned_probes"]
+        pred_dirs = ["fine_tuned_preds"]
+        if use_albert_or_bert == "albert":
+            model_prefixes = ["twmkn9/albert-base-v2-squad2"]
+        elif use_albert_or_bert == "bert":
+            model_prefix = ["twmkn9/bert-base-uncased-squad2"]
+
+    elif pre_fine_both == "both":
+        epoch_dirs = ["pretrained_epoch", "fine_tuned_epoch"]
+        probe_dirs = ["pretrained_probes", "fine_tuned_probes"]
+        pred_dirs = ["pretrained_preds", "fine_tuned_preds"]
+        if use_albert_or_bert == "albert":
+            model_prefixes = ["albert-base-v2", "twmkn9/albert-base-v2-squad2"]
+        elif use_albert_or_bert == "bert":
+            model_prefix = ["bert-base-uncased", "twmkn9/bert-base-uncased-squad2"]
 
     # Send epochs
     for i in range(len(model_prefixes)):

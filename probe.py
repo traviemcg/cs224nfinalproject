@@ -22,7 +22,7 @@ class SoftmaxRegression(nn.Module):
         return p
 
 class Probe():
-    def __init__(self, hidden_size, lr=5e-5, adam_epsilon=1e-8, max_grad_norm=1.0):
+    def __init__(self, hidden_size, lr=3e-5, adam_epsilon=1e-8, max_grad_norm=1.0):
         self.hidden_size = hidden_size
         self.model_start_idx = SoftmaxRegression(hidden_size)
         self.model_end_idx = SoftmaxRegression(hidden_size)

@@ -133,14 +133,14 @@ python3 predict.py probes $PROBES_DIR bert cpu
 python3 evaluate.py [exper/probes] [experiment/preds_dir]
 ```
 
-Evaluation can be done over a whole ALBERT experiment directory:
+Evaluation can be done over a whole experiment directory:
 ```
 export EXPER_DIR=01_lr1e-5/
-python3 evaluate.py exper $EXPER_DIR albert
+python3 evaluate.py exper $EXPER_DIR
 ```
 
 or one specific directory of predictions:
 ```
 export PREDS_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_preds
-python3 evaluate.py preds $PREDS_DIR bert
+python3 evaluate.py preds $PREDS_DIR
 ```

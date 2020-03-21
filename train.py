@@ -46,8 +46,11 @@ def send_epochs(model_prefix,
     else:
         weight = None
 
-    # Initialize ALBERT model
-    config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    # Initialize ALBERT/BERT model
+    if "albert" in model_prefix:
+        config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    else:
+        config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate

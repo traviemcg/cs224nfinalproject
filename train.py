@@ -145,7 +145,7 @@ if __name__ == "__main__":
         if use_albert_or_bert == "albert":
             model_prefixes = ["albert-base-v2"]
         elif use_albert_or_bert == "bert":
-            model_prefix = ["bert-base-uncased"]
+            model_prefixes = ["bert-base-uncased"]
 
     elif pre_fine_both == "fine_tuned":
         epoch_dirs = ["fine_tuned_epoch"]
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         if use_albert_or_bert == "albert":
             model_prefixes = ["twmkn9/albert-base-v2-squad2"]
         elif use_albert_or_bert == "bert":
-            model_prefix = ["twmkn9/bert-base-uncased-squad2"]
+            model_prefixes = ["twmkn9/bert-base-uncased-squad2"]
 
     elif pre_fine_both == "both":
         epoch_dirs = ["pretrained_epoch", "fine_tuned_epoch"]
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         if use_albert_or_bert == "albert":
             model_prefixes = ["albert-base-v2", "twmkn9/albert-base-v2-squad2"]
         elif use_albert_or_bert == "bert":
-            model_prefix = ["bert-base-uncased", "twmkn9/bert-base-uncased-squad2"]
+            model_prefixes = ["bert-base-uncased", "twmkn9/bert-base-uncased-squad2"]
 
     # Send epochs
     for i in range(len(model_prefixes)):

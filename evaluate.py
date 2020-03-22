@@ -199,8 +199,6 @@ if __name__ == '__main__':
   experiment_dir = sys.argv[2]
   if experiment_dir[-1] != "/":
       experiment_dir = experiment_dir + "/"
-  model = ['pretrained', 'fine_tuned']
-  modes = ['has_ans', 'no_ans', 'all']
   
   # Do evaluation for whole experiment
   if use_preds_or_exper_dir == "exper":

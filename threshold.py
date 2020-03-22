@@ -64,6 +64,7 @@ def main_alt(dataset, preds):
 def eval_thresholds(probe_dir,
                     model_prefix,
                     thresholds = [-1, 0, 1],
+                    full_set = False,
                     n = 100,
                     trials = 2,
                     max_seq_length = 384,
@@ -81,7 +82,10 @@ def eval_thresholds(probe_dir,
                                           filename = train_file)
 
     # Initialize (AL)BERT model
-    config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    if "albert" in model_prefix:
+        config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    else:
+        config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
     model = torch.nn.DataParallel(model)
 
@@ -103,11 +107,17 @@ def eval_thresholds(probe_dir,
         dataset_json = json.load(f)
         main_alt_dataset = dataset_json['data']
 
+    # If full_set specified, evaluate 1 trial on full set
+    if full_set:
+        trials = 1
+        it_examples = examples
+
     # Execute trials
     for it in range(trials):
 
         # Randomly sample n examples
-        it_examples = sample(examples, n)
+        if not full_set:
+            it_examples = sample(examples, n)
 
         # Extract features
         features, dataset = squad_convert_examples_to_features(examples=it_examples,

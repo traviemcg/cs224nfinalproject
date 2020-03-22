@@ -19,6 +19,7 @@ import glob
 import csv, json
 from random import sample
 from evaluate import *
+import matplotlib.pyplot as plt
 
 def main_alt(dataset, preds):
     '''
@@ -110,6 +111,7 @@ def eval_thresholds(probe_dir,
     # If full_set specified, evaluate 1 trial on full set
     if full_set:
         trials = 1
+        n = len(examples)
         it_examples = examples
 
     # Execute trials
@@ -117,6 +119,7 @@ def eval_thresholds(probe_dir,
 
         # Randomly sample n examples
         if not full_set:
+            print("Sampling data")
             it_examples = sample(examples, n)
 
         # Extract features
@@ -247,3 +250,63 @@ def eval_thresholds(probe_dir,
         result[t] /= trials
 
     return result
+
+
+def plot_metric(result, layers, metric = "f1"):
+    
+    if metric == "exact":
+        idx = 0
+    elif metric == "f1":
+        idx = 1
+    elif metric == "exact_no_ans":
+        idx = 2
+    elif metric == "f1_no_ans":
+        idx = 3
+    elif metric == "exact_has_ans":
+        idx = 4
+    elif metric == "f1_has_ans":
+        idx = 5
+    
+    thresholds = list(result.keys())
+    
+    plt.figure(figsize=(20,10))
+    
+    for layer in range(layers):
+        f1s = []
+        for thresh in thresholds:
+            f1 = result[thresh][layer][idx]
+            f1s.append(f1)
+        plt.plot(thresholds, f1s, label = str(layer + 1))
+      
+    plt.plot(thresholds, f1s, label = layer)
+    plt.xlabel("Threshold")
+    plt.ylabel(metric)
+    plt.title(metric + " vs. threshold by layer")
+    plt.legend()
+
+def find_opt_thresh(result, layers, metric = "f1"):
+    
+    if metric == "exact":
+        idx = 0
+    elif metric == "f1":
+        idx = 1
+    elif metric == "exact_no_ans":
+        idx = 2
+    elif metric == "f1_no_ans":
+        idx = 3
+    elif metric == "exact_has_ans":
+        idx = 4
+    elif metric == "f1_has_ans":
+        idx = 5
+    
+    thresholds = list(result.keys())
+    
+    for layer in range(layers):
+        max_score = 0
+        best_thresh = None
+        for thresh in thresholds:
+            score = result[thresh][layer][idx]
+            if score > max_score:
+                best_thresh = thresh
+                max_score = score
+        print("Layer: {:2}, Threshold: {:5}, {}: {:.4f}".format(layer, best_thresh, metric, max_score))

@@ -1,0 +1,1 @@
+Download the official `train-v2.0.json` and `dev-v2.0.json` from [this site](https://rajpurkar.github.io/SQuAD-explorer/), and place the files in this folder.

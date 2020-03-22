@@ -224,4 +224,4 @@ if __name__ == '__main__':
         pred_dir = pred_dir + "/"
 
     convert_preds_to_json(pred_dir)
-    save_metrics(pred_dir, dev_path="squad-master/data/dev-v2.0.json")
+    save_metrics(pred_dir, dev_path="squad-master/data/test-v2.0.json")

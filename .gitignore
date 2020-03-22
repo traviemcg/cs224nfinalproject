@@ -2,12 +2,6 @@
 .ipynb_checkpoints
 __pycache__
 
-# Ignore predictions/results from using models
-results
-
-# Ignore saved softmax models from test jupyter script
-sm_model
-
 # Ignore saved probes and preds (maybe? for now)
 pretrained_probes
 fine_tuned_probes
@@ -19,3 +13,6 @@ transformers-master/examples/*
 
 # Ignore probes/preds
 0*
+
+# Ignore Squad2.0 data
+squad2/*.json

@@ -163,9 +163,8 @@ def convert_preds_to_json(pred_dir):
         f.write(x)
         f.close()
 
-def save_metrics(pred_dir, dev_path):
+def save_metrics(pred_dir, dev_path, num_layers=12):
 
-    num_layers = 12
     layers = np.arange(num_layers)+1
     exact, f1 = np.zeros(num_layers), np.zeros(num_layers)
     exact_no_ans, f1_no_ans = np.zeros(num_layers), np.zeros(num_layers)

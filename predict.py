@@ -182,6 +182,12 @@ if __name__ == "__main__":
 
     model_dir = model_prefix.split("/")[-1]
 
+    # Distilbert base has 6 layers, while BERT and ALBERT both have 12
+    if "distilbert" in model_dir:
+        layers = 6
+    else:
+        layers = 12
+
     # Device
     device = sys.argv[2]
 
@@ -202,7 +208,7 @@ if __name__ == "__main__":
                         preds_dir = preds_dir,
                         data_dir = "squad2/",
                         data_file = "dev-v2.0.json",
-                        layers = 12,
+                        layers = layers,
                         batch_size = 8,
                         hidden_dim = 768,
                         max_seq_length = 384,

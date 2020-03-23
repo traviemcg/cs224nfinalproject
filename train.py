@@ -100,7 +100,7 @@ def train(model_prefix,
 
             for i, p in enumerate(probes):
                 hiddens = all_layer_hidden_states[i] # (batch_size, max_seq_len, hidden_size)
-                p.train(hiddens, start, end, device, weight=weight)
+                p.train(hiddens, start, end, device)
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")
@@ -130,6 +130,12 @@ if __name__ == "__main__":
     if not os.path.exists(model_dir):
         os.mkdir(model_dir)
 
+    # Distilbert base has 6 layers, while BERT and ALBERT both have 12
+    if "distilbert" in model_dir:
+        layers = 6
+    else:
+        layers = 12
+
     # Device
     device = sys.argv[2]
 
@@ -150,7 +156,7 @@ if __name__ == "__main__":
           data_dir = "squad2/",
           data_file = "train-v2.0.json",
           epochs = epochs,
-          layers = 12,
+          layers = layers,
           batch_size = 8,
           hidden_dim = 768,
           max_seq_length = 384,

@@ -197,6 +197,12 @@ if __name__ == '__main__':
   model_prefix = sys.argv[1]
 
   model_dir = model_prefix.split("/")[-1]
+
+  # Distilbert base has 6 layers, while BERT and ALBERT both have 12
+  if "distilbert" in model_dir:
+      layers = 6
+  else:
+      layers = 12
   
   # Predict using probes for each epoch directory present
   for epoch_dir in sorted(os.listdir(model_dir)):
@@ -214,6 +220,6 @@ if __name__ == '__main__':
             # Compare the created json of prediction to the data's truth
             evaluate(preds_dir=preds_dir, 
                      data_path="squad2/dev-v2.0.json", 
-                     layers=12)
+                     layers=layers)
 
             print("")

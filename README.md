@@ -24,14 +24,14 @@ curl https://sh.rustup.rs -sSf | sh # only on mac os
 ## Create conda environment with necessary packages, where pytorch may vary pending system but is at pytorch.org
 conda create -n transformers python=3.7
 conda activate transformers
-pip install --upgrade pip tensorflow
+pip3 install --upgrade pip tensorflow
 conda install pytorch torchvision -c pytorch pandas
 ```
 
 ```
 ## Install the 'Transformers' package
 cd transformers-master
-pip install .
+pip3 install .
 ```
 
 ```
@@ -89,51 +89,46 @@ Results: {'exact': 72.35932872655479, 'f1': 75.75355132564763, 'total': 6078, 'H
 ### Probe training
 
 ```
-python3 train.py [pretrained/fine_tuned/both] [albert/bert] [cpu/gpu] epochs
+python3 train.py [model_prefix] [cpu/gpu] epochs
 ```
 
-To train probes for each layer of a pretrained ALBERT on the cpu for 1 epoch (e.g. for debugging locally):
+| Model             | Model Prefix                    |
+|-------------------|---------------------------------|
+| ALBERT Pretrained | albert-base-v2                  |
+| ALBERT Fine-tuned | twmkn9/albert-base-v2-squad2    |
+| BERT Pretrained   | bert-base-uncased               |
+| BERT Fine-tuned   | twmkn9/bert-base-uncased-squad2 |
+
+To train probes for each layer of ALBERT Pretrained on the cpu for 1 epoch (e.g. for debugging locally):
 ```
-python3 train.py pretrained albert cpu 1
+python3 train.py albert-base-v2 cpu 1
 ```
 
-To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu for 3 epoch (e.g. on a vm):
+To train probes for each layer of ALBERT Fine-tuned on the gpu for 3 epoch (e.g. on a vm):
 ```
-python3 train.py both albert gpu 3
+python3 train.py twmkn9/albert-base-v2-squad2 gpu 3
 ```
+
+By default, probes will be saved for each epoch. If one is only interested in probes at a certain epoch, they can simply delete the unwanted directories.
 
 ### Probe prediction
 
 ```
-python3 predict.py [exper/probes] [experiment/probes_dir] [albert/bert] [cpu/gpu]
+python3 predict.py [model_prefix] [cpu/gpu]
 ```
 
-To run predictions for probes over a whole ALBERT experiment directory:
+To make predictions for probes at each layer and each epoch for BERT Pretrained on the cpu:
 ```
-export EXPER_DIR=08albert_probes/
-python3 predict.py exper $EXPER_DIR albert cpu
-```
-
-or to run predictions for probes in one specific BERT probes directory:
-```
-export PROBES_DIR=08albert_probes/fine_tuned_epoch_3/fine_tuned_probes
-python3 predict.py probes $PROBES_DIR bert cpu
+python3 predict.py bert-base-uncased cpu
 ```
 
 ### Probe evaluation
 
 ```
-python3 evaluate.py [exper/probes] [experiment/preds_dir]
+python3 evaluate.py [model_prefix]
 ```
 
-Evaluation can be done over a whole experiment directory:
+To evaluate predictions for probes at each layer and each epoch for BERT Fine-tuned:
 ```
-export EXPER_DIR=09bert_probes/
-python3 evaluate.py exper $EXPER_DIR
-```
-
-or one specific directory of predictions:
-```
-export PREDS_DIR=09bert_probes/fine_tuned_epoch_3/fine_tuned_preds
-python3 evaluate.py preds $PREDS_DIR
+python3 evaluate.py twmkn9/bert-base-uncased-squad2
 ```

@@ -9,23 +9,21 @@ from transformers import *
 from transformers.data.processors.squad import SquadV2Processor
 from probe import Probe
 
-def send_epochs(model_prefix,
-                data_dir,
-                train_file,
-                epoch_dir,
-                probe_dir,
-                pred_dir,
-                epochs,
-                batch_size,
-                layers,
-                hidden_dim,
-                max_seq_length,
-                device):
+def train(model_prefix,
+          model_dir,
+          data_dir,
+          data_file,
+          epochs,
+          layers,
+          batch_size,
+          hidden_dim,
+          max_seq_length,
+          device):
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
-    train_examples = processor.get_train_examples(data_dir = data_dir, filename = train_file)
+    train_examples = processor.get_train_examples(data_dir=data_dir, filename=data_file)
 
     # Extract train features
     print("Loading train features")
@@ -43,7 +41,7 @@ def send_epochs(model_prefix,
     # Initialize ALBERT/BERT model
     if "albert" in model_prefix:
         config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
-    else:
+    elif "bert" in model_prefix:
         config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
@@ -61,11 +59,6 @@ def send_epochs(model_prefix,
     for epoch in range(epochs):
 
         print("Training epoch: {}".format(epoch + 1))
-
-        # Make epoch directory
-        it_epoch_dir = epoch_dir + "_" + str(epoch + 1)
-        if not os.path.exists(it_epoch_dir):
-            os.mkdir(it_epoch_dir)
 
         # Initialize train data loader
         train_sampler = RandomSampler(train_dataset)
@@ -103,80 +96,54 @@ def send_epochs(model_prefix,
 
         # Save probes after each epoch
         print("Epoch complete, saving probes")
-        it_probe_dir = it_epoch_dir + "/" + probe_dir
-        if not os.path.exists(it_probe_dir):
-            os.mkdir(it_probe_dir)
+        epoch_dir = model_dir + "/epoch_" + str(epoch + 1)
+        if not os.path.exists(epoch_dir):
+            os.mkdir(epoch_dir)
+        
+        probes_dir = epoch_dir + "/probes"
+        if not os.path.exists(probes_dir):
+            os.mkdir(probes_dir)
+        
+        # Save probes for each layer, both start and end index
         for i, p in enumerate(probes):
-            p.save(it_probe_dir, i + 1)
+            p.save(probes_dir, i + 1)
 
 if __name__ == "__main__":
 
     # Usage message
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 4:
         print('Usage:')
-        print('   python3 train.py [pretrained/fine_tuned/both] [albert/base] [cpu/gpu] epochs')
+        print('   python3 train.py [model_prefix] [cpu/gpu] epochs')
 
-    # Whether pretrained, fine tuned, or both
-    pre_fine_both = sys.argv[1]
+    # Model prefix
+    model_prefix = sys.argv[1]
 
-    # Whether using ALBERT or BERT
-    use_albert_or_bert = sys.argv[2]
+    model_dir = model_prefix.split("/")[-1]
+    if not os.path.exists(model_dir):
+        os.mkdir(model_dir)
 
     # Device
-    if sys.argv[3] == "cpu":
+    device = sys.argv[2]
+
+    if device == "cpu":
         device = "cpu"
-    elif sys.argv[3] == "gpu":
+    elif device == "gpu":
         device = "cuda"
 
     # Training epochs
-    epochs = int(sys.argv[4])
+    epochs = int(sys.argv[3])
 
     # Set random seed
     torch.manual_seed(1)
 
-    # Get the right model prefixes and directories
-    if pre_fine_both == "pretrained":
-        epoch_dirs = ["pretrained_epoch"]
-        probe_dirs = ["pretrained_probes"]
-        pred_dirs = ["pretrained_preds"]
-        if use_albert_or_bert == "albert":
-            model_prefixes = ["albert-base-v2"]
-        elif use_albert_or_bert == "bert":
-            model_prefixes = ["bert-base-uncased"]
-
-    elif pre_fine_both == "fine_tuned":
-        epoch_dirs = ["fine_tuned_epoch"]
-        probe_dirs = ["fine_tuned_probes"]
-        pred_dirs = ["fine_tuned_preds"]
-        if use_albert_or_bert == "albert":
-            model_prefixes = ["twmkn9/albert-base-v2-squad2"]
-        elif use_albert_or_bert == "bert":
-            model_prefixes = ["twmkn9/bert-base-uncased-squad2"]
-
-    elif pre_fine_both == "both":
-        epoch_dirs = ["pretrained_epoch", "fine_tuned_epoch"]
-        probe_dirs = ["pretrained_probes", "fine_tuned_probes"]
-        pred_dirs = ["pretrained_preds", "fine_tuned_preds"]
-        if use_albert_or_bert == "albert":
-            model_prefixes = ["albert-base-v2", "twmkn9/albert-base-v2-squad2"]
-        elif use_albert_or_bert == "bert":
-            model_prefixes = ["bert-base-uncased", "twmkn9/bert-base-uncased-squad2"]
-
     # Send epochs
-    for i in range(len(model_prefixes)):
-        model_prefix = model_prefixes[i]
-        epoch_dir = epoch_dirs[i]
-        probe_dir = probe_dirs[i]
-        pred_dir = pred_dirs[i]
-        send_epochs(model_prefix,
-                    data_dir = "squad2/",
-                    train_file = "train-v2.0.json",
-                    epoch_dir = epoch_dir,
-                    probe_dir = probe_dir,
-                    pred_dir = pred_dir,
-                    epochs = epochs,
-                    batch_size = 8,
-                    layers = 12,
-                    hidden_dim = 768,
-                    max_seq_length = 384,
-                    device = device)
+    train(model_prefix = model_prefix,
+          model_dir = model_dir,
+          data_dir = "squad2/",
+          data_file = "train-v2.0.json",
+          epochs = epochs,
+          layers = 12,
+          batch_size = 8,
+          hidden_dim = 768,
+          max_seq_length = 384,
+          device = device)

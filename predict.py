@@ -9,21 +9,21 @@ from transformers import *
 from transformers.data.processors.squad import SquadV2Processor
 from probe import Probe
 
-def eval_model(model_prefix,
-               probe_dir,
-               pred_dir,
-               data_dir,
-               dev_file,
-               layers,
-               hidden_dim,
-               batch_size,
-               max_seq_length,
-               device):
+def predict(model_prefix,
+            probes_dir,
+            preds_dir,
+            data_dir,
+            data_file,
+            layers,
+            batch_size,
+            hidden_dim,
+            max_seq_length,
+            device):
 
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
-    dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = dev_file)
+    dev_examples = processor.get_dev_examples(data_dir = data_dir, filename = data_file)
 
     # Extract dev features
     print("Loading dev features")
@@ -36,20 +36,22 @@ def eval_model(model_prefix,
                                                                    return_dataset="pt",
                                                                    threads=1)
 
-    # Initialize ALBERT model
-    config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
-
+    # Initialize ALBERT/BERT model
+    if "albert" in model_prefix:
+        config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    elif "bert" in model_prefix:
+        config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate
     model = torch.nn.DataParallel(model)
 
-    # Load probe
+    # Load probe for each layer
     print("Loading probes")
     probes = []
     for i in range(layers):
         p = Probe(hidden_dim)
-        p.load(probe_dir, i+1, device)
+        p.load(probes_dir, i+1, device)
         probes.append(p)
 
     # Extract IDs
@@ -152,102 +154,49 @@ def eval_model(model_prefix,
                     # Increment to new question id (note, for duplicate answers this gets us back to where we were)
                     question_ids[i] += 1
 
-    # Save predictions
+    # Save predictions for each layer
     print("Saving predictions")
-    if not os.path.exists(pred_dir):
-        os.mkdir(pred_dir)
+    if not os.path.exists(preds_dir):
+        os.mkdir(preds_dir)
+
     for i, pred in enumerate(predictions):
-        pred[['Id', 'Predicted']].to_csv(pred_dir + "/pred_layer_" + str(i+1) + ".csv", index = False)
+        pred[['Id', 'Predicted']].to_csv(preds_dir + "/layer_" + str(i+1) + ".csv", index = False)
 
 if __name__ == "__main__":
 
     # Usage message
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 3:
         print("Usage")
-        print("    python3 predict.py [exper/probes] [experiment/probe dir] [albert/bert] [cpu/gpu]")
+        print("    python3 predict.py [model_prefix] [cpu/gpu]")
 
-    # Whether passing probes or exper dir
-    use_probes_or_exper_dir = sys.argv[1]
+    # Model prefix
+    model_prefix = sys.argv[1]
 
-    # Directory to use for probes or exper
-    experiment_dir = sys.argv[2]
-    if experiment_dir[-1] != "/":
-        experiment_dir = experiment_dir + "/"
-
-    # Whether using ALBERT or BERT
-    use_albert_or_bert = sys.argv[3]
+    model_dir = model_prefix.split("/")[-1]
 
     # Device
-    if sys.argv[4] == "cpu":
+    device = sys.argv[2]
+
+    if device == "cpu":
         device = "cpu"
-    elif sys.argv[4] == "gpu":
+    elif device == "gpu":
         device = "cuda"
 
-    # Do evaluation for whole experiment
-    if use_probes_or_exper_dir == "exper":
-        epoch_names = sorted(os.listdir(experiment_dir))
-
-        for epoch_name in epoch_names:
-
-            if "pretrained" in epoch_name:
-                pretrained_or_fine_tuned = "pretrained"
-                if use_albert_or_bert == "albert":
-                    model_prefix = "albert-base-v2"
-                elif use_albert_or_bert == "bert":
-                    model_prefix = "bert-base-uncased"
-
-            elif "fine_tuned" in epoch_name:
-                pretrained_or_fine_tuned = "fine_tuned"
-                if use_albert_or_bert == "albert":
-                    model_prefix = "twmkn9/albert-base-v2-squad2"
-                elif use_albert_or_bert == "bert":
-                    model_prefix = "twmkn9/bert-base-uncased-squad2"
-
-            epoch_dir = experiment_dir + epoch_name
-            if os.path.isdir(epoch_dir):
-                for possible_probe_name in os.listdir(epoch_dir):
-                    probe_dir = epoch_dir + "/" + possible_probe_name + "/"
-                    if os.path.isdir(probe_dir) and probe_dir[-7:] == 'probes/':
-                        print(probe_dir)
-                        pred_dir = os.path.abspath(probe_dir+"/../" + pretrained_or_fine_tuned + "_preds/")
-                        eval_model(model_prefix,
-                                   probe_dir,
-                                   pred_dir,
-                                   data_dir = "squad2/",
-                                   dev_file = "dev-v2.0.json",
-                                   layers = 12,
-                                   hidden_dim = 768,
-                                   batch_size = 8,
-                                   max_seq_length = 384,
-                                   device = device)
-                        print("")
-  
-    # Do prediction for single probes directory
-    elif use_probes_or_exper_dir == "probes":
-        probe_dir = experiment_dir
-        if "pretrained" in probe_dir:
-            pretrained_or_fine_tuned = "pretrained"
-            if use_albert_or_bert == "albert":
-                model_prefix = "albert-base-v2"
-            elif use_albert_or_bert == "bert":
-                model_prefix = "bert-base-uncased"
-
-        elif "fine_tuned" in probe_dir:
-            pretrained_or_fine_tuned = "fine_tuned"
-            if use_albert_or_bert == "albert":
-                model_prefix = "twmkn9/albert-base-v2-squad2"
-            elif use_albert_or_bert == "bert":
-                model_prefix = "twmkn9/bert-base-uncased-squad2"
-        
-        pred_dir = os.path.abspath(probe_dir+"/../"+pretrained_or_fine_tuned+"_preds/")
-
-        eval_model(model_prefix,
-                   probe_dir,
-                   pred_dir,
-                   data_dir = "squad2/",
-                   dev_file = "dev-v2.0.json",
-                   layers = 12,
-                   hidden_dim = 768,
-                   batch_size = 8,
-                   max_seq_length = 384,
-                   device = device)
+    # Predict using probes for each epoch directory present
+    for epoch_dir in sorted(os.listdir(model_dir)):
+        for probes_or_preds_dir in sorted(os.listdir(epoch_dir)):
+            probes_dir = epoch_dir + "/" + probes_or_preds_dir + "/"
+            if os.path.isdir(probes_dir) and probes_dir[-7:] == 'probes/': # confirm it's a probes dir and not preds dir
+                print(probes_dir)
+                preds_dir = os.path.abspath(probes_dir+"/../preds/")
+                predict(model_prefix = model_prefix,
+                        probes_dir = probes_dir,
+                        preds_dir = preds_dir,
+                        data_dir = "squad2/",
+                        data_file = "dev-v2.0.json",
+                        layers = 12,
+                        batch_size = 8,
+                        hidden_dim = 768,
+                        max_seq_length = 384,
+                        device = device)
+                print("")

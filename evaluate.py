@@ -146,8 +146,8 @@ def main(data_file, pred_file):
   return exact, f1, exact_no_ans, f1_no_ans, exact_has_ans, f1_has_ans
 
 
-def convert_preds_to_json(pred_dir):
-    for csv_file in glob.glob(pred_dir + "*.csv"):
+def convert_preds_to_json(preds_dir):
+    for csv_file in glob.glob(preds_dir + "*.csv"):
         prefix = csv_file[:-4]
 
         data = {}
@@ -163,23 +163,25 @@ def convert_preds_to_json(pred_dir):
         f.write(x)
         f.close()
 
-def save_metrics(pred_dir, dev_path, num_layers=12):
+def evaluate(preds_dir, 
+             data_path, 
+             layers):
 
-    layers = np.arange(num_layers)+1
-    exact, f1 = np.zeros(num_layers), np.zeros(num_layers)
-    exact_no_ans, f1_no_ans = np.zeros(num_layers), np.zeros(num_layers)
-    exact_has_ans, f1_has_ans = np.zeros(num_layers), np.zeros(num_layers)
+    layers_arr = np.arange(layers)+1
+    exact, f1 = np.zeros(layers), np.zeros(layers)
+    exact_no_ans, f1_no_ans = np.zeros(layers), np.zeros(layers)
+    exact_has_ans, f1_has_ans = np.zeros(layers), np.zeros(layers)
 
-    for json_file in glob.glob(pred_dir + "*.json"):
+    for json_file in glob.glob(preds_dir + "*.json"):
 
-        layer = int(json_file[len(pred_dir) + len("pred_layer_"):-5])
+        layer = int(json_file[len(pred_dirs) + len("pred_layer_"):-5])
         l = layer-1 # layer index is layer-1
-        exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(dev_path, json_file)
+        exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(data_path, json_file)
 
-    results = pd.DataFrame({'layer':layers, 'exact':exact, 'f1':f1, 'exact_no_ans':exact_no_ans, 'f1_no_ans':f1_no_ans, 'exact_has_ans':exact_has_ans, 'f1_has_ans':f1_has_ans})
+    results = pd.DataFrame({'layer':layers_arr, 'exact':exact, 'f1':f1, 'exact_no_ans':exact_no_ans, 'f1_no_ans':f1_no_ans, 'exact_has_ans':exact_has_ans, 'f1_has_ans':f1_has_ans})
     print(results)
 
-    save_dir = os.path.abspath(pred_dir+"/../") + "/"
+    save_dir = os.path.abspath(preds_dir+"/../") + "/"
     csv_name = "results.csv"
 
     results.to_csv(save_dir+csv_name, index = False)
@@ -187,41 +189,31 @@ def save_metrics(pred_dir, dev_path, num_layers=12):
 if __name__ == '__main__':
 
   # Usage message
-  if len(sys.argv) != 3:
+  if len(sys.argv) != 2:
       print("Usage")
-      print("    python3 evaluate.py [exper/probes] [experiment/preds dir]")
+      print("    python3 evaluate.py [model_prefix]")
 
-  # Single preds or experiment directory
-  use_preds_or_exper_dir = sys.argv[1]
+  # Model prefix
+  model_prefix = sys.argv[1]
 
-  # Path to directory
-  experiment_dir = sys.argv[2]
-  if experiment_dir[-1] != "/":
-      experiment_dir = experiment_dir + "/"
+  model_dir = model_prefix.split("/")[-1]
   
-  # Do evaluation for whole experiment
-  if use_preds_or_exper_dir == "exper":
+  # Predict using probes for each epoch directory present
+  for epoch_dir in sorted(os.listdir(model_dir)):
+      for probes_or_preds_dir in sorted(os.listdir(epoch_dir)):
+        probes_dir = epoch_dir + "/" + probes_or_preds_dir + "/"
+        if os.path.isdir(probes_dir) and probes_dir[-7:] == 'probes/': # confirm it's a probes dir and not preds dir
+            
+            # Find the associated preds dir
+            preds_dir = os.path.abspath(probes_dir+"/../preds/")
+            print(preds_dir)
+            
+            # Convert preds dir csv files to json
+            convert_preds_to_json(preds_dir=preds_dir)
+            
+            # Compare the created json of prediction to the data's truth
+            evaluate(preds_dir=preds_dir, 
+                     data_path="squad2/dev-v2.0.json", 
+                     layers=12)
 
-    epoch_names = sorted(os.listdir(experiment_dir))
-
-    for epoch_name in epoch_names:
-      epoch_dir = experiment_dir + epoch_name
-      
-      if os.path.isdir(epoch_dir):
-        for possible_pred_name in os.listdir(epoch_dir):
-          pred_dir = epoch_dir + "/" + possible_pred_name + "/"
-          
-          if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
-            print(pred_dir)
-            convert_preds_to_json(pred_dir)
-            save_metrics(pred_dir, dev_path="squad2/dev-v2.0.json")
             print("")
-
-  # Do evaluation for signle preds directory
-  elif use_preds_or_exper_dir == "preds":
-    pred_dir = experiment_dir
-    if pred_dir[-1] != "/":
-        pred_dir = pred_dir + "/"
-
-    convert_preds_to_json(pred_dir)
-    save_metrics(pred_dir, dev_path="squad2/dev-v2.0.json")

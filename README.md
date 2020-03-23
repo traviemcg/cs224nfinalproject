@@ -6,7 +6,7 @@ Our paper is here TODO. This repository will walk through all steps necessary to
 
 There are three major components to this respository:
 
-- [squad2](squad2/) a data folder to save SQuAD 2.0 data splits provided by CS224N, further instruction in folder
+- [squad2](squad2/) a data folder to save [SQuAD 2.0 data splits](https://github.com/minggg/squad/tree/master/data) provided by Stanford's CS224N
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
 - Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
 

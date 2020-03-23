@@ -198,7 +198,7 @@ To train probes for each layer of ALBERT Fine-tuned on the gpu for 3 epoch (e.g.
 python3 train.py twmkn9/albert-base-v2-squad2 gpu 3
 ```
 
-By default, probes will be saved for each epoch. If one is only interested in probes at a certain epoch, they can simply delete the unwanted directories.
+By default, probes will be saved for each epoch. If one is only interested in probes at a certain epoch, they can simply delete the unwanted intermediate epoch directories.
 
 ### Probe prediction
 

@@ -40,12 +40,6 @@ def send_epochs(model_prefix,
         threads=1,
     )
 
-    # Load class weight file, if it exists
-    if os.path.isfile('class_weights.pkl'):
-        weight = torch.load('class_weights.pkl', map_location=device).to(device)
-    else:
-        weight = None
-
     # Initialize ALBERT/BERT model
     if "albert" in model_prefix:
         config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
@@ -175,7 +169,7 @@ if __name__ == "__main__":
         probe_dir = probe_dirs[i]
         pred_dir = pred_dirs[i]
         send_epochs(model_prefix,
-                    data_dir = "squad-master/data/",
+                    data_dir = "squad2/",
                     train_file = "train-v2.0.json",
                     epoch_dir = epoch_dir,
                     probe_dir = probe_dir,

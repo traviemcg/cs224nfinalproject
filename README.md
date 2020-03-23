@@ -9,7 +9,6 @@ There are three major components to this respository:
 - [squad-master](https://github.com/minggg/squad) CS224N's repository providing SQuAD 2.0 data and a BiDAF model
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
 - Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
-- If one would like to train with class weighting, we have provided [class weights](class_weights.py) to generate a pkl file of class weights (used automatically by [training](train.py) when it exists)
 
 ## Setting up
 
@@ -62,7 +61,7 @@ Results: {'exact': 85.32411977624218, 'f1': 88.83829560426527, 'total': 6078, 'H
 
 Now, on to training our own ALBERT [base_v2](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from a pretrained ALBERT base.
 ```
-export SQUAD_DIR=../../squad-master/data/
+export SQUAD_DIR=../../squad2/
 python3 run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/
 ```
 

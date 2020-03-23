@@ -214,7 +214,7 @@ if __name__ == '__main__':
           if os.path.isdir(pred_dir) and pred_dir[-6:] == 'preds/':
             print(pred_dir)
             convert_preds_to_json(pred_dir)
-            save_metrics(pred_dir, dev_path="squad-master/data/dev-v2.0.json")
+            save_metrics(pred_dir, dev_path="squad2/dev-v2.0.json")
             print("")
 
   # Do evaluation for signle preds directory
@@ -224,4 +224,4 @@ if __name__ == '__main__':
         pred_dir = pred_dir + "/"
 
     convert_preds_to_json(pred_dir)
-    save_metrics(pred_dir, dev_path="squad-master/data/test-v2.0.json")
+    save_metrics(pred_dir, dev_path="squad2/dev-v2.0.json")

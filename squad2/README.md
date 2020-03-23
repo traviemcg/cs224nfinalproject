@@ -1,1 +1,1 @@
-Download the official `train-v2.0.json` and `dev-v2.0.json` from [this site](https://rajpurkar.github.io/SQuAD-explorer/), and place the files in this folder.
+Download the CS224N `train-v2.0.json` and `dev-v2.0.json` from [this site](https://github.com/minggg/squad/tree/master/data), and place the files in this folder.

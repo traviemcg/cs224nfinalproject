@@ -395,7 +395,7 @@ if __name__ == "__main__":
         eval_model(model_prefix,
                    probe_dir,
                    pred_dir,
-                   data_dir = "squad-master/data/",
+                   data_dir = "squad2/",
                    dev_file = "dev-v2.0.json",
                    layers = 12,
                    hidden_dim = 768,

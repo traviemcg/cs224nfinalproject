@@ -6,7 +6,7 @@ Our paper is here TODO. This repository will walk through all steps necessary to
 
 There are three major components to this respository:
 
-- [squad-master](https://github.com/minggg/squad) CS224N's repository providing SQuAD 2.0 data and a BiDAF model
+- [squad2](squad2/) a data folder to save SQuAD 2.0 data splits provided by CS224N, further instruction in folder
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
 - Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
 
@@ -49,7 +49,7 @@ tmux detach
 First let's try using a community trained fine-tuned ALBERT [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512)
 
 ```
-export SQUAD_DIR=../../squad-master/data/
+export SQUAD_DIR=../../squad2/
 python3 run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
 ```
 
@@ -102,12 +102,6 @@ To train probes for each layer of pretrained and fine_tuned ALBERT on the gpu fo
 python3 train.py both albert gpu 3
 ```
 
-To use class weighting (OPTIONAL), before training run
-```
-python3 class_weights.py [pretrained/fine_tuned] [cpu/gpu]
-```
-where the model prefix is specified to ensure the right tokenizer is used.
-
 ### Probe prediction
 
 ```
@@ -116,13 +110,13 @@ python3 predict.py [exper/probes] [experiment/probes_dir] [albert/bert] [cpu/gpu
 
 To run predictions for probes over a whole ALBERT experiment directory:
 ```
-export EXPER_DIR=01_lr1e-5/
+export EXPER_DIR=08albert_probes/
 python3 predict.py exper $EXPER_DIR albert cpu
 ```
 
 or to run predictions for probes in one specific BERT probes directory:
 ```
-export PROBES_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_probes
+export PROBES_DIR=08albert_probes/fine_tuned_epoch_3/fine_tuned_probes
 python3 predict.py probes $PROBES_DIR bert cpu
 ```
 
@@ -134,12 +128,12 @@ python3 evaluate.py [exper/probes] [experiment/preds_dir]
 
 Evaluation can be done over a whole experiment directory:
 ```
-export EXPER_DIR=01_lr1e-5/
+export EXPER_DIR=09bert_probes/
 python3 evaluate.py exper $EXPER_DIR
 ```
 
 or one specific directory of predictions:
 ```
-export PREDS_DIR=01_lr1e-5/fine_tuned_epoch_1/fine_tuned_preds
+export PREDS_DIR=09bert_probes/fine_tuned_epoch_3/fine_tuned_preds
 python3 evaluate.py preds $PREDS_DIR
 ```

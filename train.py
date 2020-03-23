@@ -38,11 +38,15 @@ def train(model_prefix,
         threads=1,
     )
 
-    # Initialize ALBERT/BERT model
-    if "albert" in model_prefix:
+    # Initialize ALBERT/BERT/Distilbert config
+    if "distilbert" in model_prefix:
+        config = DistilBertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    elif "albert" in model_prefix:
         config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     elif "bert" in model_prefix:
         config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+
+    # Initialize model
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate
@@ -77,8 +81,12 @@ def train(model_prefix,
                 "start_positions": batch[3],
                 "end_positions": batch[4],
             }
+
+            # Distilbert does not use token type ids
+            if type(config) == DistilBertConfig:
+                inputs.pop('token_type_ids')
             
-            # Albert forward pass
+            # ALBERT/BERT/Distilibert forward pass
             model.eval()
             with torch.no_grad():
                 outputs = model(**inputs)

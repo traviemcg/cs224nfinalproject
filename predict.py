@@ -36,11 +36,15 @@ def predict(model_prefix,
                                                                    return_dataset="pt",
                                                                    threads=1)
 
-    # Initialize ALBERT/BERT model
-    if "albert" in model_prefix:
+    # Initialize ALBERT/BERT/Distilbert config
+    if "distilbert" in model_prefix:
+        config = DistilBertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+    elif "albert" in model_prefix:
         config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
     elif "bert" in model_prefix:
         config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
+
+    # Initialize model
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate
@@ -93,8 +97,12 @@ def predict(model_prefix,
                     "attention_mask": batch[1],
                     "token_type_ids": batch[2],
                 }
+            
+            # Distilbert does not use token type ids
+            if type(config) == DistilBertConfig:
+                inputs.pop('token_type_ids')
 
-            # Albert forward pass
+            # ALBERT/BERT/Distilibert forward pass
             idx = batch[3]
             outputs = model(**inputs)
             attention_hidden_states = outputs[2][1:]

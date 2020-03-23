@@ -59,6 +59,12 @@ tmux detach
 
 ### Community models
 
+First, be sure you have downloaded `train-v2.0.json` and `dev-v2.0.json` to [squad2](squad2) as specified in the [README](squad2/README.md) Then, move into the transformer-master directory.
+
+```
+cd transformers-master/examples
+```
+
 First, use a community trained ALBERT [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512) fine-tuned
 
 ```
@@ -82,7 +88,7 @@ python3 run_squad.py
 
 Now, on to training [our own ALBERT](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from [a pretrained ALBERT base v2](https://huggingface.co/albert-base-v2).
 ```
-export SQUAD_DIR=../../squad2/
+export SQUAD_DIR=../../squad2
 python3 run_squad.py 
     --model_type albert 
     --model_name_or_path albert-base-v2 
@@ -91,6 +97,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
+    --save_steps 129941
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -109,6 +116,7 @@ python3 run_squad.py
     --do_eval --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
+    --save_steps 129941
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
     --num_train_epochs 3 
@@ -129,6 +137,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
+    --save_steps 129941
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -150,6 +159,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
+    --save_steps 129941
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 

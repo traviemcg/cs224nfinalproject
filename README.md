@@ -97,7 +97,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 129941
+    --save_steps 16493
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -116,7 +116,7 @@ python3 run_squad.py
     --do_eval --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 129941
+    --save_steps 16493
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
     --num_train_epochs 3 
@@ -137,7 +137,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 129941
+    --save_steps 16493
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -159,7 +159,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 129941
+    --save_steps 16493
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 

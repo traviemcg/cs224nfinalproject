@@ -143,7 +143,7 @@ And finally [our own DistilBERT]() from an [uncased DistilBERT base](https://hug
 
 ```
 python3 run_squad.py 
-    --model_type bert 
+    --model_type distilbert 
     --model_name_or_path distilbert-base-uncased
     --do_train 
     --do_eval 

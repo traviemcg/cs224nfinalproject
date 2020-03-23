@@ -10,32 +10,45 @@ There are three major components to this respository:
 - [transformers-master](https://github.com/huggingface/transformers) Huggingface's library providing easy access to many NLP models
 - Our scripts for [training](train.py), [using](predict.py), and [evaluating results](evaluate.py) with [probes](probe.py)
 
+# Table Contents 
+
+1. [Setting up](#setting-up)
+2. [Using transformers models](#using-transformers-models)
+    - [Community models](#community-models)
+    - [Training our own](#training-our-own)
+3. [Probes](#probes)
+    - [Model prefixes](#model-prefixes)
+    - [Probe training](#probe-training)
+    - [Probe prediction](#probe-prediction)
+    - [Probe evaluation](#probe-evaluation)
+4. [Reproducing results](#reproducing-results)
+
 ## Setting up
 
+(OPTIONAL) General conda preperation:
 ```
-## (OPTIONAL) General conda preperation
 conda update conda
 conda update --all
 conda info # verify platform is 64 bit
 curl https://sh.rustup.rs -sSf | sh # only on mac os
 ```
 
+Create a conda environment with the necessary packages, where pytorch may vary pending system but is at [pytorch.org](pytorch.org).
 ```
-## Create conda environment with necessary packages, where pytorch may vary pending system but is at pytorch.org
 conda create -n transformers python=3.7
 conda activate transformers
 pip3 install --upgrade pip tensorflow
 conda install pytorch torchvision -c pytorch pandas
 ```
 
+Then install the revision of the 'Transformers' package associated with this library.
 ```
-## Install the 'Transformers' package
 cd transformers-master
 pip3 install .
 ```
 
+(OPTIONAL) Some useful tmux commands:
 ```
-## Some useful tmux commands
 tmux ls
 tmux new -s session_name
 tmux a -t session_name
@@ -46,58 +59,134 @@ tmux detach
 
 ### Community models
 
-First let's try using a community trained fine-tuned ALBERT [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512)
+First, use a community trained ALBERT [xxlarge_v1](https://huggingface.co/ahotrod/albert_xxlargev1_squad2_512) fine-tuned
 
 ```
 export SQUAD_DIR=../../squad2/
-python3 run_squad.py --model_type albert --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 --do_eval --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_xxlarge_fine/
+python3 run_squad.py 
+    --model_type albert 
+    --model_name_or_path ahotrod/albert_xxlargev1_squad2_512 
+    --do_eval 
+    --do_lower_case 
+    --version_2_with_negative 
+    --predict_file $SQUAD_DIR/dev-v2.0.json 
+    --max_seq_length 384 --doc_stride 128 
+    --output_dir ./tmp/albert_xxlarge_fine/
 ```
 
-```
-Results: {'exact': 85.32411977624218, 'f1': 88.83829560426527, 'total': 6078, 'HasAns_exact': 82.61168384879726, 'HasAns_f1': 89.95160160918354, 'HasAns_total': 2910, 'NoAns_exact': 87.81565656565657, 'NoAns_f1': 87.81565656565657, 'NoAns_total': 3168, 'best_exact': 85.32411977624218, 'best_exact_thresh': 0.0, 'best_f1': 88.83829560426533, 'best_f1_thresh': 0.0}
-```
+| Model                 | Exact | F1    | Exact Has Ans | F1 Has Ans | Exact No Ans | F1 No Ans |
+|-----------------------|-------|-------|---------------|------------|--------------|-----------|
+| ALBERT v1 XXLarge     | 85.32 | 88.84 | 82.61         | 89.95      | 87.82        | 87.82     |
 
 ### Training our own
 
-Now, on to training our own ALBERT [base_v2](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from a pretrained ALBERT base.
+Now, on to training [our own ALBERT](https://huggingface.co/twmkn9/albert-base-v2-squad2) on SQuAD v2.0 from [a pretrained ALBERT base v2](https://huggingface.co/albert-base-v2).
 ```
 export SQUAD_DIR=../../squad2/
-python3 run_squad.py --model_type albert --model_name_or_path albert-base-v2 --do_train --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine/
+python3 run_squad.py 
+    --model_type albert 
+    --model_name_or_path albert-base-v2 
+    --do_train 
+    --do_eval 
+    --overwrite_cache 
+    --do_lower_case 
+    --version_2_with_negative 
+    --train_file $SQUAD_DIR/train-v2.0.json 
+    --predict_file $SQUAD_DIR/dev-v2.0.json 
+    --per_gpu_train_batch_size 8 
+    --num_train_epochs 3 
+    --learning_rate 3e-5 
+    -max_seq_length 384 
+    --doc_stride 128 
+    --output_dir ./tmp/albert_fine/
 ```
 
-To use the model locally, where to use the community model one just needs to update the `--model_name_or_path` to twmkn9/albert-base-v2-squad2.
+To use the trained model again locally:
 ```
-python3 run_squad.py --model_type albert --model_name_or_path ./tmp/albert_base_fine/ --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/albert_base_fine_test/
+python3 run_squad.py 
+    --model_type albert 
+    --model_name_or_path ./tmp/albert_fine/ 
+    --do_eval --overwrite_cache 
+    --do_lower_case 
+    --version_2_with_negative 
+    --predict_file $SQUAD_DIR/dev-v2.0.json 
+    --per_gpu_train_batch_size 8 
+    --num_train_epochs 3 
+    --learning_rate 3e-5
+    --max_seq_length 384 
+    --doc_stride 128 
+    --output_dir ./tmp/albert_fine_dev/
 ```
 
-```
-Results: {'exact': 78.71010200723923, 'f1': 81.89228117126069, 'total': 6078, 'HasAns_exact': 75.39518900343643, 'HasAns_f1': 82.04167868004215, 'HasAns_total': 2910, 'NoAns_exact': 81.7550505050505, 'NoAns_f1': 81.7550505050505, 'NoAns_total': 3168, 'best_exact': 78.72655478775913, 'best_exact_thresh': 0.0, 'best_f1': 81.90873395178066, 'best_f1_thresh': 0.0}
-```
-
-And, for comparison, train BERT [base-uncased](https://huggingface.co/bert-base-uncased).
+We'll also train [our own BERT]() from an [uncased BERT base](https://huggingface.co/bert-base-uncased).
 
 ```
-python3 run_squad.py --model_type bert --model_name_or_path bert-base-uncased --do_train --do_eval --overwrite_cache --do_lower_case --version_2_with_negative --train_file $SQUAD_DIR/train-v2.0.json --predict_file $SQUAD_DIR/dev-v2.0.json --per_gpu_train_batch_size 8 --num_train_epochs 3 --learning_rate 3e-5 --max_seq_length 384 --doc_stride 128 --output_dir ./tmp/bert_base_fine/
+python3 run_squad.py 
+    --model_type bert 
+    --model_name_or_path bert-base-uncased 
+    --do_train 
+    --do_eval 
+    --overwrite_cache 
+    --do_lower_case 
+    --version_2_with_negative 
+    --train_file $SQUAD_DIR/train-v2.0.json 
+    --predict_file $SQUAD_DIR/dev-v2.0.json 
+    --per_gpu_train_batch_size 8 
+    --num_train_epochs 3 
+    --learning_rate 3e-5 
+    --max_seq_length 384 
+    --doc_stride 128 
+    --output_dir ./tmp/bert_fine/
 ```
 
+And finally [our own DistilBERT]() from an [uncased DistilBERT base](https://huggingface.co/distilbert-base-uncased).
+
 ```
-Results: {'exact': 72.35932872655479, 'f1': 75.75355132564763, 'total': 6078, 'HasAns_exact': 74.29553264604812, 'HasAns_f1': 81.38490892002987, 'HasAns_total': 2910, 'NoAns_exact': 70.58080808080808, 'NoAns_f1': 70.58080808080808, 'NoAns_total': 3168, 'best_exact': 72.35932872655479, 'best_exact_thresh': 0.0, 'best_f1': 75.75355132564766, 'best_f1_thresh': 0.0}
+python3 run_squad.py 
+    --model_type bert 
+    --model_name_or_path distilbert-base-uncased
+    --do_train 
+    --do_eval 
+    --overwrite_cache 
+    --do_lower_case 
+    --version_2_with_negative 
+    --train_file $SQUAD_DIR/train-v2.0.json 
+    --predict_file $SQUAD_DIR/dev-v2.0.json 
+    --per_gpu_train_batch_size 8 
+    --num_train_epochs 3 
+    --learning_rate 3e-5 
+    --max_seq_length 384 
+    --doc_stride 128 
+    --output_dir ./tmp/distilbert_fine/
 ```
+
+| Model                 | Exact | F1    | Exact Has Ans | F1 Has Ans | Exact No Ans | F1 No Ans |
+|-----------------------|-------|-------|---------------|------------|--------------|-----------|
+| BERT Fine-tuned       | 72.36 | 75.75 | 74.30         | 81.38      | 70.58        | 70.58     |
+| ALBERT Fine-tuned     | 78.71 | 81.89 | 75.40         | 82.04      | 81.76        | 81.76     |
+| DistilBERT Fine-tuned |       |       |               |            |              |           |
 
 ## Probes
+
+### Model prefixes
+
+At various times, we will want to reference models by their prefix in the transformers library, so a table is provided.
+
+| Model                    | Model Prefix                   |
+|-------------------------|---------------------------------|
+| ALBERT Pretrained       | albert-base-v2                  |
+| ALBERT Fine-tuned       | twmkn9/albert-base-v2-squad2    |
+| BERT Pretrained         | bert-base-uncased               |
+| BERT Fine-tuned         | twmkn9/bert-base-uncased-squad2 |
+| DistilBERT Fine-tuned   | distilbert-base-uncased         |
+| BERT Fine-tuned         | TBD                             |
+
 
 ### Probe training
 
 ```
 python3 train.py [model_prefix] [cpu/gpu] epochs
 ```
-
-| Model             | Model Prefix                    |
-|-------------------|---------------------------------|
-| ALBERT Pretrained | albert-base-v2                  |
-| ALBERT Fine-tuned | twmkn9/albert-base-v2-squad2    |
-| BERT Pretrained   | bert-base-uncased               |
-| BERT Fine-tuned   | twmkn9/bert-base-uncased-squad2 |
 
 To train probes for each layer of ALBERT Pretrained on the cpu for 1 epoch (e.g. for debugging locally):
 ```
@@ -132,3 +221,7 @@ To evaluate predictions for probes at each layer and each epoch for BERT Fine-tu
 ```
 python3 evaluate.py twmkn9/bert-base-uncased-squad2
 ```
+
+## Reproducing results
+
+Forthcoming

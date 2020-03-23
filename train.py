@@ -5,7 +5,7 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader, RandomSampler
 from tqdm import tqdm, trange
-from transformers import *
+from transformers import AutoTokenizer, DistilBertConfig, AlbertConfig, BertConfig, AutoModelForQuestionAnswering, squad_convert_examples_to_features
 from transformers.data.processors.squad import SquadV2Processor
 from probe import Probe
 

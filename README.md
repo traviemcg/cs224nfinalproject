@@ -2,7 +2,7 @@
 
 Ths project started in [CS224N: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/) at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
 
-Our paper is here TODO. This repository will walk through all steps necessary to reproduce the results.
+Our paper is here FORTHCOMING. This repository will walk through all steps necessary to reproduce the results.
 
 There are three major components to this respository:
 
@@ -189,7 +189,7 @@ At various times, we will want to reference models by their prefix in the transf
 | BERT Pretrained         | bert-base-uncased               |
 | BERT Fine-tuned         | twmkn9/bert-base-uncased-squad2 |
 | DistilBERT Fine-tuned   | distilbert-base-uncased         |
-| BERT Fine-tuned         | TBD                             |
+| BERT Fine-tuned         | FORTHCOMING                     |
 
 
 ### Probe training
@@ -234,4 +234,4 @@ python3 evaluate.py twmkn9/bert-base-uncased-squad2
 
 ## Reproducing results
 
-Forthcoming
+FORTHCOMING

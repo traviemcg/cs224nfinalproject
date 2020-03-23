@@ -174,7 +174,7 @@ def evaluate(preds_dir,
 
     for json_file in glob.glob(preds_dir + "*.json"):
 
-        layer = int(json_file[len(pred_dirs) + len("pred_layer_"):-5])
+        layer = int(json_file[len(preds_dir) + len("layer_"):-5])
         l = layer-1 # layer index is layer-1
         exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(data_path, json_file)
 

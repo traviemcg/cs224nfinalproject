@@ -200,8 +200,9 @@ if __name__ == "__main__":
     for epoch_dir in sorted(os.listdir(model_dir)):
         full_epoch_dir = model_dir + "/" + epoch_dir
         for probes_or_preds_dir in sorted(os.listdir(full_epoch_dir)):
-            probes_dir = epoch_dir + "/" + probes_or_preds_dir + "/"
-            if os.path.isdir(probes_dir) and probes_dir[-7:] == 'probes/': # confirm it's a probes dir and not preds dir
+            full_probes_or_preds_dir = model_dir + "/" + epoch_dir + "/" + probes_or_preds_dir
+            print(full_probes_or_preds_dir)
+            if os.path.isdir(full_probes_or_preds_dir ) and full_probes_or_preds_dir[-6:] == 'probes': # confirm it's a probes dir and not preds dir
                 print(probes_dir)
                 preds_dir = os.path.abspath(probes_dir+"/../preds/")
                 predict(model_prefix = model_prefix,

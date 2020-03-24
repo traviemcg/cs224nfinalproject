@@ -174,7 +174,9 @@ python3 run_squad.py
 |-----------------------|-------|-------|---------------|------------|--------------|-----------|
 | BERT Fine-tuned       | 72.36 | 75.75 | 74.30         | 81.38      | 70.58        | 70.58     |
 | ALBERT Fine-tuned     | 78.71 | 81.89 | 75.40         | 82.04      | 81.76        | 81.76     |
-| DistilBERT Fine-tuned |       |       |               |            |              |           |
+| DistilBERT Fine-tuned | 64.89 | 68.18 | 69.76         | 76.63      | 60.42        | 60.42     |
+
+Results: {'exact': 64.88976637051661, 'f1': 68.1776176526635, 'total': 6078, 'HasAns_exact': 69.7594501718213, 'HasAns_f1': 76.62665295288285, 'HasAns_total': 2910, 'NoAns_exact': 60.416666666666664, 'NoAns_f1': 60.416666666666664, 'NoAns_total': 3168, 'best_exact': 64.88976637051661, 'best_exact_thresh': 0.0, 'best_f1': 68.17761765266337, 'best_f1_thresh': 0.0}
 
 ## Probes
 
@@ -182,14 +184,14 @@ python3 run_squad.py
 
 At various times, we will want to reference models by their prefix in the transformers library, so a table is provided.
 
-| Model                    | Model Prefix                   |
-|-------------------------|---------------------------------|
-| ALBERT Pretrained       | albert-base-v2                  |
-| ALBERT Fine-tuned       | twmkn9/albert-base-v2-squad2    |
-| BERT Pretrained         | bert-base-uncased               |
-| BERT Fine-tuned         | twmkn9/bert-base-uncased-squad2 |
-| DistilBERT Fine-tuned   | distilbert-base-uncased         |
-| BERT Fine-tuned         | FORTHCOMING                     |
+| Model                    | Model Prefix                         |
+|-------------------------|---------------------------------------|
+| ALBERT Pretrained       | albert-base-v2                        |
+| ALBERT Fine-tuned       | twmkn9/albert-base-v2-squad2          |
+| BERT Pretrained         | bert-base-uncased                     |
+| BERT Fine-tuned         | twmkn9/bert-base-uncased-squad2       |
+| DistilBERT Fine-tuned   | distilbert-base-uncased               |
+| BERT Fine-tuned         | twmkn9/distilbert-base-uncased-squad2 |
 
 
 ### Probe training

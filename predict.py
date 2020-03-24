@@ -198,7 +198,8 @@ if __name__ == "__main__":
 
     # Predict using probes for each epoch directory present
     for epoch_dir in sorted(os.listdir(model_dir)):
-        for probes_or_preds_dir in sorted(os.listdir(epoch_dir)):
+        full_epoch_dir = model_dir + "/" + epoch_dir
+        for probes_or_preds_dir in sorted(os.listdir(full_epoch_dir)):
             probes_dir = epoch_dir + "/" + probes_or_preds_dir + "/"
             if os.path.isdir(probes_dir) and probes_dir[-7:] == 'probes/': # confirm it's a probes dir and not preds dir
                 print(probes_dir)

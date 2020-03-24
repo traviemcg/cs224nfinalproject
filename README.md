@@ -97,7 +97,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 16493
+    --save_steps 100000 
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -110,13 +110,14 @@ python3 run_squad.py
 
 To use the trained model again locally:
 ```
+export SQUAD_DIR=../../squad2
 python3 run_squad.py 
     --model_type albert 
     --model_name_or_path ./tmp/albert_fine/ 
     --do_eval --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 16493
+    --save_steps 100000 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
     --num_train_epochs 3 
@@ -126,9 +127,10 @@ python3 run_squad.py
     --output_dir ./tmp/albert_fine_dev/
 ```
 
-We'll also train [our own BERT]() from an [uncased BERT base](https://huggingface.co/bert-base-uncased).
+We'll also train [our own BERT](https://huggingface.co/twmkn9/bert-base-uncased-squad2) from an [uncased BERT base](https://huggingface.co/bert-base-uncased).
 
 ```
+export SQUAD_DIR=../../squad2
 python3 run_squad.py 
     --model_type bert 
     --model_name_or_path bert-base-uncased 
@@ -137,7 +139,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 16493
+    --save_steps 100000 
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -148,9 +150,10 @@ python3 run_squad.py
     --output_dir ./tmp/bert_fine/
 ```
 
-And finally [our own DistilBERT]() from an [uncased DistilBERT base](https://huggingface.co/distilbert-base-uncased).
+[Our own DistilBERT](https://huggingface.co/twmkn9/distilbert-base-uncased-squad2) from an [uncased DistilBERT base](https://huggingface.co/distilbert-base-uncased).
 
 ```
+export SQUAD_DIR=../../squad2
 python3 run_squad.py 
     --model_type distilbert 
     --model_name_or_path distilbert-base-uncased
@@ -159,7 +162,7 @@ python3 run_squad.py
     --overwrite_cache 
     --do_lower_case 
     --version_2_with_negative 
-    --save_steps 16493
+    --save_steps 100000 
     --train_file $SQUAD_DIR/train-v2.0.json 
     --predict_file $SQUAD_DIR/dev-v2.0.json 
     --per_gpu_train_batch_size 8 
@@ -168,6 +171,29 @@ python3 run_squad.py
     --max_seq_length 384 
     --doc_stride 128 
     --output_dir ./tmp/distilbert_fine/
+```
+
+[Our own DistilRoberta]() from an [DistilRoberta base](https://huggingface.co/distilroberta-base).
+
+```
+export SQUAD_DIR=../../squad2
+python3 run_squad.py 
+    --model_type robberta 
+    --model_name_or_path distilroberta-base 
+    --do_train 
+    --do_eval 
+    --overwrite_cache 
+    --do_lower_case 
+    --version_2_with_negative 
+    --save_steps 100000 
+    --train_file $SQUAD_DIR/train-v2.0.json 
+    --predict_file $SQUAD_DIR/dev-v2.0.json 
+    --per_gpu_train_batch_size 8 
+    --num_train_epochs 3 
+    --learning_rate 3e-5 
+    --max_seq_length 384 
+    --doc_stride 128 
+    --output_dir ./tmp/distilrobberta_fine/
 ```
 
 | Model                 | Exact | F1    | Exact Has Ans | F1 Has Ans | Exact No Ans | F1 No Ans |

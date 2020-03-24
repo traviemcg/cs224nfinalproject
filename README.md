@@ -223,7 +223,7 @@ At various times, we will want to reference models by their prefix in the transf
 ### Probe training
 
 ```
-python3 train.py [model_prefix] [cpu/gpu] epochs
+python3 train.py [model_prefix] [cpu/gpu] [epochs]
 ```
 
 To train probes for each layer of ALBERT Pretrained on the cpu for 1 epoch (e.g. for debugging locally):

@@ -147,21 +147,21 @@ def main(data_file, pred_file):
 
 
 def convert_preds_to_json(preds_dir):
-    for csv_file in glob.glob(preds_dir + "*.csv"):
-        prefix = csv_file[:-4]
+  for csv_file in glob.glob(preds_dir + "/*.csv"):
+    prefix = csv_file[:-4]
 
-        data = {}
-        with open(csv_file) as f:
-            r = csv.DictReader(f)
-            for row in r:
-                id = row['Id']
-                pred = row['Predicted']
-                data[id] = pred
+    data = {}
+    with open(csv_file) as f:
+      r = csv.DictReader(f)
+      for row in r:
+        id = row['Id']
+        pred = row['Predicted']
+        data[id] = pred
 
-        x = json.dumps(data)
-        f = open(prefix + ".json", "w")
-        f.write(x)
-        f.close()
+    x = json.dumps(data)
+    f = open(prefix + ".json", "w")
+    f.write(x)
+    f.close()
 
 def evaluate(preds_dir, 
              data_path, 
@@ -172,9 +172,8 @@ def evaluate(preds_dir,
     exact_no_ans, f1_no_ans = np.zeros(layers), np.zeros(layers)
     exact_has_ans, f1_has_ans = np.zeros(layers), np.zeros(layers)
 
-    for json_file in glob.glob(preds_dir + "*.json"):
-
-        layer = int(json_file[len(preds_dir) + len("layer_"):-5])
+    for json_file in glob.glob(preds_dir + "/*.json"):
+        layer = int(json_file[(len(preds_dir) + len("layer_") + 1):-5])
         l = layer-1 # layer index is layer-1
         exact[l], f1[l], exact_no_ans[l], f1_no_ans[l], exact_has_ans[l], f1_has_ans[l] = main(data_path, json_file)
 
@@ -212,13 +211,13 @@ if __name__ == '__main__':
       full_probes_or_preds_dir = model_dir + "/" + epoch_dir + "/" + probes_or_preds_dir # full path to probes or preds dir
       if os.path.isdir(full_probes_or_preds_dir) and full_probes_or_preds_dir[-6:] == 'probes': # confirm it's a probes dir
         probes_dir = full_probes_or_preds_dir
-        preds_dir = os.path.abspath(probes_dir+"/../preds/")
-        print(preds_dir)
+        preds_dir = os.path.abspath(probes_dir+"/../preds")
         
         # Convert preds dir csv files to json
         convert_preds_to_json(preds_dir=preds_dir)
         
         # Compare the created json of prediction to the data's truth
+        print(preds_dir)
         evaluate(preds_dir=preds_dir, 
                   data_path="squad2/dev-v2.0.json", 
                   layers=layers)

@@ -205,21 +205,22 @@ if __name__ == '__main__':
       layers = 12
   
   # Predict using probes for each epoch directory present
+    # Predict using probes for each epoch directory present
   for epoch_dir in sorted(os.listdir(model_dir)):
-      for probes_or_preds_dir in sorted(os.listdir(epoch_dir)):
-        probes_dir = epoch_dir + "/" + probes_or_preds_dir + "/"
-        if os.path.isdir(probes_dir) and probes_dir[-7:] == 'probes/': # confirm it's a probes dir and not preds dir
-            
-            # Find the associated preds dir
-            preds_dir = os.path.abspath(probes_dir+"/../preds/")
-            print(preds_dir)
-            
-            # Convert preds dir csv files to json
-            convert_preds_to_json(preds_dir=preds_dir)
-            
-            # Compare the created json of prediction to the data's truth
-            evaluate(preds_dir=preds_dir, 
-                     data_path="squad2/dev-v2.0.json", 
-                     layers=layers)
+    full_epoch_dir = model_dir + "/" + epoch_dir # full path to epoch dir
+    for probes_or_preds_dir in sorted(os.listdir(full_epoch_dir)):
+      full_probes_or_preds_dir = model_dir + "/" + epoch_dir + "/" + probes_or_preds_dir # full path to probes or preds dir
+      if os.path.isdir(full_probes_or_preds_dir) and full_probes_or_preds_dir[-6:] == 'probes': # confirm it's a probes dir
+        probes_dir = full_probes_or_preds_dir
+        preds_dir = os.path.abspath(probes_dir+"/../preds/")
+        print(preds_dir)
+        
+        # Convert preds dir csv files to json
+        convert_preds_to_json(preds_dir=preds_dir)
+        
+        # Compare the created json of prediction to the data's truth
+        evaluate(preds_dir=preds_dir, 
+                  data_path="squad2/dev-v2.0.json", 
+                  layers=layers)
 
-            print("")
+        print("")

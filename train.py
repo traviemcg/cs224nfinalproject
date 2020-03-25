@@ -75,8 +75,8 @@ def train(model_prefix,
                 "end_positions": batch[4],
             }
 
-            # Distilbert does not use token type ids
-            if type(config) == DistilBertConfig:
+            # Distil does not use token type ids
+            if "distil" in model_dir:
                 inputs.pop('token_type_ids')
             
             # ALBERT/BERT/Distilibert forward pass

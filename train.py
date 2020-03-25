@@ -20,10 +20,6 @@ def train(model_prefix,
           max_seq_length,
           device):
 
-    # Load the config
-    print(model_prefix)
-    config = AutoConfig.from_pretrained(model_prefix, output_hidden_states = True)
-
     # Extract examples
     tokenizer = AutoTokenizer.from_pretrained(model_prefix)
     processor = SquadV2Processor()
@@ -43,6 +39,7 @@ def train(model_prefix,
     )
 
     # Initialize model
+    config = AutoConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate

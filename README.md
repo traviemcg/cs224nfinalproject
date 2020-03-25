@@ -173,7 +173,7 @@ python3 run_squad.py
     --output_dir ./tmp/distilbert_fine/
 ```
 
-[Our own DistilRoberta]() from an [DistilRoberta base](https://huggingface.co/distilroberta-base).
+[Our own DistilRoberta](https://huggingface.co/twmkn9/distilroberta-base-squad2) from an [DistilRoberta base](https://huggingface.co/distilroberta-base).
 
 ```
 export SQUAD_DIR=../../squad2
@@ -196,14 +196,18 @@ python3 run_squad.py
     --output_dir ./tmp/distilrobberta_fine/
 ```
 
-| Model                 | Exact | F1    | Exact Has Ans | F1 Has Ans | Exact No Ans | F1 No Ans |
-|-----------------------|-------|-------|---------------|------------|--------------|-----------|
-| BERT Fine-tuned       | 72.36 | 75.75 | 74.30         | 81.38      | 70.58        | 70.58     |
-| ALBERT Fine-tuned     | 78.71 | 81.89 | 75.40         | 82.04      | 81.76        | 81.76     |
-| DistilBERT Fine-tuned | 64.89 | 68.18 | 69.76         | 76.63      | 60.42        | 60.42     |
+| Model                    | Exact | F1    | Exact Has Ans | F1 Has Ans | Exact No Ans | F1 No Ans |
+|--------------------------|-------|-------|---------------|------------|--------------|-----------|
+| BERT Fine-tuned          | 72.36 | 75.75 | 74.30         | 81.38      | 70.58        | 70.58     |
+| ALBERT Fine-tuned        | 78.71 | 81.89 | 75.40         | 82.04      | 81.76        | 81.76     |
+| DistilBERT Fine-tuned    | 64.89 | 68.18 | 69.76         | 76.63      | 60.42        | 60.42     |
+| DistilRoberta Fine-tuned | 70.93 | 74.60 | 67.63         | 75.30      | 73.96        | 73.96    |
 
 WILL DELETE ONCE MODEL CARD CREATED, DISTILBERT RESULTS:
 Results: {'exact': 64.88976637051661, 'f1': 68.1776176526635, 'total': 6078, 'HasAns_exact': 69.7594501718213, 'HasAns_f1': 76.62665295288285, 'HasAns_total': 2910, 'NoAns_exact': 60.416666666666664, 'NoAns_f1': 60.416666666666664, 'NoAns_total': 3168, 'best_exact': 64.88976637051661, 'best_exact_thresh': 0.0, 'best_f1': 68.17761765266337, 'best_f1_thresh': 0.0}
+
+DISTILROBERTA RESULTS:
+Results: {'exact': 70.9279368213228, 'f1': 74.60439802429168, 'total': 6078, 'HasAns_exact': 67.62886597938144, 'HasAns_f1': 75.30774267754136, 'HasAns_total': 2910, 'NoAns_exact': 73.95833333333333, 'NoAns_f1': 73.95833333333333, 'NoAns_total': 3168, 'best_exact': 70.94438960184272, 'best_exact_thresh': 0.0, 'best_f1': 74.62085080481161, 'best_f1_thresh': 0.0}
 
 ## Probes
 
@@ -211,14 +215,16 @@ Results: {'exact': 64.88976637051661, 'f1': 68.1776176526635, 'total': 6078, 'Ha
 
 At various times, we will want to reference models by their prefix in the transformers library, so a table is provided.
 
-| Model                    | Model Prefix                         |
-|-------------------------|---------------------------------------|
-| ALBERT Pretrained       | albert-base-v2                        |
-| ALBERT Fine-tuned       | twmkn9/albert-base-v2-squad2          |
-| BERT Pretrained         | bert-base-uncased                     |
-| BERT Fine-tuned         | twmkn9/bert-base-uncased-squad2       |
-| DistilBERT Pretrained   | distilbert-base-uncased               |
-| DistilBERT Fine-tuned   | twmkn9/distilbert-base-uncased-squad2 |
+| Model                    | Model Prefix                          |
+|--------------------------|---------------------------------------|
+| ALBERT Pretrained        | albert-base-v2                        |
+| ALBERT Fine-tuned        | twmkn9/albert-base-v2-squad2          |
+| BERT Pretrained          | bert-base-uncased                     |
+| BERT Fine-tuned          | twmkn9/bert-base-uncased-squad2       |
+| DistilBERT Pretrained    | distilbert-base-uncased               |
+| DistilBERT Fine-tuned    | twmkn9/distilbert-base-uncased-squad2 |
+| DistilRoberta Pretrained | distilroberta-base                    |
+| DistilRoberta Fine-tuned | distilroberta-base-squad2             |
 
 
 ### Probe training

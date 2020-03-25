@@ -36,15 +36,8 @@ def predict(model_prefix,
                                                                    return_dataset="pt",
                                                                    threads=1)
 
-    # Initialize ALBERT/BERT/Distilbert config
-    if "distilbert" in model_prefix:
-        config = DistilBertConfig.from_pretrained(model_prefix, output_hidden_states = True)
-    elif "albert" in model_prefix:
-        config = AlbertConfig.from_pretrained(model_prefix, output_hidden_states = True)
-    elif "bert" in model_prefix:
-        config = BertConfig.from_pretrained(model_prefix, output_hidden_states = True)
-
-    # Initialize model
+    # Initialize config and model
+    config = AutoConfig.from_pretrained(model_prefix, output_hidden_states = True)
     model = AutoModelForQuestionAnswering.from_pretrained(model_prefix, config = config)
 
     # multi-gpu evaluate
@@ -183,7 +176,7 @@ if __name__ == "__main__":
     model_dir = model_prefix.split("/")[-1]
 
     # Distilbert base has 6 layers, while BERT and ALBERT both have 12
-    if "distilbert" in model_dir:
+    if "distil" in model_dir:
         layers = 6
     else:
         layers = 12

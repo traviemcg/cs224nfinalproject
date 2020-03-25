@@ -198,7 +198,7 @@ if __name__ == '__main__':
   model_dir = model_prefix.split("/")[-1]
 
   # Distilbert base has 6 layers, while BERT and ALBERT both have 12
-  if "distilbert" in model_dir:
+  if "distil" in model_dir:
       layers = 6
   else:
       layers = 12

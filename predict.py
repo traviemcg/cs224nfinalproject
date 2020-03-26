@@ -91,8 +91,8 @@ def predict(model_prefix,
                     "token_type_ids": batch[2],
                 }
             
-            # Distilbert does not use token type ids
-            if type(config) == DistilBertConfig:
+            # Distil does not use token type ids
+            if "distil" in model_dir:
                 inputs.pop('token_type_ids')
 
             # ALBERT/BERT/Distilibert forward pass

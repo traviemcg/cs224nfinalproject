@@ -20,7 +20,7 @@ There are three major components to this respository:
     - [Probe training](#probe-training)
     - [Probe prediction](#probe-prediction)
     - [Probe evaluation](#probe-evaluation)
-4. [Reproducing results](#reproducing-results)
+4. [Results](#results)
 
 ## Setting up
 
@@ -89,8 +89,8 @@ At various times, we will want to reference models by their prefix in the transf
 
 | Model                    | Model Prefix                                                                                          |
 |--------------------------|-------------------------------------------------------------------------------------------------------|
-| ALBERT Pretrained        | [albert-base-v2](https://huggingface.co/twmkn9/albert-base-v2-squad2)                                 |
-| ALBERT Fine-tuned        | [twmkn9/albert-base-v2-squad2](https://huggingface.co/albert-base-v2)                                 |
+| ALBERT Pretrained        | [albert-base-v2](https://huggingface.co/albert-base-v2)                                               |
+| ALBERT Fine-tuned        | [twmkn9/albert-base-v2-squad2](https://huggingface.co/twmkn9/albert-base-v2-squad2)                   |
 | BERT Pretrained          | [bert-base-uncased](https://huggingface.co/bert-base-uncased)                                         |
 | BERT Fine-tuned          | [twmkn9/bert-base-uncased-squad2](https://huggingface.co/twmkn9/bert-base-uncased-squad2)             |
 | DistilBERT Pretrained    | [distilbert-base-uncased](https://huggingface.co/distilbert-base-uncased)                             |
@@ -147,6 +147,6 @@ To evaluate predictions for probes at each layer and each epoch for BERT Fine-tu
 python3 evaluate.py twmkn9/bert-base-uncased-squad2
 ```
 
-## Reproducing results
+## Results
 
-FORTHCOMING
+For the final results of our project, please check out the [paper](CS224N_Final_Report.pdf)! 

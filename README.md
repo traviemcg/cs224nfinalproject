@@ -2,7 +2,7 @@
 
 Ths project started in [CS224N: Natural Language Processing with Deep Learning](http://web.stanford.edu/class/cs224n/) at Stanford University. The goal of this project is to better understand how transformer based pretrained natural language representations hierarchically represent information through the use of softmax regression probes. 
 
-Our paper is here FORTHCOMING. This repository will walk through all steps necessary to reproduce the results.
+Our paper is [here](CS224N_Final_Report.pdf). This repository will walk through all steps necessary to reproduce the results.
 
 There are three major components to this respository:
 

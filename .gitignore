@@ -7,3 +7,11 @@ transformers-master/examples/*
 
 # Ignore Squad2.0 data
 squad2/*.json
+
+# Ignore models 
+albert-base-v2
+albert-base-v2-squad2
+bert-base-uncased
+bert-base-uncased-squad2
+distilbert-base-uncased
+distilbert-base-uncased-squad2
